@@ -548,7 +548,7 @@ impl TaskifyApp {
                 ui.label(
                     egui::RichText::new(clip_line(card.title(), text_chars))
                         .strong()
-                        .size(15.0),
+                        .size(16.0),
                 );
                 ui.label(
                     egui::RichText::new(clip_line(&self.pack_name(card.pack()), text_chars))

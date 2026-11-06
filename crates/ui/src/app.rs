@@ -1090,7 +1090,7 @@ impl TaskifyApp {
                             rect.center(),
                             egui::Align2::CENTER_CENTER,
                             letter,
-                            egui::FontId::proportional(15.0),
+                            egui::FontId::proportional(16.0),
                             self.palette().text,
                         );
                         response
@@ -1129,7 +1129,7 @@ impl TaskifyApp {
                     let level = self.engine.store.state.level;
                     ui.label(
                         egui::RichText::new(format!("Lv {level}"))
-                            .size(15.0)
+                            .size(16.0)
                             .strong()
                             .color(self.accent),
                     );
@@ -1155,7 +1155,7 @@ impl TaskifyApp {
                     self.icons.show(ui, "ui.coin", 18.0);
                     ui.label(
                         egui::RichText::new(self.engine.store.state.coins.to_string())
-                            .size(15.0)
+                            .size(16.0)
                             .strong()
                             .color(self.palette().coin),
                     )
@@ -1637,7 +1637,7 @@ impl TaskifyApp {
         let cell_height = 42.0;
         let gap = 4.0;
         let cell_width = ((ui.available_width() - gap * 6.0) / 7.0).max(56.0);
-        let font = if cell_width < 100.0 { 10.0 } else { 12.0 };
+        let font = crate::theme::MIN_FONT_SIZE;
         ui.spacing_mut().item_spacing.x = gap;
 
         ui.horizontal(|ui| {
@@ -1687,7 +1687,7 @@ impl TaskifyApp {
                         rect.center_bottom() + egui::vec2(0.0, -4.0),
                         egui::Align2::CENTER_BOTTOM,
                         format!("{}·{}", agg.xp, agg.completed),
-                        egui::FontId::proportional(9.0),
+                        egui::FontId::proportional(12.0),
                         weak,
                     );
                 }
@@ -2058,7 +2058,7 @@ impl TaskifyApp {
         if (scale - 1.0).abs() > 0.001 {
             ctx.style_mut(|style| {
                 for font in style.text_styles.values_mut() {
-                    font.size = (font.size * scale).round();
+                    font.size = crate::theme::even_font_size(font.size * scale);
                 }
             });
         }

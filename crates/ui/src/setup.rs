@@ -107,7 +107,7 @@ impl SetupApp {
                 ui.add_space(6.0);
                 ui.label(
                     egui::RichText::new(self.t("setup.subtitle"))
-                        .size(15.0)
+                        .size(16.0)
                         .weak(),
                 );
             });

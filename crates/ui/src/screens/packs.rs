@@ -228,10 +228,8 @@ impl TaskifyApp {
                                     taskify_core::task::tr_or(&manifest.description, &locale, "");
                                 if !description.is_empty() {
                                     ui.add(
-                                        egui::Label::new(
-                                            egui::RichText::new(description).small().weak(),
-                                        )
-                                        .wrap(),
+                                        egui::Label::new(egui::RichText::new(description).weak())
+                                            .wrap(),
                                     );
                                 }
                             }
@@ -391,7 +389,7 @@ impl TaskifyApp {
         if let Some(manifest) = &pack.manifest {
             let description = taskify_core::task::tr_or(&manifest.description, &locale, "");
             if !description.is_empty() {
-                ui.add(egui::Label::new(egui::RichText::new(description).small().weak()).wrap());
+                ui.add(egui::Label::new(egui::RichText::new(description).weak()).wrap());
             }
         }
         ui.add_space(8.0);
@@ -1050,17 +1048,17 @@ impl TaskifyApp {
         for (label, value) in rows {
             ui.horizontal(|ui| {
                 ui.add_sized(
-                    [180.0, 20.0],
-                    egui::Label::new(egui::RichText::new(label).small().weak()),
+                    [180.0, 22.0],
+                    egui::Label::new(egui::RichText::new(label).weak()),
                 );
-                ui.label(egui::RichText::new(value).small());
+                ui.label(value);
             });
         }
         if let Some(manifest) = &pack.manifest {
             let description = taskify_core::task::tr_or(&manifest.description, locale, "");
             if !description.is_empty() {
                 ui.add_space(6.0);
-                ui.label(egui::RichText::new(description).small());
+                ui.label(description);
             }
         }
     }

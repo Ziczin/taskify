@@ -6,6 +6,17 @@
 
 use eframe::egui;
 
+/// Минимальный кегль интерфейса.
+pub const MIN_FONT_SIZE: f32 = 12.0;
+
+/// Кегль всегда целый, чётный и не меньше 12.
+pub fn even_font_size(size: f32) -> f32 {
+    if !size.is_finite() {
+        return MIN_FONT_SIZE;
+    }
+    ((size / 2.0).round() * 2.0).max(MIN_FONT_SIZE)
+}
+
 /// Набор цветов темы.
 #[derive(Debug, Clone, Copy)]
 pub struct Palette {
@@ -217,11 +228,18 @@ impl Palette {
 
         let mut style = (*ctx.style()).clone();
         style.visuals = visuals;
-        // Базовый шрифт на 2 пункта крупнее стандартного. Берём дефолтные
-        // размеры, а не текущие: иначе при смене темы они росли бы каждый раз.
+        // Базовая шкала: только целые чётные кегли, минимум 12.
         let mut text_styles = egui::Style::default().text_styles;
-        for font_id in text_styles.values_mut() {
-            font_id.size += 2.0;
+        for (style, size) in [
+            (egui::TextStyle::Small, 12.0),
+            (egui::TextStyle::Body, 14.0),
+            (egui::TextStyle::Button, 14.0),
+            (egui::TextStyle::Heading, 20.0),
+            (egui::TextStyle::Monospace, 14.0),
+        ] {
+            if let Some(font) = text_styles.get_mut(&style) {
+                font.size = even_font_size(size);
+            }
         }
         style.text_styles = text_styles;
         style.spacing.item_spacing = egui::vec2(10.0, 10.0);
@@ -328,5 +346,37 @@ mod tests {
         let dark = Palette::dark();
         assert!(dark.dark);
         assert!(dark.bg.r() < 60, "тёмный фон не должен быть чёрным");
+    }
+
+    #[test]
+    fn applied_text_styles_are_even_and_at_least_twelve() {
+        let ctx = egui::Context::default();
+        Palette::light().apply(&ctx);
+        let styles = ctx.style().text_styles.clone();
+        for (name, font) in styles {
+            assert!(
+                font.size >= MIN_FONT_SIZE,
+                "{name:?}: {size} меньше минимума",
+                size = font.size
+            );
+            assert_eq!(
+                font.size % 2.0,
+                0.0,
+                "{name:?}: нечётный кегль {}",
+                font.size
+            );
+        }
+    }
+
+    #[test]
+    fn font_sizes_are_even_and_at_least_twelve() {
+        for raw in [0.0, 9.0, 10.5, 11.0, 13.0, 14.5, 15.0, 16.8, 19.6, 28.0] {
+            let size = even_font_size(raw);
+            assert!(size >= MIN_FONT_SIZE, "{raw} -> {size}: меньше минимума");
+            assert_eq!(size % 2.0, 0.0, "{raw} -> {size}: нечётный кегль");
+        }
+        assert_eq!(even_font_size(9.0), 12.0);
+        assert_eq!(even_font_size(14.5), 14.0);
+        assert_eq!(even_font_size(15.0), 16.0);
     }
 }

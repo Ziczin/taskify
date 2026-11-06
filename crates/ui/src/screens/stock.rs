@@ -535,7 +535,7 @@ impl TaskifyApp {
                 152.0,
                 |ui| {
                     ui.add(
-                        egui::Label::new(egui::RichText::new(&title).strong().size(15.0))
+                        egui::Label::new(egui::RichText::new(&title).strong().size(16.0))
                             .truncate(),
                     );
                     if !description.is_empty() {

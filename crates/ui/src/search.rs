@@ -107,7 +107,7 @@ pub(crate) fn show_suggestions(
                         };
                         let row = egui::Button::selectable(
                             index == *selected,
-                            egui::RichText::new(text).size(13.0),
+                            egui::RichText::new(text).size(14.0),
                         )
                         .frame(false)
                         .truncate();

@@ -146,7 +146,7 @@ impl TaskifyApp {
 
         if visible.is_empty() {
             ui.add_space(24.0);
-            ui.label(egui::RichText::new(self.t(empty_key)).weak().size(15.0));
+            ui.label(egui::RichText::new(self.t(empty_key)).weak().size(16.0));
             return;
         }
 
@@ -549,7 +549,7 @@ impl TaskifyApp {
                     // на соседнюю колонку.
                     ui.set_max_width(ui.available_width());
                     ui.horizontal_wrapped(|ui| {
-                        let mut text = egui::RichText::new(&title).size(15.0);
+                        let mut text = egui::RichText::new(&title).size(16.0);
                         if done {
                             text = text.strikethrough().weak();
                         } else {
@@ -704,7 +704,7 @@ impl TaskifyApp {
                 egui::RichText::new(reward)
                     .strong()
                     .color(accent)
-                    .size(13.0),
+                    .size(14.0),
             );
             if !done {
                 // Кнопки — отдельным рядом у нижней кромки карточки, поровну
