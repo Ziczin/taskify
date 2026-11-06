@@ -649,22 +649,6 @@ fn shell_columns(
     (left, center, right)
 }
 
-/// Боковой отступ содержимого центральной колонки: кнопки у края не должны
-/// прилипать к клипу, иначе при наведении теряется их обводка.
-const CENTER_CONTENT_PAD: f32 = 8.0;
-
-fn center_content_rect(rect: egui::Rect) -> egui::Rect {
-    let pad = CENTER_CONTENT_PAD.min((rect.width() * 0.5).max(0.0));
-    rect.shrink2(egui::vec2(pad, 0.0))
-}
-
-/// «Сегодня» — единственный экран со своим ScrollArea, поэтому его полоса
-/// прокрутки живёт в отступе справа, а не поверх последней карточки.
-fn today_content_rect(rect: egui::Rect) -> egui::Rect {
-    let pad = CENTER_CONTENT_PAD.min((rect.width() * 0.5).max(0.0));
-    egui::Rect::from_min_max(egui::pos2(rect.left() + pad, rect.top()), rect.max)
-}
-
 /// Альфа канала, умноженная на проценты: 0 — прозрачно, 100 — как было.
 fn scale_alpha(alpha: u8, percent: u8) -> u8 {
     ((alpha as u16 * percent.min(100) as u16 + 50) / 100) as u8
@@ -1828,17 +1812,8 @@ impl TaskifyApp {
             // в абсолютных прямоугольниках: ширина контента в центре больше
             // не может сдвинуть правую панель.
             let area = ui.available_rect_before_wrap();
-            let (left_rect, raw_center_rect, right_rect) =
-                shell_columns(area, 190.0, gap, rail_inset);
-            // Ширину центральной колонки уменьшаем на боковой отступ: кнопки
-            // у её края не должны прилипать к клипу и терять обводку.
-            let center_rect = center_content_rect(raw_center_rect);
-            let content_rect = if matches!(self.section, Section::Today) {
-                today_content_rect(raw_center_rect)
-            } else {
-                center_rect
-            };
-            let content_height = (content_rect.height() - 8.0).max(120.0);
+            let (left_rect, center_rect, right_rect) = shell_columns(area, 190.0, gap, rail_inset);
+            let content_height = (center_rect.height() - 8.0).max(120.0);
 
             ui.scope_builder(
                 egui::UiBuilder::new()
@@ -1854,12 +1829,12 @@ impl TaskifyApp {
             );
             ui.scope_builder(
                 egui::UiBuilder::new()
-                    .max_rect(content_rect)
+                    .max_rect(center_rect)
                     .layout(egui::Layout::top_down(egui::Align::LEFT)),
                 |ui| {
-                    ui.set_clip_rect(content_rect.intersect(ui.clip_rect()));
+                    ui.set_clip_rect(center_rect.intersect(ui.clip_rect()));
                     ui.allocate_ui_with_layout(
-                        egui::vec2(content_rect.width(), content_height),
+                        egui::vec2(center_rect.width(), content_height),
                         egui::Layout::top_down(egui::Align::LEFT),
                         |ui| {
                             let progress = self.section_progress(ui.ctx());
@@ -3019,19 +2994,6 @@ mod tests {
         let narrow = egui::Rect::from_min_size(egui::pos2(0.0, 0.0), egui::vec2(700.0, 800.0));
         let (_, _, narrow_right) = shell_columns(narrow, 190.0, 10.0, 8.0);
         assert_eq!(narrow_right.right(), narrow.right() - 8.0);
-    }
-
-    #[test]
-    fn center_content_keeps_buttons_away_from_the_clip_edges() {
-        let rect = egui::Rect::from_min_size(egui::pos2(100.0, 0.0), egui::vec2(500.0, 800.0));
-        let content = center_content_rect(rect);
-        assert_eq!(content.left(), rect.left() + 8.0);
-        assert_eq!(content.right(), rect.right() - 8.0);
-        assert_eq!(content.top(), rect.top());
-        assert_eq!(content.bottom(), rect.bottom());
-        let today = today_content_rect(rect);
-        assert_eq!(today.left(), rect.left() + 8.0);
-        assert_eq!(today.right(), rect.right());
     }
 
     #[test]
