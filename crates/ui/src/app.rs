@@ -626,7 +626,14 @@ fn shell_columns(
     area: egui::Rect,
     preferred_rail: f32,
     gap: f32,
+    side_inset: f32,
 ) -> (egui::Rect, egui::Rect, egui::Rect) {
+    // Боковые панели отступают от краёв окна на тот же зазор, что и снизу.
+    let side_inset = side_inset.max(0.0);
+    let area = egui::Rect::from_min_size(
+        egui::pos2(area.left() + side_inset, area.top()),
+        egui::vec2((area.width() - side_inset * 2.0).max(0.0), area.height()),
+    );
     let (rail, _, _) = rail_columns(area.width(), preferred_rail, gap);
     let left = egui::Rect::from_min_size(area.min, egui::vec2(rail, area.height()));
     let right = egui::Rect::from_min_size(
@@ -1794,6 +1801,7 @@ impl TaskifyApp {
         if self.wallpaper.is_some() {
             frame.fill = egui::Color32::TRANSPARENT;
         }
+        let rail_inset = frame.inner_margin.bottom as f32;
         egui::CentralPanel::default().frame(frame).show(ctx, |ui| {
             if let Some(error) = self.startup_error.clone() {
                 ui.colored_label(
@@ -1808,7 +1816,7 @@ impl TaskifyApp {
             // в абсолютных прямоугольниках: ширина контента в центре больше
             // не может сдвинуть правую панель.
             let area = ui.available_rect_before_wrap();
-            let (left_rect, center_rect, right_rect) = shell_columns(area, 190.0, gap);
+            let (left_rect, center_rect, right_rect) = shell_columns(area, 190.0, gap, rail_inset);
             let content_height = (center_rect.height() - 8.0).max(120.0);
 
             ui.scope_builder(
@@ -2975,20 +2983,20 @@ mod tests {
     }
 
     #[test]
-    fn sticker_rails_are_pinned_to_window_edges() {
+    fn sticker_rails_are_inset_from_side_edges() {
         let area = egui::Rect::from_min_size(egui::pos2(0.0, 0.0), egui::vec2(1280.0, 800.0));
-        let (left, center, right) = shell_columns(area, 190.0, 10.0);
-        assert_eq!(left.left(), area.left());
+        let (left, center, right) = shell_columns(area, 190.0, 10.0, 8.0);
+        assert_eq!(left.left(), area.left() + 8.0);
         assert_eq!(left.width(), 190.0);
-        assert_eq!(right.right(), area.right());
+        assert_eq!(right.right(), area.right() - 8.0);
         assert_eq!(right.width(), 190.0);
         assert_eq!(right.top(), area.top());
         assert_eq!(center.left(), left.right() + 10.0);
         assert_eq!(center.right(), right.left() - 10.0);
 
         let narrow = egui::Rect::from_min_size(egui::pos2(0.0, 0.0), egui::vec2(700.0, 800.0));
-        let (_, _, narrow_right) = shell_columns(narrow, 190.0, 10.0);
-        assert_eq!(narrow_right.right(), narrow.right());
+        let (_, _, narrow_right) = shell_columns(narrow, 190.0, 10.0, 8.0);
+        assert_eq!(narrow_right.right(), narrow.right() - 8.0);
     }
 
     #[test]
