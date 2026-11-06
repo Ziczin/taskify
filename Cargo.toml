@@ -8,9 +8,9 @@ members = [
 ]
 
 [workspace.package]
-# Номер сборки — 173. Cargo требует semver из трёх чисел, поэтому номер
+# Номер сборки — 174. Cargo требует semver из трёх чисел, поэтому номер
 # сборки хранится в major, а minor/patch всегда нули.
-version = "173.0.0"
+version = "174.0.0"
 edition = "2021"
 rust-version = "1.85"
 license = "MIT"

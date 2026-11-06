@@ -159,14 +159,17 @@ impl TaskifyApp {
         }
         let gap = 10.0;
         let tight = gap;
+        // Полоса прокрутки живёт в этом отступе, а не поверх крайней карточки.
+        let scroll_gutter = 14.0;
+        let grid_width = (available.x - scroll_gutter).max(160.0);
         let columns = self.settings.ui.columns.clamp(1, 6);
-        let width = ((available.x - gap * (columns - 1) as f32) / columns as f32).max(120.0);
+        let width = ((grid_width - gap * (columns - 1) as f32) / columns as f32).max(120.0);
 
         egui::ScrollArea::vertical()
             .id_salt("today_columns")
             .auto_shrink([false, false])
             .show(ui, |ui| {
-                ui.allocate_ui(egui::vec2(ui.available_width(), available.y), |ui| {
+                ui.allocate_ui(egui::vec2(grid_width, available.y), |ui| {
                     let origin = ui.cursor().min;
                     // Позиции анимируются: при смене числа колонок или фильтра
                     // карточки переезжают, а не прыгают.
