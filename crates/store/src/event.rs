@@ -260,6 +260,16 @@ pub struct StickerPlaced {
     /// Стикер перетащен вручную, позиция важнее плитки.
     #[serde(default)]
     pub moved: bool,
+    /// Пользовательский размер поверх размера из пака; в старых журналах — 1.0.
+    #[serde(default = "default_sticker_placement_scale")]
+    pub scale: f32,
+    /// Поворот вокруг центра в радианах; в старых журналах — 0.
+    #[serde(default)]
+    pub rotation: f32,
+}
+
+fn default_sticker_placement_scale() -> f32 {
+    1.0
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

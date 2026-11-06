@@ -752,15 +752,23 @@ impl Engine {
             y,
             side: Some(side.to_string()),
             moved: false,
+            scale: 1.0,
+            rotation: 0.0,
         }))?;
         Ok(())
     }
 
     /// Двигает стикер по его панели. Координаты — доли ширины и высоты.
     pub fn move_sticker(&mut self, sticker: &str, side: &str, x: f32, y: f32) -> Result<()> {
-        if !self.sticker_placed(sticker, side) {
+        let Some(placement) = self
+            .store
+            .state
+            .stickers
+            .get(&taskify_store::state::sticker_slot(side, sticker))
+            .cloned()
+        else {
             bail!("стикер не висит на этой панели");
-        }
+        };
         if !taskify_store::state::STICKER_SIDES.contains(&side) {
             bail!("неизвестная сторона: {side}");
         }
@@ -770,6 +778,37 @@ impl Engine {
             y: y.clamp(0.04, 0.96),
             side: Some(side.to_string()),
             moved: true,
+            scale: placement.scale,
+            rotation: placement.rotation,
+        }))?;
+        Ok(())
+    }
+
+    /// Меняет размер и поворот висящего стикера, не трогая его позицию.
+    pub fn transform_sticker(
+        &mut self,
+        sticker: &str,
+        side: &str,
+        scale: f32,
+        rotation: f32,
+    ) -> Result<()> {
+        let Some(placement) = self
+            .store
+            .state
+            .stickers
+            .get(&taskify_store::state::sticker_slot(side, sticker))
+            .cloned()
+        else {
+            bail!("стикер не висит на этой панели");
+        };
+        self.record(EventKind::StickerPlaced(StickerPlaced {
+            sticker: sticker.to_string(),
+            x: placement.x,
+            y: placement.y,
+            side: Some(side.to_string()),
+            moved: placement.moved,
+            scale: taskify_store::state::clamp_sticker_scale(scale),
+            rotation: taskify_store::state::normalize_sticker_rotation(rotation),
         }))?;
         Ok(())
     }

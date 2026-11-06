@@ -352,6 +352,8 @@ left = "Left"
 right = "Right"
 remove = "Remove"
 drag = "Drag to move"
+transform = "Drag a corner to resize, the top knob to rotate"
+reset = "Reset size and rotation"
 empty = "The board is empty: buy a sticker and place it here."
 
 [market]

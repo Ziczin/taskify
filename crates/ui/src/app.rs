@@ -340,6 +340,25 @@ pub struct Toast {
     pub shown_at: f64,
 }
 
+/// Что именно тянет игрок за ручку стикера.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum StickerTransformMode {
+    Scale,
+    Rotate,
+}
+
+/// Начало жеста ресайза или вращения. Значения фиксируются на первом кадре,
+/// чтобы стикер не «уползал» от накопленного за кадр дельта-смещения.
+#[derive(Debug, Clone)]
+struct StickerTransformDrag {
+    slot: String,
+    mode: StickerTransformMode,
+    start_pointer: egui::Pos2,
+    center: egui::Pos2,
+    base_scale: f32,
+    base_rotation: f32,
+}
+
 /// Ключ локализации для дня недели.
 /// Цвет варианта косметики: либо сам `value` — `#rrggbb`, либо имя в палитре пака.
 pub(crate) fn variant_color(
@@ -485,6 +504,8 @@ pub struct TaskifyApp {
     pub card_anim: std::collections::HashMap<String, egui::Vec2>,
     /// Измеренные высоты карточек: по ним колонки укладываются вплотную.
     pub card_heights: std::collections::HashMap<String, f32>,
+    /// Активный жест изменения размера или поворота стикера.
+    sticker_transform: Option<StickerTransformDrag>,
 }
 
 /// Открывает профиль, повторяя попытку: антивирус и синхронизация иногда
@@ -694,6 +715,57 @@ fn resolve_sticker_center(
 /// «Стикеры». На остальных экранах стикеры — только оформление.
 fn sticker_edit_mode(section: Section, tab: StockTab) -> bool {
     section == Section::Stock && tab == StockTab::Stickers
+}
+
+/// Поворот точки вокруг центра против часовой стрелки в экранных координатах.
+fn rotate_around(center: egui::Pos2, point: egui::Pos2, angle: f32) -> egui::Pos2 {
+    center + egui::emath::Rot2::from_angle(angle) * (point - center)
+}
+
+/// Позиции двух ручек: угол — размер, верхний кружок — поворот.
+/// Ручки живут снаружи картинки, поэтому не мешают перетаскиванию. При этом
+/// они всегда остаются внутри панели: иначе у верхнего края поворотную ручку
+/// просто не было бы видно.
+fn sticker_handle_positions(
+    panel: egui::Rect,
+    center: egui::Pos2,
+    size: egui::Vec2,
+    rotation: f32,
+) -> (egui::Pos2, egui::Pos2) {
+    let rect = egui::Rect::from_center_size(center, size);
+    let clamp = |pos: egui::Pos2| {
+        egui::pos2(
+            pos.x.clamp(panel.left() + 12.0, panel.right() - 12.0),
+            pos.y.clamp(panel.top() + 12.0, panel.bottom() - 12.0),
+        )
+    };
+    let resize = rotate_around(center, rect.right_bottom() + egui::vec2(8.0, 8.0), rotation);
+    let rotate = rotate_around(center, rect.center_top() + egui::vec2(0.0, -20.0), rotation);
+    (clamp(resize), clamp(rotate))
+}
+
+/// Новый размер при перетаскивании угла: отношение расстояний до центра.
+fn sticker_scale_from_drag(
+    base_scale: f32,
+    center: egui::Pos2,
+    start_pointer: egui::Pos2,
+    pointer: egui::Pos2,
+) -> f32 {
+    let start_distance = (start_pointer - center).length().max(8.0);
+    let distance = (pointer - center).length();
+    taskify_store::state::clamp_sticker_scale(base_scale * distance / start_distance)
+}
+
+/// Новый поворот при перетаскивании верхней ручки.
+fn sticker_rotation_from_drag(
+    base_rotation: f32,
+    center: egui::Pos2,
+    start_pointer: egui::Pos2,
+    pointer: egui::Pos2,
+) -> f32 {
+    let start_angle = (start_pointer - center).angle();
+    let angle = (pointer - center).angle();
+    taskify_store::state::normalize_sticker_rotation(base_rotation + angle - start_angle)
 }
 
 fn sticker_grid(width: f32, height: f32, count: usize) -> (usize, usize, f32) {
@@ -917,6 +989,7 @@ impl TaskifyApp {
             layout_debug: std::env::var_os("TASKIFY_LAYOUT_DEBUG").is_some(),
             card_anim: std::collections::HashMap::new(),
             card_heights: std::collections::HashMap::new(),
+            sticker_transform: None,
         };
         app.apply_look(ctx);
         app.reload_avatar(ctx);
@@ -1214,14 +1287,23 @@ impl TaskifyApp {
         let grid_enabled = editing && self.settings.ui.sticker_grid;
 
         // Копируем позиции: дальше понадобится &mut self для перетаскивания.
-        let mut slots: Vec<(String, bool, f32, f32)> = self
+        let mut slots: Vec<(String, bool, f32, f32, f32, f32)> = self
             .engine
             .store
             .state
             .stickers
             .iter()
             .filter(|(_, placement)| placement.side == side)
-            .map(|(key, placement)| (key.clone(), placement.moved, placement.x, placement.y))
+            .map(|(key, placement)| {
+                (
+                    key.clone(),
+                    placement.moved,
+                    placement.x,
+                    placement.y,
+                    placement.scale,
+                    placement.rotation,
+                )
+            })
             .collect();
         slots.sort_by(|a, b| a.3.total_cmp(&b.3).then_with(|| a.0.cmp(&b.0)));
         if slots.is_empty() {
@@ -1252,17 +1334,52 @@ impl TaskifyApp {
         let mut auto_index = 0usize;
         let mut removed: Option<String> = None;
         let mut moved_target: Option<(String, f32, f32)> = None;
+        let mut transform_target: Option<(String, f32, f32)> = None;
 
-        for (key, moved, saved_x, saved_y) in &slots {
+        for (key, moved, saved_x, saved_y, saved_scale, saved_rotation) in &slots {
             let Some((_, id)) = key.split_once(':') else {
                 continue;
             };
             let Some(sticker) = crate::stickers::find(&self.engine.packs, id) else {
                 continue;
             };
+            // Пока игрок тянет ручку, показываем живой размер/поворот, но в
+            // журнал пишем только на отпускании — иначе один жест создаст
+            // десятки событий.
+            let gesture = self
+                .sticker_transform
+                .as_ref()
+                .filter(|gesture| &gesture.slot == key)
+                .cloned();
+            let pointer = ui
+                .ctx()
+                .pointer_interact_pos()
+                .or_else(|| ui.ctx().pointer_latest_pos());
+            let mut live_scale = *saved_scale;
+            let mut live_rotation = *saved_rotation;
+            if let (Some(gesture), Some(pointer)) = (&gesture, pointer) {
+                match gesture.mode {
+                    StickerTransformMode::Scale => {
+                        live_scale = sticker_scale_from_drag(
+                            gesture.base_scale,
+                            gesture.center,
+                            gesture.start_pointer,
+                            pointer,
+                        );
+                    }
+                    StickerTransformMode::Rotate => {
+                        live_rotation = sticker_rotation_from_drag(
+                            gesture.base_rotation,
+                            gesture.center,
+                            gesture.start_pointer,
+                            pointer,
+                        );
+                    }
+                }
+            }
             // Своя PNG-картинка сохраняет пропорции: гусь может быть широким,
             // кактус — высоким, а не обязан вписываться в круг.
-            let max_side = diameter * sticker.display_scale();
+            let max_side = diameter * sticker.display_scale() * live_scale;
             let art_size = sticker
                 .image_path()
                 .and_then(|path| self.icons.file_fit(path, max_side))
@@ -1284,8 +1401,17 @@ impl TaskifyApp {
             let mut center = resolve_sticker_center(panel, rest, None, grid);
             let mut rect = egui::Rect::from_center_size(center, art_size);
             let hit = rect.intersect(panel);
-            let sense = if editing {
+            let (resize_hint, rotate_hint) =
+                sticker_handle_positions(panel, center, rect.size(), live_rotation);
+            let pointer_on_handle = pointer.is_some_and(|pointer| {
+                egui::Rect::from_center_size(resize_hint, egui::vec2(22.0, 22.0)).contains(pointer)
+                    || egui::Rect::from_center_size(rotate_hint, egui::vec2(22.0, 22.0))
+                        .contains(pointer)
+            });
+            let sense = if editing && !pointer_on_handle {
                 egui::Sense::click_and_drag()
+            } else if editing {
+                egui::Sense::click()
             } else {
                 egui::Sense::hover()
             };
@@ -1325,28 +1451,138 @@ impl TaskifyApp {
                     accent.gamma_multiply(0.35)
                 };
                 ui.painter()
-                    .circle_filled(center, art_size.x.max(art_size.y) / 2.0 + 4.0, fill);
+                    .circle_filled(center, rect.size().length() / 2.0 + 4.0, fill);
             }
             let painted_file = sticker
                 .image_path()
-                .is_some_and(|path| self.icons.paint_file(ui, path, rect));
+                .is_some_and(|path| self.icons.paint_file_rotated(ui, path, rect, live_rotation));
             if !painted_file {
-                self.icons.paint(
+                self.icons.paint_rotated(
                     ui,
                     sticker.icon_key(),
                     rect.shrink(art_size.x.min(art_size.y) * 0.22),
                     text_color,
+                    live_rotation,
                 );
             }
             let title = sticker.title(&locale);
             let hint = if editing {
-                format!("{title}\n{drag_hint}")
+                format!("{title}\n{drag_hint}\n{}", self.t("stickers.transform"))
             } else {
                 title
             };
             response.clone().on_hover_text(hint);
+            if editing
+                && (response.hovered()
+                    || response.dragged()
+                    || released
+                    || gesture.is_some()
+                    || pointer.is_some_and(|pointer| {
+                        egui::Rect::from_center_size(resize_hint, egui::vec2(22.0, 22.0))
+                            .contains(pointer)
+                            || egui::Rect::from_center_size(rotate_hint, egui::vec2(22.0, 22.0))
+                                .contains(pointer)
+                    }))
+            {
+                let (resize_pos, rotate_pos) =
+                    sticker_handle_positions(panel, center, rect.size(), live_rotation);
+                let top = rotate_around(center, rect.center_top(), live_rotation);
+                let stroke = egui::Stroke::new(1.5, accent);
+                let corners = [
+                    rect.left_top(),
+                    rect.right_top(),
+                    rect.right_bottom(),
+                    rect.left_bottom(),
+                ]
+                .map(|point| rotate_around(center, point, live_rotation));
+                ui.painter()
+                    .add(egui::Shape::closed_line(corners.to_vec(), stroke));
+                ui.painter().line_segment([top, rotate_pos], stroke);
+
+                let handle_fill = ui.visuals().extreme_bg_color;
+                ui.painter().circle_filled(rotate_pos, 7.0, handle_fill);
+                ui.painter().circle_stroke(rotate_pos, 7.0, stroke);
+                let resize_rect = egui::Rect::from_center_size(resize_pos, egui::vec2(12.0, 12.0));
+                ui.painter().rect_filled(resize_rect, 3, handle_fill);
+                ui.painter()
+                    .rect_stroke(resize_rect, 3, stroke, egui::StrokeKind::Inside);
+
+                let resize_response = ui.interact(
+                    egui::Rect::from_center_size(resize_pos, egui::vec2(22.0, 22.0)),
+                    ui.id().with(("sticker_resize", side, id)),
+                    egui::Sense::drag(),
+                );
+                let rotate_response = ui.interact(
+                    egui::Rect::from_center_size(rotate_pos, egui::vec2(22.0, 22.0)),
+                    ui.id().with(("sticker_rotate", side, id)),
+                    egui::Sense::drag(),
+                );
+
+                if resize_response.drag_started() {
+                    self.sticker_transform = Some(StickerTransformDrag {
+                        slot: key.clone(),
+                        mode: StickerTransformMode::Scale,
+                        start_pointer: ui.ctx().pointer_interact_pos().unwrap_or(resize_pos),
+                        center,
+                        base_scale: *saved_scale,
+                        base_rotation: *saved_rotation,
+                    });
+                }
+                if rotate_response.drag_started() {
+                    self.sticker_transform = Some(StickerTransformDrag {
+                        slot: key.clone(),
+                        mode: StickerTransformMode::Rotate,
+                        start_pointer: ui.ctx().pointer_interact_pos().unwrap_or(rotate_pos),
+                        center,
+                        base_scale: *saved_scale,
+                        base_rotation: *saved_rotation,
+                    });
+                }
+                if resize_response.hovered() || resize_response.dragged() {
+                    ui.ctx().set_cursor_icon(egui::CursorIcon::ResizeNwSe);
+                }
+                if rotate_response.hovered() || rotate_response.dragged() {
+                    ui.ctx().set_cursor_icon(egui::CursorIcon::Crosshair);
+                }
+                if resize_response.drag_stopped() {
+                    if let Some(gesture) = self.sticker_transform.take() {
+                        let pointer = ui
+                            .ctx()
+                            .pointer_latest_pos()
+                            .or_else(|| ui.ctx().pointer_interact_pos())
+                            .unwrap_or(resize_pos);
+                        let scale = sticker_scale_from_drag(
+                            gesture.base_scale,
+                            gesture.center,
+                            gesture.start_pointer,
+                            pointer,
+                        );
+                        transform_target = Some((id.to_string(), scale, gesture.base_rotation));
+                    }
+                }
+                if rotate_response.drag_stopped() {
+                    if let Some(gesture) = self.sticker_transform.take() {
+                        let pointer = ui
+                            .ctx()
+                            .pointer_latest_pos()
+                            .or_else(|| ui.ctx().pointer_interact_pos())
+                            .unwrap_or(rotate_pos);
+                        let rotation = sticker_rotation_from_drag(
+                            gesture.base_rotation,
+                            gesture.center,
+                            gesture.start_pointer,
+                            pointer,
+                        );
+                        transform_target = Some((id.to_string(), gesture.base_scale, rotation));
+                    }
+                }
+            }
             if editing {
                 response.context_menu(|ui| {
+                    if ui.button(self.t("stickers.reset")).clicked() {
+                        transform_target = Some((id.to_string(), 1.0, 0.0));
+                        ui.close();
+                    }
                     if ui.button(self.t("stickers.remove")).clicked() {
                         removed = Some(id.to_string());
                         ui.close();
@@ -1362,6 +1598,11 @@ impl TaskifyApp {
         }
         if let Some((id, x, y)) = moved_target {
             if let Err(error) = self.engine.move_sticker(&id, side, x, y) {
+                self.set_status(format!("{error:#}"));
+            }
+        }
+        if let Some((id, scale, rotation)) = transform_target {
+            if let Err(error) = self.engine.transform_sticker(&id, side, scale, rotation) {
                 self.set_status(format!("{error:#}"));
             }
         }
@@ -2859,6 +3100,40 @@ mod tests {
         let step = TaskifyApp::scroll_step(&mut velocity, Some(egui::vec2(30.0, 0.0)), 1.0 / 60.0);
         assert!(step.x > 0.0);
         assert_eq!(step.y, 0.0);
+    }
+
+    #[test]
+    fn sticker_scale_follows_pointer_distance_and_stays_in_limits() {
+        let center = egui::pos2(100.0, 100.0);
+        let start = egui::pos2(140.0, 100.0);
+        assert!(
+            (sticker_scale_from_drag(1.0, center, start, egui::pos2(180.0, 100.0)) - 2.0).abs()
+                < 0.001
+        );
+        assert!(
+            (sticker_scale_from_drag(1.0, center, start, egui::pos2(110.0, 100.0)) - 0.5).abs()
+                < 0.001
+        );
+        assert_eq!(
+            sticker_scale_from_drag(1.0, center, start, egui::pos2(1000.0, 100.0)),
+            taskify_store::state::STICKER_MAX_SCALE
+        );
+    }
+
+    #[test]
+    fn sticker_rotation_wraps_around_and_handles_follow_it() {
+        let center = egui::pos2(100.0, 100.0);
+        let start = egui::pos2(100.0, 60.0);
+        let rotation = sticker_rotation_from_drag(0.0, center, start, egui::pos2(140.0, 100.0));
+        assert!((rotation - std::f32::consts::FRAC_PI_2).abs() < 0.001);
+
+        let panel = egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(500.0, 500.0));
+        let (resize, rotate) =
+            sticker_handle_positions(panel, center, egui::vec2(40.0, 40.0), rotation);
+        assert!((resize.x - 72.0).abs() < 0.001);
+        assert!((resize.y - 128.0).abs() < 0.001);
+        assert!((rotate.x - 140.0).abs() < 0.001);
+        assert!((rotate.y - 100.0).abs() < 0.001);
     }
 
     #[test]

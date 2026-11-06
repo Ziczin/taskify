@@ -99,8 +99,30 @@ pub fn sticker_slot(side: &str, sticker: &str) -> String {
     format!("{side}:{sticker}")
 }
 
+/// Пределы пользовательского размера стикера поверх размера из пака.
+pub const STICKER_MIN_SCALE: f32 = 0.5;
+pub const STICKER_MAX_SCALE: f32 = 2.0;
+
+/// Безопасный размер: NaN и бесконечность не должны ломать раскладку.
+pub fn clamp_sticker_scale(scale: f32) -> f32 {
+    if scale.is_finite() {
+        scale.clamp(STICKER_MIN_SCALE, STICKER_MAX_SCALE)
+    } else {
+        1.0
+    }
+}
+
+/// Поворот в радианах, приведённый к диапазону `0..2π`.
+pub fn normalize_sticker_rotation(rotation: f32) -> f32 {
+    if rotation.is_finite() {
+        rotation.rem_euclid(std::f32::consts::TAU)
+    } else {
+        0.0
+    }
+}
+
 /// Положение стикера на боковой панели в долях её ширины и высоты.
-#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct StickerPlacement {
     pub x: f32,
     pub y: f32,
@@ -110,10 +132,33 @@ pub struct StickerPlacement {
     /// Стикер сдвинут вручную. До первого перетаскивания он лежит в плитке.
     #[serde(default)]
     pub moved: bool,
+    /// Пользовательский размер поверх `scale` из пака.
+    #[serde(default = "default_sticker_placement_scale")]
+    pub scale: f32,
+    /// Поворот картинки вокруг центра, радианы.
+    #[serde(default)]
+    pub rotation: f32,
 }
 
 fn default_side() -> String {
     "left".to_string()
+}
+
+fn default_sticker_placement_scale() -> f32 {
+    1.0
+}
+
+impl Default for StickerPlacement {
+    fn default() -> Self {
+        Self {
+            x: 0.0,
+            y: 0.0,
+            side: default_side(),
+            moved: false,
+            scale: 1.0,
+            rotation: 0.0,
+        }
+    }
 }
 
 impl Default for State {

@@ -222,6 +222,64 @@ fn sticker_can_be_moved_within_its_panel() {
 }
 
 #[test]
+fn sticker_can_be_resized_and_rotated_without_losing_position() {
+    let mut fixture = Fixture::new();
+    fixture
+        .engine
+        .store
+        .state
+        .purchased
+        .insert("sticker/star".to_string());
+    fixture.engine.place_sticker("star", "left").unwrap();
+    fixture
+        .engine
+        .move_sticker("star", "left", 0.25, 0.7)
+        .unwrap();
+    fixture
+        .engine
+        .transform_sticker("star", "left", 1.8, -0.5)
+        .unwrap();
+    let placement = fixture
+        .engine
+        .store
+        .state
+        .stickers
+        .get("left:star")
+        .unwrap();
+    assert!((placement.x - 0.25).abs() < 0.001);
+    assert!((placement.y - 0.7).abs() < 0.001);
+    assert!((placement.scale - 1.8).abs() < 0.001);
+    assert!(
+        (placement.rotation - (std::f32::consts::TAU - 0.5)).abs() < 0.001,
+        "поворот должен нормализоваться в 0..2π"
+    );
+
+    // Последующее перетаскивание не сбрасывает размер и поворот.
+    fixture
+        .engine
+        .move_sticker("star", "left", 0.4, 0.6)
+        .unwrap();
+    let placement = fixture
+        .engine
+        .store
+        .state
+        .stickers
+        .get("left:star")
+        .unwrap();
+    assert!((placement.scale - 1.8).abs() < 0.001);
+    assert!((placement.rotation - (std::f32::consts::TAU - 0.5)).abs() < 0.001);
+}
+
+#[test]
+fn sticker_transform_rejects_a_sticker_that_is_not_on_the_panel() {
+    let mut fixture = Fixture::new();
+    assert!(fixture
+        .engine
+        .transform_sticker("star", "left", 1.5, 0.0)
+        .is_err());
+}
+
+#[test]
 fn subtask_can_be_completed_once() {
     let mut fixture = Fixture::new();
     let reward = fixture

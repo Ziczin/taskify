@@ -82,17 +82,18 @@ impl Icons {
         Some(ui.add(image))
     }
 
-    /// Нарисовать PNG пака в прямоугольник, сохраняя прозрачность.
-    pub(crate) fn paint_file(&self, ui: &egui::Ui, path: &Path, rect: egui::Rect) -> bool {
+    /// Нарисовать PNG пака с поворотом вокруг центра прямоугольника.
+    pub(crate) fn paint_file_rotated(
+        &self,
+        ui: &egui::Ui,
+        path: &Path,
+        rect: egui::Rect,
+        rotation: f32,
+    ) -> bool {
         let Some(art) = self.pack_art.get(path) else {
             return false;
         };
-        ui.painter().image(
-            art.texture.id(),
-            rect,
-            egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0)),
-            Color32::WHITE,
-        );
+        paint_texture_rotated(ui, art.texture.id(), rect, rotation, Color32::WHITE);
         true
     }
 
@@ -132,19 +133,41 @@ impl Icons {
         Some(ui.add(image))
     }
 
-    /// Нарисовать иконку прямо в прямоугольник: монохромные красятся `tint`.
-    pub(crate) fn paint(&self, ui: &egui::Ui, key: &str, rect: egui::Rect, tint: Color32) {
+    /// Нарисовать иконку с поворотом вокруг центра прямоугольника.
+    pub(crate) fn paint_rotated(
+        &self,
+        ui: &egui::Ui,
+        key: &str,
+        rect: egui::Rect,
+        tint: Color32,
+        rotation: f32,
+    ) {
         let Some((handle, mono)) = self.textures.get(key) else {
             return;
         };
         let color = if *mono { tint } else { Color32::WHITE };
-        ui.painter().image(
-            handle.id(),
-            rect,
-            egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0)),
-            color,
-        );
+        paint_texture_rotated(ui, handle.id(), rect, rotation, color);
     }
+}
+
+/// Один прямоугольник текстуры, повёрнутый вокруг своего центра.
+fn paint_texture_rotated(
+    ui: &egui::Ui,
+    texture: egui::TextureId,
+    rect: egui::Rect,
+    rotation: f32,
+    color: Color32,
+) {
+    let mut mesh = egui::epaint::Mesh::with_texture(texture);
+    mesh.add_rect_with_uv(
+        rect,
+        egui::Rect::from_min_max(egui::pos2(0.0, 0.0), egui::pos2(1.0, 1.0)),
+        color,
+    );
+    if rotation.abs() > f32::EPSILON {
+        mesh.rotate(egui::emath::Rot2::from_angle(rotation), rect.center());
+    }
+    ui.painter().add(egui::Shape::mesh(mesh));
 }
 
 fn decode(bytes: &[u8]) -> Option<egui::ColorImage> {

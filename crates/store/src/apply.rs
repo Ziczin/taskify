@@ -267,6 +267,8 @@ pub fn apply(state: &mut State, aggregates: &mut Aggregates, event: &Event, rule
                     y: payload.y,
                     side,
                     moved: payload.moved,
+                    scale: crate::state::clamp_sticker_scale(payload.scale),
+                    rotation: crate::state::normalize_sticker_rotation(payload.rotation),
                 },
             );
         }
@@ -517,6 +519,8 @@ mod tests {
                 y: 0.5,
                 side: Some("left".into()),
                 moved: false,
+                scale: 1.0,
+                rotation: 0.0,
             }),
         };
         apply(&mut state, &mut aggregates, &placed, &rules);
@@ -527,6 +531,8 @@ mod tests {
                 y: 0.5,
                 side: "left".into(),
                 moved: false,
+                scale: 1.0,
+                rotation: 0.0,
             })
         );
 
@@ -542,6 +548,8 @@ mod tests {
                 y: 0.5,
                 side: Some("right".into()),
                 moved: false,
+                scale: 1.0,
+                rotation: 0.0,
             }),
         };
         apply(&mut state, &mut aggregates, &right, &rules);
@@ -575,6 +583,49 @@ mod tests {
         };
         apply(&mut state, &mut aggregates, &legacy, &rules);
         assert!(state.stickers.is_empty());
+    }
+
+    #[test]
+    fn sticker_transform_is_clamped_and_old_events_stay_identity() {
+        let rules = Rules::default();
+        let mut state = State::default();
+        let mut aggregates = Aggregates::default();
+        let transformed = Event {
+            schema: 1,
+            seq: 1,
+            id: "t1".into(),
+            ts: chrono::DateTime::parse_from_rfc3339("2024-03-10T09:00:00+04:00").unwrap(),
+            kind: EventKind::StickerPlaced(StickerPlaced {
+                sticker: "star".into(),
+                x: 0.5,
+                y: 0.5,
+                side: Some("left".into()),
+                moved: true,
+                scale: 99.0,
+                rotation: -1.0,
+            }),
+        };
+        apply(&mut state, &mut aggregates, &transformed, &rules);
+        let placement = state.stickers.get("left:star").unwrap();
+        assert!((placement.scale - crate::state::STICKER_MAX_SCALE).abs() < 0.001);
+        assert!((placement.rotation - (std::f32::consts::TAU - 1.0)).abs() < 0.001);
+
+        // Журнал до появления полей: размер 1.0, поворот 0.
+        let legacy_kind: EventKind = serde_json::from_str(
+            r#"{"type":"sticker_placed","data":{"sticker":"goose","x":0.2,"y":0.3}}"#,
+        )
+        .unwrap();
+        let legacy = Event {
+            schema: 1,
+            seq: 2,
+            id: "t2".into(),
+            ts: chrono::DateTime::parse_from_rfc3339("2024-03-10T09:01:00+04:00").unwrap(),
+            kind: legacy_kind,
+        };
+        apply(&mut state, &mut aggregates, &legacy, &rules);
+        let placement = state.stickers.get("left:goose").unwrap();
+        assert_eq!(placement.scale, 1.0);
+        assert_eq!(placement.rotation, 0.0);
     }
     #[test]
     fn started_flag_lives_until_stopped_or_done() {
