@@ -271,6 +271,43 @@ fn sticker_can_be_resized_and_rotated_without_losing_position() {
 }
 
 #[test]
+fn removed_sticker_returns_with_its_size_rotation_and_position() {
+    let mut fixture = Fixture::new();
+    fixture
+        .engine
+        .store
+        .state
+        .purchased
+        .insert("sticker/star".to_string());
+    fixture.engine.place_sticker("star", "left").unwrap();
+    fixture
+        .engine
+        .move_sticker("star", "left", 0.25, 0.7)
+        .unwrap();
+    fixture
+        .engine
+        .transform_sticker("star", "left", 3.5, 0.4)
+        .unwrap();
+
+    fixture.engine.remove_sticker("star", "left").unwrap();
+    assert!(!fixture.engine.sticker_placed("star", "left"));
+
+    fixture.engine.place_sticker("star", "left").unwrap();
+    let placement = fixture
+        .engine
+        .store
+        .state
+        .stickers
+        .get("left:star")
+        .expect("стикер должен вернуться");
+    assert!(placement.moved);
+    assert!((placement.x - 0.25).abs() < 0.001);
+    assert!((placement.y - 0.7).abs() < 0.001);
+    assert!((placement.scale - 3.5).abs() < 0.001);
+    assert!((placement.rotation - 0.4).abs() < 0.001);
+}
+
+#[test]
 fn sticker_transform_rejects_a_sticker_that_is_not_on_the_panel() {
     let mut fixture = Fixture::new();
     assert!(fixture

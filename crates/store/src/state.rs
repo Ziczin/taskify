@@ -89,6 +89,10 @@ pub struct State {
     /// позиция. Один стикер может висеть и слева, и справа.
     #[serde(default)]
     pub stickers: BTreeMap<String, StickerPlacement>,
+    /// Снятые с панели стикеры: их последняя позиция, размер и поворот.
+    /// Нужны, чтобы вернуть стикер на место в том же виде.
+    #[serde(default)]
+    pub removed_stickers: BTreeMap<String, StickerPlacement>,
 }
 
 /// Сторона, на которой висит стикер.
@@ -99,9 +103,11 @@ pub fn sticker_slot(side: &str, sticker: &str) -> String {
     format!("{side}:{sticker}")
 }
 
-/// Пределы пользовательского размера стикера поверх размера из пака.
-pub const STICKER_MIN_SCALE: f32 = 0.5;
-pub const STICKER_MAX_SCALE: f32 = 2.0;
+/// Нижняя граница пользовательского размера: защита от нуля и NaN.
+pub const STICKER_MIN_SCALE: f32 = 0.05;
+/// Верхняя граница — не художественное ограничение, а защита от чисел,
+/// которые уже нельзя нарисовать. 64× — в 32 раза больше прежних 200 %.
+pub const STICKER_MAX_SCALE: f32 = 64.0;
 
 /// Безопасный размер: NaN и бесконечность не должны ломать раскладку.
 pub fn clamp_sticker_scale(scale: f32) -> f32 {
@@ -179,6 +185,7 @@ impl Default for State {
             packs: BTreeMap::new(),
             packs_disabled: BTreeSet::new(),
             stickers: BTreeMap::new(),
+            removed_stickers: BTreeMap::new(),
         }
     }
 }

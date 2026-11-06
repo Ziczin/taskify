@@ -737,23 +737,37 @@ impl Engine {
         if self.sticker_placed(sticker, side) {
             return Ok(());
         }
+        let key = taskify_store::state::sticker_slot(side, sticker);
+        let remembered = self.store.state.removed_stickers.get(&key).cloned();
         // Порядок на панели: новый стикер встаёт вниз, позиция — доля высоты.
-        let count = self
-            .store
-            .state
-            .stickers
-            .values()
-            .filter(|placement| placement.side == side)
-            .count();
-        let y = (count as f32 + 1.0) / (count as f32 + 2.0);
+        // Если стикер уже висел здесь раньше, возвращаем его прежний вид.
+        let (x, y, moved, scale, rotation) = if let Some(placement) = remembered {
+            (
+                placement.x,
+                placement.y,
+                placement.moved,
+                placement.scale,
+                placement.rotation,
+            )
+        } else {
+            let count = self
+                .store
+                .state
+                .stickers
+                .values()
+                .filter(|placement| placement.side == side)
+                .count();
+            let y = (count as f32 + 1.0) / (count as f32 + 2.0);
+            (0.5, y, false, 1.0, 0.0)
+        };
         self.record(EventKind::StickerPlaced(StickerPlaced {
             sticker: sticker.to_string(),
-            x: 0.5,
+            x,
             y,
             side: Some(side.to_string()),
-            moved: false,
-            scale: 1.0,
-            rotation: 0.0,
+            moved,
+            scale,
+            rotation,
         }))?;
         Ok(())
     }
@@ -814,6 +828,7 @@ impl Engine {
     }
 
     /// Снимает стикер с панели; вторая панель не затрагивается.
+    /// Последняя позиция, размер и поворот запоминаются для возврата.
     pub fn remove_sticker(&mut self, sticker: &str, side: &str) -> Result<()> {
         if !self.sticker_placed(sticker, side) {
             return Ok(());

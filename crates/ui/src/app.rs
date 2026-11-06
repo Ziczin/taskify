@@ -3141,7 +3141,7 @@ mod tests {
     }
 
     #[test]
-    fn sticker_scale_follows_pointer_distance_and_stays_in_limits() {
+    fn sticker_scale_follows_pointer_distance_without_the_old_cap() {
         let center = egui::pos2(100.0, 100.0);
         let start = egui::pos2(140.0, 100.0);
         assert!(
@@ -3149,11 +3149,18 @@ mod tests {
                 < 0.001
         );
         assert!(
-            (sticker_scale_from_drag(1.0, center, start, egui::pos2(110.0, 100.0)) - 0.5).abs()
+            (sticker_scale_from_drag(1.0, center, start, egui::pos2(460.0, 100.0)) - 9.0).abs()
+                < 0.001,
+            "размер должен расти далеко за прежние 200 %"
+        );
+        assert!(
+            (sticker_scale_from_drag(1.0, center, start, egui::pos2(101.0, 100.0))
+                - taskify_store::state::STICKER_MIN_SCALE)
+                .abs()
                 < 0.001
         );
         assert_eq!(
-            sticker_scale_from_drag(1.0, center, start, egui::pos2(1000.0, 100.0)),
+            sticker_scale_from_drag(1.0, center, start, egui::pos2(2660.0, 100.0)),
             taskify_store::state::STICKER_MAX_SCALE
         );
     }
