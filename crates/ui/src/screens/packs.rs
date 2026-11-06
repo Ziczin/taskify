@@ -1045,15 +1045,27 @@ impl TaskifyApp {
                 rows.push((self.t("packs.license"), license));
             }
         }
-        for (label, value) in rows {
-            ui.horizontal(|ui| {
-                ui.add_sized(
-                    [180.0, 22.0],
-                    egui::Label::new(egui::RichText::new(label).weak()),
-                );
-                ui.label(value);
-            });
-        }
+        ui.scope(|ui| {
+            // Плотная таблица: строки идут почти вплотную, а ключи выровнены
+            // по левому краю колонки, иначе короткие подписи «плавают».
+            ui.spacing_mut().item_spacing.y = 0.0;
+            ui.spacing_mut().interact_size.y = 18.0;
+            for (label, value) in rows {
+                ui.horizontal(|ui| {
+                    // add_sized центрирует виджет внутри своей коробки, поэтому
+                    // для колонки ключей нужен явный левый layout.
+                    ui.allocate_ui_with_layout(
+                        egui::vec2(180.0, 20.0),
+                        egui::Layout::left_to_right(egui::Align::Center),
+                        |ui| {
+                            ui.set_width(180.0);
+                            ui.label(egui::RichText::new(label).weak());
+                        },
+                    );
+                    ui.label(value);
+                });
+            }
+        });
         if let Some(manifest) = &pack.manifest {
             let description = taskify_core::task::tr_or(&manifest.description, locale, "");
             if !description.is_empty() {
