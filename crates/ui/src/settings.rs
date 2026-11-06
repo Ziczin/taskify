@@ -150,13 +150,13 @@ fn base_profile(theme: &str) -> LookProfile {
     let mut extra = BTreeMap::new();
     extra.insert(
         "appearance.theme_token".to_string(),
-        "starter/theme".to_string(),
+        "greeting/theme".to_string(),
     );
-    extra.insert("starter/theme".to_string(), theme.to_string());
-    extra.insert("starter/color.background".to_string(), theme.to_string());
-    extra.insert("starter/color.accent".to_string(), "blue".to_string());
-    extra.insert("starter/font.ui".to_string(), "sans".to_string());
-    extra.insert("starter/sound.ui".to_string(), "quiet".to_string());
+    extra.insert("greeting/theme".to_string(), theme.to_string());
+    extra.insert("greeting/color.background".to_string(), theme.to_string());
+    extra.insert("greeting/color.accent".to_string(), "blue".to_string());
+    extra.insert("greeting/font.ui".to_string(), "sans".to_string());
+    extra.insert("greeting/sound.ui".to_string(), "quiet".to_string());
     LookProfile {
         theme: theme.to_string(),
         extra,
@@ -301,6 +301,49 @@ pub fn default_livespace() -> String {
 /// `theme`, но должны быть активны одновременно.
 fn cosmetic_role(key: &str) -> &str {
     key.rsplit('/').next().unwrap_or(key)
+}
+
+/// Переносит ключи стартового пака в `greeting` и убирает тестовый пак.
+fn migrate_retired_extra(
+    extra: &mut std::collections::BTreeMap<String, String>,
+    theme: &str,
+) -> bool {
+    let mut changed = false;
+    let old = std::mem::take(extra);
+    for (key, value) in old {
+        if key.starts_with("test_all/") {
+            changed = true;
+            continue;
+        }
+        let key = key
+            .strip_prefix("starter/")
+            .map(|rest| {
+                changed = true;
+                format!("greeting/{rest}")
+            })
+            .unwrap_or(key);
+        extra.insert(key, value);
+    }
+    if let Some(token) = extra.get("appearance.theme_token").cloned() {
+        let replacement = if let Some(rest) = token.strip_prefix("starter/") {
+            Some(format!("greeting/{rest}"))
+        } else if token.starts_with("test_all/") {
+            Some("greeting/theme".to_string())
+        } else {
+            None
+        };
+        if let Some(replacement) = replacement {
+            if replacement != token {
+                let is_theme = replacement == "greeting/theme";
+                extra.insert("appearance.theme_token".into(), replacement);
+                if is_theme {
+                    extra.insert("greeting/theme".into(), theme.to_string());
+                }
+                changed = true;
+            }
+        }
+    }
+    changed
 }
 
 impl Settings {
@@ -514,13 +557,39 @@ impl Settings {
                 migrated = true;
             }
         }
+        let cosmetics = settings.migrate_retired_cosmetics();
         let deduped = settings.dedupe_cosmetics();
         let bases = settings.ensure_base_profiles();
         let active = settings.detect_active_look();
-        if bases || deduped || migrated || active {
+        if bases || deduped || migrated || cosmetics || active {
             settings.save();
         }
         settings
+    }
+
+    /// Переносит косметику из удалённых стартовых паков в `greeting`.
+    /// Пользовательские паки с теми же id не трогаем: их просто не бывает.
+    fn migrate_retired_cosmetics(&mut self) -> bool {
+        let mut changed = false;
+        changed |= migrate_retired_extra(&mut self.extra, &self.ui.theme);
+        for profile in self.look_profiles.values_mut() {
+            changed |= migrate_retired_extra(&mut profile.extra, &profile.theme);
+        }
+        match self.look_bundle.take() {
+            Some(bundle) if bundle.starts_with("test_all/") => {
+                changed = true;
+            }
+            Some(bundle) => {
+                if let Some(rest) = bundle.strip_prefix("starter/") {
+                    changed = true;
+                    self.look_bundle = Some(format!("greeting/{rest}"));
+                } else {
+                    self.look_bundle = Some(bundle);
+                }
+            }
+            None => {}
+        }
+        changed
     }
 
     /// Добавляет встроенные базовые профили, если их ещё нет.
@@ -625,7 +694,7 @@ default = "D:/Sync/Taskify/default"
         assert_eq!(dark.theme, "dark");
         assert_eq!(
             dark.extra
-                .get("starter/color.background")
+                .get("greeting/color.background")
                 .map(String::as_str),
             Some("dark")
         );
@@ -762,16 +831,16 @@ default = "D:/Sync/Taskify/default"
         settings.extra.insert("accent".into(), "#111111".into());
         settings
             .extra
-            .insert("starter/font.ui".into(), "sans".into());
+            .insert("greeting/font.ui".into(), "sans".into());
 
-        settings.apply_cosmetic("starter/color.accent", "green");
+        settings.apply_cosmetic("greeting/color.accent", "green");
         settings.apply_cosmetic("beauty/color.accent", "rose");
-        settings.apply_cosmetic("starter/color.accent", "blue");
+        settings.apply_cosmetic("greeting/color.accent", "blue");
 
         assert_eq!(
             settings
                 .extra
-                .get("starter/color.accent")
+                .get("greeting/color.accent")
                 .map(String::as_str),
             Some("blue")
         );
@@ -781,7 +850,7 @@ default = "D:/Sync/Taskify/default"
             Some("#111111")
         );
         assert_eq!(
-            settings.extra.get("starter/font.ui").map(String::as_str),
+            settings.extra.get("greeting/font.ui").map(String::as_str),
             Some("sans")
         );
     }
@@ -789,13 +858,13 @@ default = "D:/Sync/Taskify/default"
     #[test]
     fn bundle_marker_is_cleared_by_base_or_manual_choice() {
         let mut settings = Settings {
-            look_bundle: Some("starter/cozy".into()),
+            look_bundle: Some("greeting/cozy".into()),
             ..Settings::default()
         };
-        settings.apply_cosmetic("starter/color.accent", "orange");
+        settings.apply_cosmetic("greeting/color.accent", "orange");
         assert!(settings.look_bundle.is_none());
 
-        settings.look_bundle = Some("starter/cozy".into());
+        settings.look_bundle = Some("greeting/cozy".into());
         settings.apply_base_theme("dark");
         assert!(settings.look_bundle.is_none());
     }
@@ -803,13 +872,13 @@ default = "D:/Sync/Taskify/default"
     #[test]
     fn theme_keeps_missing_elements_from_base() {
         let mut settings = Settings::default();
-        settings.apply_cosmetic("starter/font.ui", "serif");
-        settings.apply_cosmetic("starter/sound.ui", "chime");
+        settings.apply_cosmetic("greeting/font.ui", "serif");
+        settings.apply_cosmetic("greeting/sound.ui", "chime");
         settings.apply_cosmetic("beauty/background.image", "silk");
         settings.apply_theme_items(
             "dark",
             &[(
-                "starter/color.accent".to_string(),
+                "greeting/color.accent".to_string(),
                 "purple".to_string(),
                 "#9b7bd4".to_string(),
             )],
@@ -817,18 +886,18 @@ default = "D:/Sync/Taskify/default"
 
         assert_eq!(settings.ui.theme, "dark");
         assert_eq!(
-            settings.extra.get("starter/font.ui").map(String::as_str),
+            settings.extra.get("greeting/font.ui").map(String::as_str),
             Some("sans")
         );
         assert_eq!(
-            settings.extra.get("starter/sound.ui").map(String::as_str),
+            settings.extra.get("greeting/sound.ui").map(String::as_str),
             Some("quiet")
         );
         assert!(!settings.extra.contains_key("beauty/background.image"));
         assert_eq!(
             settings
                 .extra
-                .get("starter/color.accent")
+                .get("greeting/color.accent")
                 .map(String::as_str),
             Some("purple")
         );
@@ -842,19 +911,19 @@ default = "D:/Sync/Taskify/default"
     fn background_color_and_image_live_together_but_images_are_exclusive() {
         let mut settings = Settings::default();
         settings.extra.insert("accent".into(), "#d98fa8".into());
-        settings.apply_cosmetic("starter/color.background", "sepia");
-        settings.apply_cosmetic("starter/background.image", "paper");
-        assert!(settings.extra.contains_key("starter/color.background"));
+        settings.apply_cosmetic("greeting/color.background", "sepia");
+        settings.apply_cosmetic("greeting/background.image", "paper");
+        assert!(settings.extra.contains_key("greeting/color.background"));
         assert_eq!(
             settings
                 .extra
-                .get("starter/background.image")
+                .get("greeting/background.image")
                 .map(String::as_str),
             Some("paper")
         );
 
         settings.apply_cosmetic("beauty/background.image", "silk");
-        assert!(!settings.extra.contains_key("starter/background.image"));
+        assert!(!settings.extra.contains_key("greeting/background.image"));
         assert_eq!(
             settings
                 .extra
@@ -862,8 +931,65 @@ default = "D:/Sync/Taskify/default"
                 .map(String::as_str),
             Some("silk")
         );
-        assert!(settings.extra.contains_key("starter/color.background"));
+        assert!(settings.extra.contains_key("greeting/color.background"));
         assert!(settings.extra.contains_key("accent"));
+    }
+
+    #[test]
+    fn retired_cosmetics_move_to_greeting() {
+        let mut settings = Settings::default();
+        settings
+            .extra
+            .insert("starter/color.accent".into(), "green".into());
+        settings
+            .extra
+            .insert("test_all/font.ui".into(), "test_mono".into());
+        settings
+            .extra
+            .insert("appearance.theme_token".into(), "test_all/theme".into());
+        settings.look_bundle = Some("test_all/midnight".into());
+        let mut profile = LookProfile {
+            theme: "dark".into(),
+            ..LookProfile::default()
+        };
+        profile
+            .extra
+            .insert("starter/color.accent".into(), "blue".into());
+        profile
+            .extra
+            .insert("appearance.theme_token".into(), "starter/theme".into());
+        settings.look_profiles.insert("base.dark".into(), profile);
+
+        assert!(settings.migrate_retired_cosmetics());
+        assert_eq!(
+            settings
+                .extra
+                .get("greeting/color.accent")
+                .map(String::as_str),
+            Some("green")
+        );
+        assert!(settings.look_profiles["base.dark"]
+            .extra
+            .contains_key("greeting/color.accent"));
+        assert_eq!(
+            settings.look_profiles["base.dark"]
+                .extra
+                .get("appearance.theme_token")
+                .map(String::as_str),
+            Some("greeting/theme")
+        );
+        assert!(!settings
+            .extra
+            .keys()
+            .any(|key| key.starts_with("test_all/")));
+        assert_eq!(settings.look_bundle, None);
+        assert_eq!(
+            settings
+                .extra
+                .get("appearance.theme_token")
+                .map(String::as_str),
+            Some("greeting/theme")
+        );
     }
 
     #[test]
@@ -871,13 +997,13 @@ default = "D:/Sync/Taskify/default"
         let mut settings = Settings::default();
         settings
             .extra
-            .insert("starter/color.accent".into(), "green".into());
+            .insert("greeting/color.accent".into(), "green".into());
         settings
             .extra
             .insert("beauty/color.accent".into(), "rose".into());
         settings
             .extra
-            .insert("starter/background.image".into(), "paper".into());
+            .insert("greeting/background.image".into(), "paper".into());
         settings.extra.insert("accent".into(), "#111111".into());
         settings.dedupe_cosmetics();
         let accents = settings
@@ -886,14 +1012,14 @@ default = "D:/Sync/Taskify/default"
             .filter(|key| key.ends_with("/color.accent"))
             .count();
         assert_eq!(accents, 1);
-        assert!(settings.extra.contains_key("starter/background.image"));
+        assert!(settings.extra.contains_key("greeting/background.image"));
         assert!(settings.extra.contains_key("accent"));
     }
 
     #[test]
     fn applying_same_role_from_another_pack_replaces_it() {
         let mut settings = Settings::default();
-        settings.apply_cosmetic("starter/background.image", "paper");
+        settings.apply_cosmetic("greeting/background.image", "paper");
         settings.apply_cosmetic("beauty/background.image", "dusk");
         let images: Vec<&String> = settings
             .extra

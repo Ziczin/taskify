@@ -1,5 +1,6 @@
 id = "breath"
 category = "main"
+combos = ["hello"]
 kind = "once"
 after = "hello"
 

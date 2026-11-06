@@ -79,7 +79,7 @@ taskify export <livespace> <archiv.zip>
 
 ## Pakete
 
-Ein Paket ist ein Ordner mit `pack.toml` und Unterordnern für Aufgaben, Combos, Erfolge, Kosmetik, Bundles, Definitionen und Medien. IDs erhalten das Paketpräfix (`starter/water`). Eingebaute Pakete liegen in `assets/packs` und werden beim ersten Start installiert.
+Ein Paket ist ein Ordner mit `pack.toml` und Unterordnern für Aufgaben, Combos, Erfolge, Kosmetik, Bundles, Definitionen und Medien. IDs erhalten das Paketpräfix (`greeting/hello`). Eingebaute Pakete liegen in `assets/packs` und werden beim ersten Start installiert.
 
 ## Prüfungen
 

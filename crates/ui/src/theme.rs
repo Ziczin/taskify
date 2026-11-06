@@ -334,16 +334,10 @@ mod tests {
 
     #[test]
     fn official_theme_palettes_are_complete() {
-        let themes = [
-            (
-                "starter",
-                include_str!("../../../assets/packs/starter/cosmetics/theme.toml"),
-            ),
-            (
-                "test_all",
-                include_str!("../../../assets/packs/test_all/cosmetics/theme.toml"),
-            ),
-        ];
+        let themes = [(
+            "greeting",
+            include_str!("../../../assets/packs/greeting/cosmetics/theme.toml"),
+        )];
         let mut expected = TOKENS.to_vec();
         expected.sort_unstable();
         for (pack, raw) in themes {

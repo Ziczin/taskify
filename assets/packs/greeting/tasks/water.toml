@@ -1,5 +1,6 @@
 id = "water"
 category = "main"
+after = "note"
 
 [title]
 ru = "Выпить стакан воды"

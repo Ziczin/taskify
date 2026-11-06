@@ -38,50 +38,44 @@ impl Drop for Fixture {
 fn legacy_bundle_stickers_are_not_granted_or_priced() {
     let mut fixture = Fixture::new();
     let bundle = taskify_packs::Bundle {
-        id: "starter/legacy".into(),
+        id: "greeting/legacy".into(),
         price: 0,
         base: None,
         title: Default::default(),
         description: Default::default(),
         tokens: Vec::new(),
-        stickers: vec!["starter/coffee".into()],
+        stickers: vec!["greeting/coffee".into()],
     };
     assert_eq!(fixture.engine.bundle_full_price(&bundle), 0);
     fixture.engine.buy_bundle(&bundle).unwrap();
-    assert!(fixture.engine.bundle_owned("starter/legacy"));
-    assert!(!fixture.engine.sticker_owned("starter/coffee"));
+    assert!(fixture.engine.bundle_owned("greeting/legacy"));
+    assert!(!fixture.engine.sticker_owned("greeting/coffee"));
     assert_eq!(fixture.engine.store.state.stickers.len(), 0);
 }
 
 #[test]
 fn completing_a_task_gives_reward_and_unlocks_first_achievement() {
     let mut fixture = Fixture::new();
-    let outcome = fixture.engine.complete("starter/water").unwrap();
-    assert_eq!(outcome.awarded.xp, 10);
-    assert_eq!(outcome.awarded.coins, 2);
+    let outcome = fixture.engine.complete("greeting/hello").unwrap();
+    assert_eq!(outcome.awarded.xp, 2);
+    assert_eq!(outcome.awarded.coins, 0);
     assert!(outcome
         .achievements
-        .contains(&"starter/first_step".to_string()));
-    // Ачивки могут идти каскадом (ачивка за уровень даёт опыт и новый уровень),
-    // поэтому проверяем участие первой ачивки и рост опыта, а не точную сумму.
-    assert!(outcome
-        .achievements
-        .iter()
-        .any(|id| id == "starter/first_step"));
-    assert!(fixture.engine.store.state.xp_total > 10);
+        .contains(&"greeting/first_step".to_string()));
+    assert!(fixture.engine.store.state.xp_total > 2);
     assert!(fixture
         .engine
         .store
         .state
         .achievements
-        .contains("starter/first_step"));
+        .contains("greeting/first_step"));
 }
 
 #[test]
 fn same_task_cannot_be_completed_twice_a_day() {
     let mut fixture = Fixture::new();
-    fixture.engine.complete("starter/water").unwrap();
-    let error = fixture.engine.complete("starter/water").unwrap_err();
+    fixture.engine.complete("habits/water").unwrap();
+    let error = fixture.engine.complete("habits/water").unwrap_err();
     assert!(error.to_string().contains("уже выполнено"));
 }
 
@@ -91,14 +85,14 @@ fn completed_one_shot_never_becomes_due_again() {
     let task = fixture
         .engine
         .packs
-        .task("starter/trip")
+        .task("cleaning/choose_room")
         .cloned()
-        .expect("ваншот из стартового пака должен существовать");
+        .expect("ваншот из пака уборки должен существовать");
     let today = fixture.engine.today();
     assert!(task.is_one_shot());
     assert!(fixture.engine.is_due(&task, today));
 
-    fixture.engine.complete("starter/trip").unwrap();
+    fixture.engine.complete("cleaning/choose_room").unwrap();
 
     assert!(fixture.engine.is_spent_one_shot(&task));
     assert!(!fixture.engine.is_due(&task, today));
@@ -110,36 +104,43 @@ fn completed_one_shot_never_becomes_due_again() {
 #[test]
 fn pack_reset_clears_tasks_but_keeps_one_shots_and_optional_achievements() {
     let mut fixture = Fixture::new();
-    fixture.engine.complete("starter/water").unwrap();
-    fixture.engine.complete("starter/trip").unwrap();
-    fixture
+    for task in [
+        "greeting/hello",
+        "greeting/breath",
+        "greeting/window",
+        "greeting/note",
+        "greeting/water",
+    ] {
+        fixture.engine.complete(task).unwrap();
+    }
+    assert!(fixture
         .engine
         .store
         .state
         .combos
-        .insert("starter/morning".into(), Default::default());
+        .contains_key("greeting/hello"));
     assert!(fixture
         .engine
         .store
         .state
         .achievements
-        .contains("starter/first_step"));
+        .contains("greeting/first_step"));
 
-    let cleared = fixture.engine.reset_pack("starter", false).unwrap();
-    assert_eq!(cleared, 1);
+    let cleared = fixture.engine.reset_pack("greeting", false).unwrap();
+    assert_eq!(cleared, 1, "сброситься должна только привычка water");
     assert!(!fixture
         .engine
         .store
         .state
         .tasks
-        .contains_key("starter/water"));
+        .contains_key("greeting/water"));
     assert!(
         fixture
             .engine
             .store
             .state
             .tasks
-            .contains_key("starter/trip"),
+            .contains_key("greeting/hello"),
         "выполненный ваншот не должен сбрасываться"
     );
     assert!(fixture.engine.store.state.combos.is_empty());
@@ -149,15 +150,15 @@ fn pack_reset_clears_tasks_but_keeps_one_shots_and_optional_achievements() {
             .store
             .state
             .achievements
-            .contains("starter/first_step"),
+            .contains("greeting/first_step"),
         "ачивки сохраняются, пока их не попросили сбросить"
     );
     let log_dir = fixture.engine.store.livespace.log_dir();
     let events_before = taskify_store::log::read_all(&log_dir).unwrap().events.len();
 
-    // После сброса обычное задание снова доступно.
-    assert!(fixture.engine.complete("starter/water").is_ok());
-    fixture.engine.reset_pack("starter", true).unwrap();
+    // После сброса привычка снова доступна: предыдущие ваншоты остались выполненными.
+    assert!(fixture.engine.complete("greeting/water").is_ok());
+    fixture.engine.reset_pack("greeting", true).unwrap();
     let events_after = taskify_store::log::read_all(&log_dir).unwrap().events.len();
     assert!(
         events_after >= events_before + 2,
@@ -168,14 +169,14 @@ fn pack_reset_clears_tasks_but_keeps_one_shots_and_optional_achievements() {
         .store
         .state
         .achievements
-        .contains("starter/first_step"));
+        .contains("greeting/first_step"));
     assert!(
         fixture
             .engine
             .store
             .state
             .tasks
-            .contains_key("starter/trip"),
+            .contains_key("greeting/hello"),
         "ваншот остаётся выполненным и после сброса ачивок"
     );
 }
@@ -183,49 +184,39 @@ fn pack_reset_clears_tasks_but_keeps_one_shots_and_optional_achievements() {
 #[test]
 fn chained_task_opens_only_after_previous_completion() {
     let mut fixture = Fixture::new();
-    let mut chained = fixture
+    let chained = fixture
         .engine
         .packs
-        .task("starter/water")
+        .task("greeting/breath")
         .cloned()
-        .expect("задача из стартового пака должна существовать");
-    chained.id = "starter/chained".into();
-    chained.after = Some("starter/trip".into());
-    fixture
-        .engine
-        .packs
-        .packs
-        .get_mut("starter")
-        .unwrap()
-        .tasks
-        .insert(chained.id.clone(), chained.clone());
+        .expect("второй шаг приветствия");
     let today = fixture.engine.today();
 
     assert!(!fixture.engine.is_unlocked(&chained));
     assert!(!fixture.engine.is_due(&chained, today));
-    assert!(fixture.engine.complete("starter/chained").is_err());
-    assert!(fixture.engine.start_task("starter/chained").is_err());
+    assert!(fixture.engine.complete("greeting/breath").is_err());
+    assert!(fixture.engine.start_task("greeting/breath").is_err());
 
-    fixture.engine.complete("starter/trip").unwrap();
+    fixture.engine.complete("greeting/hello").unwrap();
 
     assert!(fixture.engine.is_unlocked(&chained));
     assert!(fixture.engine.is_due(&chained, today));
-    assert!(fixture.engine.complete("starter/chained").is_ok());
+    assert!(fixture.engine.complete("greeting/breath").is_ok());
 }
 
 #[test]
-fn three_morning_tasks_award_the_combo() {
+fn three_greeting_tasks_award_the_combo() {
     let mut fixture = Fixture::new();
     let mut combos = Vec::new();
-    for task in ["starter/water", "starter/stretch", "starter/journal"] {
+    for task in ["greeting/hello", "greeting/breath", "greeting/window"] {
         let outcome = fixture.engine.complete(task).unwrap();
         combos.extend(outcome.combos);
     }
-    assert!(combos.contains(&"starter/morning".to_string()));
+    assert!(combos.contains(&"greeting/hello".to_string()));
     let state = &fixture.engine.store.state;
     assert!(
-        state.combos["starter/morning"].awarded.contains("once")
-            || !state.combos["starter/morning"].awarded.is_empty()
+        state.combos["greeting/hello"].awarded.contains("once")
+            || !state.combos["greeting/hello"].awarded.is_empty()
     );
 }
 
@@ -234,21 +225,21 @@ fn rejection_gives_nothing_and_task_returns() {
     let mut fixture = Fixture::new();
     fixture
         .engine
-        .reject("starter/water", Some("передумал".into()))
+        .reject("habits/water", Some("передумал".into()))
         .unwrap();
     let state = &fixture.engine.store.state;
     assert_eq!(state.xp_total, 0);
     assert_eq!(state.coins, 0);
-    assert_eq!(state.tasks["starter/water"].rejected_total, 1);
+    assert_eq!(state.tasks["habits/water"].rejected_total, 1);
     assert!(!fixture
         .engine
-        .is_done_today("starter/water", fixture.engine.today()));
+        .is_done_today("habits/water", fixture.engine.today()));
 }
 
 #[test]
 fn undo_returns_reward_within_window() {
     let mut fixture = Fixture::new();
-    fixture.engine.complete("starter/water").unwrap();
+    fixture.engine.complete("habits/water").unwrap();
     let xp_after = fixture.engine.store.state.xp_total;
     assert!(xp_after > 0);
     assert!(fixture.engine.undo_last().unwrap());
@@ -260,30 +251,30 @@ fn purchase_requires_coins() {
     let mut fixture = Fixture::new();
     let error = fixture
         .engine
-        .purchase("starter/color.accent", "green")
+        .purchase("greeting/color.accent", "green")
         .unwrap_err();
     assert!(error.to_string().contains("недоступен"));
 
     fixture.engine.store.state.coins = 500;
     fixture
         .engine
-        .purchase("starter/color.accent", "green")
+        .purchase("greeting/color.accent", "green")
         .unwrap();
-    assert!(fixture.engine.owned("starter/color.accent", "green"));
+    assert!(fixture.engine.owned("greeting/color.accent", "green"));
     assert_eq!(fixture.engine.store.state.coins, 400);
 }
 
 #[test]
 fn base_cosmetics_work_with_disabled_pack() {
     let mut fixture = Fixture::new();
-    fixture.engine.set_pack_enabled("starter", false).unwrap();
+    fixture.engine.set_pack_enabled("greeting", false).unwrap();
     fixture.engine.apply_disabled_packs();
-    assert!(!fixture.engine.packs.packs["starter"].enabled);
-    assert!(fixture.engine.owned("starter/theme", "dark"));
+    assert!(!fixture.engine.packs.packs["greeting"].enabled);
+    assert!(fixture.engine.owned("greeting/theme", "dark"));
     assert_eq!(
         fixture
             .engine
-            .variant_value("starter/theme", "dark")
+            .variant_value("greeting/theme", "dark")
             .as_deref(),
         Some("dark")
     );
@@ -291,7 +282,7 @@ fn base_cosmetics_work_with_disabled_pack() {
         fixture
             .engine
             .packs
-            .token_any("starter/theme")
+            .token_any("greeting/theme")
             .map(|token| token.kind),
         Some(taskify_packs::TokenKind::Theme)
     );
@@ -300,7 +291,7 @@ fn base_cosmetics_work_with_disabled_pack() {
         .packs
         .tokens_any()
         .iter()
-        .any(|token| token.id == "starter/theme"));
+        .any(|token| token.id == "greeting/theme"));
 }
 
 #[test]
@@ -449,17 +440,17 @@ fn subtask_can_be_completed_once() {
     let mut fixture = Fixture::new();
     let reward = fixture
         .engine
-        .complete_subtask("starter/trip", "passport")
+        .complete_subtask("habits/morning", "teeth")
         .unwrap();
-    assert_eq!(reward.xp, 2);
+    assert_eq!(reward.xp, 1);
     assert!(fixture
         .engine
         .store
         .state
-        .task_ref("starter/trip")
+        .task_ref("habits/morning")
         .unwrap()
         .subtasks_done
-        .contains("passport"));
+        .contains("teeth"));
 }
 
 #[test]
@@ -474,8 +465,8 @@ fn settings_roundtrip_through_engine() {
 }
 
 #[test]
-fn welcome_pack_is_enabled_by_default_while_base_packs_stay_off() {
-    let root = crate::test_support::temp_root("welcome_default");
+fn greeting_pack_is_enabled_by_default_while_others_stay_off() {
+    let root = crate::test_support::temp_root("greeting_default");
     let mut settings = Settings::default();
     settings.paths.livespaces_dir = Some(root.join("livespaces"));
     let engine = crate::bootstrap::prepare(&settings).expect("профиль должен открыться");
@@ -486,8 +477,8 @@ fn welcome_pack_is_enabled_by_default_while_base_packs_stay_off() {
         .filter(|pack| pack.enabled)
         .map(|pack| pack.id.as_str())
         .collect();
-    assert_eq!(enabled, vec!["welcome"]);
-    assert!(engine.packs.packs.get("welcome").unwrap().tasks.len() >= 10);
+    assert_eq!(enabled, vec!["greeting"]);
+    assert_eq!(engine.packs.packs.get("greeting").unwrap().tasks.len(), 6);
     let _ = std::fs::remove_dir_all(&root);
 }
 
@@ -497,21 +488,24 @@ fn pack_state_matches_enable_and_disable_actions() {
     let mut settings = Settings::default();
     settings.paths.livespaces_dir = Some(root.join("livespaces"));
     let mut engine = crate::bootstrap::prepare(&settings).expect("профиль должен открыться");
-    assert!(engine.is_pack_disabled("starter"), "базовый пак выключен");
-    assert!(!engine.is_pack_disabled("welcome"), "обучающий пак включён");
+    assert!(
+        !engine.is_pack_disabled("greeting"),
+        "стартовый пак включён"
+    );
+    assert!(engine.is_pack_disabled("habits"), "пак привычек выключен");
 
     engine
-        .set_pack_enabled("starter", true)
+        .set_pack_enabled("habits", true)
         .expect("пак включается");
     engine.apply_disabled_packs();
-    assert!(!engine.is_pack_disabled("starter"));
-    assert!(engine.packs.packs["starter"].enabled);
+    assert!(!engine.is_pack_disabled("habits"));
+    assert!(engine.packs.packs["habits"].enabled);
 
     engine
-        .set_pack_enabled("starter", false)
+        .set_pack_enabled("habits", false)
         .expect("пак выключается");
     engine.apply_disabled_packs();
-    assert!(engine.is_pack_disabled("starter"));
-    assert!(!engine.packs.packs["starter"].enabled);
+    assert!(engine.is_pack_disabled("habits"));
+    assert!(!engine.packs.packs["habits"].enabled);
     let _ = std::fs::remove_dir_all(&root);
 }

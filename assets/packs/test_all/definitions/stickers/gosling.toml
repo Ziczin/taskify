@@ -1,7 +1,0 @@
-id = "gosling"
-image = "media/gosling.png"
-scale = 0.5
-price = 35
-[name]
-ru = "Гусёнок"
-en = "Gosling"

@@ -1,8 +1,8 @@
 schema = 1
 id = "greeting"
-version = "1.0.0"
+version = "1.1.0"
 official = true
-default_enabled = false
+default_enabled = true
 license = "CC-BY-4.0"
 locales = ["ru", "en"]
 
@@ -16,5 +16,5 @@ ru = "Приветствие"
 en = "Greeting"
 
 [description]
-ru = "Самый мягкий вход: несколько крошечных шагов и одна ежедневная привычка. Начни с одного действия — остальное подождёт."
-en = "The gentlest start: a few tiny steps and one daily habit. Begin with one action — the rest can wait."
+ru = "Одна мягкая цепочка: поздороваться, вдохнуть, открыть окно, записать мысль, выпить воды и улыбнуться. Каждый следующий шаг открывается только после предыдущего."
+en = "One gentle chain: say hello, breathe, open a window, write a thought, drink water, and smile. Each next step opens only after the previous one."

@@ -1,0 +1,16 @@
+id = "hello"
+window = "day"
+repeat = "once"
+members = ["hello", "breath", "window"]
+
+[title]
+ru = "Доброе начало"
+en = "A gentle start"
+
+[description]
+ru = "Поздороваться, вдохнуть и открыть окно в один день."
+en = "Say hello, breathe, and open a window on the same day."
+
+[bonus]
+xp = 10
+coins = 2

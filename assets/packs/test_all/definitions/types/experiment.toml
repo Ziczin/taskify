@@ -1,9 +1,0 @@
-id = "experiment"
-icon = "icon_lab"
-color = "#6f9f8f"
-[title]
-ru = "Эксперимент"
-en = "Experiment"
-[default_reward]
-xp = 12
-coins = 2

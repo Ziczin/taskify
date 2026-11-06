@@ -1,6 +1,0 @@
-id = "test_spark"
-icon = "glyph_1F9FE"
-price = 70
-[name]
-ru = "Тестовая искра"
-en = "Test spark"

@@ -79,7 +79,7 @@ taskify export <livespace> <archiwum.zip>
 
 ## Pakiety
 
-Pakiet to folder z `pack.toml` i podfolderami zadań, kombinacji, osiągnięć, kosmetyków, zestawów, definicji i multimediów. Identyfikatory otrzymują prefiks pakietu (`starter/water`). Wbudowane pakiety znajdują się w `assets/packs` i są instalowane przy pierwszym uruchomieniu.
+Pakiet to folder z `pack.toml` i podfolderami zadań, kombinacji, osiągnięć, kosmetyków, zestawów, definicji i multimediów. Identyfikatory otrzymują prefiks pakietu (`greeting/hello`). Wbudowane pakiety znajdują się w `assets/packs` i są instalowane przy pierwszym uruchomieniu.
 
 ## Testy
 

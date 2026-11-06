@@ -1,5 +1,6 @@
 id = "hello"
 category = "main"
+combos = ["hello"]
 kind = "once"
 
 [title]

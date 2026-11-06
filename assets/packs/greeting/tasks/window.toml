@@ -1,5 +1,6 @@
 id = "window"
 category = "main"
+combos = ["hello"]
 kind = "once"
 after = "breath"
 

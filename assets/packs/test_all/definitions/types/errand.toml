@@ -1,9 +1,0 @@
-id = "errand"
-icon = "icon_rocket"
-color = "#6f8fbf"
-[title]
-ru = "Поручение"
-en = "Errand"
-[default_reward]
-xp = 10
-coins = 2

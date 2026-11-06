@@ -79,7 +79,7 @@ taskify export <livespace> <archive.zip>
 
 ## Packs
 
-A pack is a folder with `pack.toml` and subfolders for tasks, combos, achievements, cosmetics, bundles, definitions, and media. IDs are namespaced by the pack (`starter/water`). Built-in packs live in `assets/packs` and are installed on first launch.
+A pack is a folder with `pack.toml` and subfolders for tasks, combos, achievements, cosmetics, bundles, definitions, and media. IDs are namespaced by the pack (`greeting/hello`). Built-in packs live in `assets/packs` and are installed on first launch.
 
 ## Checks
 

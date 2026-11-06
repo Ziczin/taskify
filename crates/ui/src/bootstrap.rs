@@ -311,14 +311,39 @@ fn pack_version(path: &Path) -> Option<(u32, u32, u32)> {
     Some((major, minor, patch))
 }
 
+/// Паки, которые были встроенными раньше и больше не поставляются.
+/// Их удаляем из профиля, чтобы после обновления не оставались старые карточки.
+const RETIRED_BUILTIN_PACKS: &[&str] = &[
+    "beauty", "focus", "gifts", "health", "home", "mind", "money", "sport", "starter", "test_all",
+    "welcome",
+];
+
+/// Удаляет устаревшие официальные паки, не трогая пользовательские папки.
+fn remove_retired_builtin_packs(root: &Path) {
+    for id in RETIRED_BUILTIN_PACKS {
+        let dir = root.join(id);
+        let manifest = dir.join("pack.toml");
+        let Ok(text) = std::fs::read_to_string(&manifest) else {
+            continue;
+        };
+        if !text.lines().any(|line| line.trim() == "official = true") {
+            continue;
+        }
+        if let Err(error) = std::fs::remove_dir_all(&dir) {
+            eprintln!("не удалось удалить устаревший пак {id}: {error}");
+        }
+    }
+}
+
 /// Ставит встроенные паки, которых нет в профиле, и обновляет официальные,
 /// если встроенная версия новее. Возвращает число добавленных и обновлённых.
 pub fn install_builtin_packs(settings: &Settings) -> Result<usize> {
     let source = packs_source();
-    if !source.join("starter").join("pack.toml").exists() {
+    if !source.join("greeting").join("pack.toml").exists() {
         anyhow::bail!("встроенные паки не найдены рядом с приложением");
     }
     let target_root = packs_dir(settings);
+    remove_retired_builtin_packs(&target_root);
     let mut installed = 0;
     for entry in std::fs::read_dir(&source).context("не удалось прочитать встроенные паки")?
     {
@@ -502,8 +527,29 @@ mod tests {
     #[test]
     fn bundled_pack_version_is_parsed() {
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../assets/packs/starter/pack.toml");
-        assert_eq!(pack_version(&path), Some((1, 5, 0)));
+            .join("../../assets/packs/greeting/pack.toml");
+        assert_eq!(pack_version(&path), Some((1, 1, 0)));
+    }
+
+    #[test]
+    fn retired_official_packs_are_removed_but_user_packs_survive() {
+        let root = crate::test_support::temp_root("retired_packs");
+        let old = root.join("starter");
+        let custom = root.join("my_pack");
+        std::fs::create_dir_all(&old).unwrap();
+        std::fs::create_dir_all(&custom).unwrap();
+        std::fs::write(old.join("pack.toml"), "id = \"starter\"\nofficial = true\n").unwrap();
+        std::fs::write(
+            custom.join("pack.toml"),
+            "id = \"my_pack\"\nofficial = false\n",
+        )
+        .unwrap();
+
+        remove_retired_builtin_packs(&root);
+
+        assert!(!old.exists(), "устаревший официальный пак должен удалиться");
+        assert!(custom.exists(), "пользовательский пак трогать нельзя");
+        let _ = std::fs::remove_dir_all(&root);
     }
 
     #[test]

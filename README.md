@@ -11,7 +11,7 @@ Taskify is a local-first life gamification app for Windows. Keep habits, repeati
 - Four task kinds: habits, repeating tasks, one-shot tasks, and checklists with subtasks.
 - Task chains: a task opens only after its predecessor has been completed at least once.
 - Pack progress can be reset without deleting history or purchases; completed one-shots stay completed.
-- Five gentle starter packs: Greeting, Cleaning, Useful Habits, Inspiration, and Socializing, built from one-action steps and story chains.
+- Five gentle packs: Greeting, Cleaning, Useful Habits, Inspiration, and Socializing, built from one-action steps and story chains.
 - Unlimited levels, daily and weekly progress, streaks, combos, and achievements.
 - Coins, a cosmetic shop, themes, accents, backgrounds, fonts, sounds, and draggable stickers.
 - Content packs in TOML: tasks, categories, tags, icons, palettes, combos, achievements, cosmetics, and bundles.
@@ -82,7 +82,7 @@ taskify export <livespace> <archive.zip>
 
 ## Packs
 
-A pack is a folder with `pack.toml` and subfolders for tasks, combos, achievements, cosmetics, bundles, definitions, and media. IDs are namespaced by the pack (`starter/water`). Built-in packs live in `assets/packs` and are installed on first launch.
+A pack is a folder with `pack.toml` and subfolders for tasks, combos, achievements, cosmetics, bundles, definitions, and media. IDs are namespaced by the pack (`greeting/hello`). Built-in packs live in `assets/packs` and are installed on first launch.
 
 ## Checks
 

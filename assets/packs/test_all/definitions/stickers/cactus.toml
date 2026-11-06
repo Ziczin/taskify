@@ -1,7 +1,0 @@
-id = "cactus"
-image = "media/cactus.png"
-scale = 0.8
-price = 60
-[name]
-ru = "Кактус"
-en = "Cactus"

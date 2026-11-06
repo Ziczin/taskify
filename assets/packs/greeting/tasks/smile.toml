@@ -1,6 +1,6 @@
 id = "smile"
 category = "main"
-level_from = 2
+after = "water"
 
 [title]
 ru = "Улыбнуться себе"

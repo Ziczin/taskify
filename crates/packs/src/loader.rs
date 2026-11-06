@@ -909,51 +909,6 @@ mod tests {
     }
 
     #[test]
-    fn test_pack_contains_every_content_kind() {
-        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../assets/packs");
-        let set = PackSet::load(&root);
-        let pack = set.packs.get("test_all").expect("тестовый пак");
-        assert!(pack.categories.len() >= 3, "мало категорий");
-        assert!(pack.tags.len() >= 3, "мало тегов");
-        assert!(pack.types.len() >= 3, "мало типов");
-        assert!(pack.icons.len() >= 3, "мало иконок");
-        assert!(pack.palette.len() >= 3, "мало палитр");
-        assert!(pack.metrics_declared.len() >= 3, "мало метрик");
-        assert!(pack.tasks.len() >= 3, "мало заданий");
-        assert!(pack.task_levels.len() >= 3, "мало уровневых рамок");
-        assert!(pack.combos.len() >= 3, "мало комбо");
-        assert!(pack.achievements.len() >= 3, "мало ачивок");
-        assert!(pack.tokens.len() >= 3, "мало видов косметики");
-        assert!(pack.stickers.len() >= 3, "мало стикеров");
-        assert!(pack.bundles.len() >= 3, "мало наборов");
-        for token in pack.tokens.values() {
-            assert!(
-                token.variants.len() >= 3,
-                "у {} меньше трёх вариантов",
-                token.id
-            );
-        }
-        assert!(pack.stickers.contains_key("test_all/test_spark"));
-        let goose = pack.stickers.get("test_all/goose").expect("гусь");
-        assert_eq!(goose.image, "media/goose.png");
-        assert_eq!(goose.scale, 1.0);
-        let goose_path = goose.image_path(&pack.root).expect("путь гуся");
-        assert!(goose_path.exists(), "нет PNG гуся");
-        let bundle = pack.bundles.get("test_all/everything").expect("набор");
-        assert!(bundle.stickers.is_empty(), "стикеры не входят в тему");
-        let achievement = pack
-            .achievements
-            .get("test_all/first_test")
-            .expect("ачивка");
-        assert_eq!(achievement.sticker.as_deref(), Some("test_all/test_dragon"));
-        let issues = crate::validate::validate_pack(pack);
-        assert!(
-            !crate::validate::has_errors(&issues),
-            "тестовый пак не проходит валидацию: {issues:?}"
-        );
-    }
-
-    #[test]
     fn missing_manifest_is_reported() {
         let root = temp_root();
         write(&root.join("broken/tasks/t.toml"), "id = \"x\"\n");

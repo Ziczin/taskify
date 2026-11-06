@@ -176,23 +176,6 @@ mod tests {
     }
 
     #[test]
-    fn pack_stickers_join_catalog() {
-        let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../assets/packs");
-        let set = taskify_packs::PackSet::load(&root);
-        let sticker = find(&set, "test_all/test_spark").expect("стикер тестового пака");
-        assert_eq!(sticker.pack, "test_all");
-        assert_eq!(sticker.price, 70);
-        let goose = find(&set, "test_all/goose").expect("гусь");
-        let path = goose.image_path().expect("у гуся своя PNG");
-        assert!(path.exists());
-        assert_eq!(goose.display_scale(), 1.0);
-        assert_eq!(find(&set, "test_all/gosling").unwrap().display_scale(), 0.5);
-        assert!(catalog_any(&set)
-            .iter()
-            .any(|item| item.id == "test_all/test_dragon"));
-    }
-
-    #[test]
     fn every_sticker_has_picture() {
         for sticker in all() {
             assert!(

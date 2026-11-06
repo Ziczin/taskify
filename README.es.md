@@ -79,7 +79,7 @@ taskify export <livespace> <archivo.zip>
 
 ## Paquetes
 
-Un paquete es una carpeta con `pack.toml` y subcarpetas para tareas, combos, logros, cosméticos, conjuntos, definiciones y multimedia. Los identificadores llevan el prefijo del paquete (`starter/water`). Los paquetes integrados están en `assets/packs` y se instalan en el primer inicio.
+Un paquete es una carpeta con `pack.toml` y subcarpetas para tareas, combos, logros, cosméticos, conjuntos, definiciones y multimedia. Los identificadores llevan el prefijo del paquete (`greeting/hello`). Los paquetes integrados están en `assets/packs` y se instalan en el primer inicio.
 
 ## Comprobaciones
 
