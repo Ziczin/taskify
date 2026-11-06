@@ -60,11 +60,10 @@ impl TaskifyApp {
                     ui.set_width(196.0);
                     for (tab, label) in &tabs {
                         let selected = self.settings_tab == *tab;
-                        if crate::app::tab_label_sized(
+                        if crate::app::centered_button(
                             ui,
-                            selected,
-                            label,
-                            Some(egui::vec2(188.0, 34.0)),
+                            egui::vec2(188.0, 34.0),
+                            egui::Button::new(label).selected(selected),
                         )
                         .clicked()
                         {

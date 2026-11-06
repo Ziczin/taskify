@@ -183,7 +183,7 @@ impl TaskifyApp {
             .collect();
         ui.horizontal_wrapped(|ui| {
             for (tab, label) in &labels {
-                if crate::app::tab_label(ui, self.stock_tab == *tab, label).clicked() {
+                if ui.selectable_label(self.stock_tab == *tab, label).clicked() {
                     self.stock_tab = *tab;
                     self.start_tab_transition(ui.ctx());
                 }
@@ -326,7 +326,7 @@ impl TaskifyApp {
             .collect();
         ui.horizontal_wrapped(|ui| {
             for (group, label) in &labels {
-                if crate::app::tab_label(ui, selected == *group, label).clicked() {
+                if ui.selectable_label(selected == *group, label).clicked() {
                     self.stock_cosmetic_group = (*group).to_string();
                 }
             }

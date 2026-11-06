@@ -118,7 +118,7 @@ impl TaskifyApp {
             ];
             for (tab, label, count) in tabs {
                 let text = format!("{label} ({count})");
-                let clicked = crate::app::tab_label(ui, self.today_tab == tab, text).clicked();
+                let clicked = ui.selectable_label(self.today_tab == tab, text).clicked();
                 if clicked && self.today_tab != tab {
                     self.today_tab = tab;
                     // Анимация относится только к контейнеру карточек.

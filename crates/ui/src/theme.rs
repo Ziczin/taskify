@@ -59,7 +59,7 @@ fn rgb(hex: &str) -> egui::Color32 {
 /// отцентрированы своими метриками.
 pub fn font_tweak(family: &str) -> egui::FontTweak {
     let y_offset_factor = if family.eq_ignore_ascii_case("Consolas") {
-        0.10
+        0.15
     } else {
         0.0
     };
@@ -71,6 +71,12 @@ pub fn font_tweak(family: &str) -> egui::FontTweak {
 
 /// Подключает шрифт из системы, если он есть: остальные остаются как были.
 pub fn apply_font(ctx: &egui::Context, family: &str) {
+    // «Без засечек» — это встроенный Noto Sans. Возврат к нему должен
+    // пересобрать шрифты, иначе после Consolas/Georgia останется старый.
+    if !family.eq_ignore_ascii_case("Consolas") && !family.eq_ignore_ascii_case("Georgia") {
+        crate::app::install_fonts(ctx);
+        return;
+    }
     let candidates: &[&str] = match family {
         "Georgia" => &["georgia.ttf", "georgiab.ttf"],
         "Consolas" => &["consola.ttf", "consolab.ttf"],

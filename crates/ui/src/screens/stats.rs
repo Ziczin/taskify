@@ -126,7 +126,7 @@ impl TaskifyApp {
         ui.horizontal(|ui| {
             for tab in StatsTab::ALL {
                 let selected = self.stats_tab == tab;
-                if crate::app::tab_label(ui, selected, self.t(tab.key())).clicked() {
+                if ui.selectable_label(selected, self.t(tab.key())).clicked() {
                     self.stats_tab = tab;
                 }
             }
