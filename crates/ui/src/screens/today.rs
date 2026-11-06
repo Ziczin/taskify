@@ -416,6 +416,10 @@ impl TaskifyApp {
     }
 
     fn task_matches(&self, task: &Task, date: chrono::NaiveDate) -> bool {
+        // Выполненный ваншот исчезает целиком, даже из вкладки «Сделано».
+        if self.engine.is_spent_one_shot(task) {
+            return false;
+        }
         let done = self.engine.is_done_today(&task.id, date);
         let rejected = self.engine.is_rejected_today(&task.id, date);
         if !self.engine.is_due(task, date) && !done && !rejected {

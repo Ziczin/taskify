@@ -86,6 +86,28 @@ fn same_task_cannot_be_completed_twice_a_day() {
 }
 
 #[test]
+fn completed_one_shot_never_becomes_due_again() {
+    let mut fixture = Fixture::new();
+    let task = fixture
+        .engine
+        .packs
+        .task("starter/trip")
+        .cloned()
+        .expect("ваншот из стартового пака должен существовать");
+    let today = fixture.engine.today();
+    assert!(task.is_one_shot());
+    assert!(fixture.engine.is_due(&task, today));
+
+    fixture.engine.complete("starter/trip").unwrap();
+
+    assert!(fixture.engine.is_spent_one_shot(&task));
+    assert!(!fixture.engine.is_due(&task, today));
+    assert!(!fixture
+        .engine
+        .is_due(&task, today + chrono::Duration::days(1)));
+}
+
+#[test]
 fn three_morning_tasks_award_the_combo() {
     let mut fixture = Fixture::new();
     let mut combos = Vec::new();

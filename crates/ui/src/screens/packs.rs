@@ -1123,7 +1123,7 @@ fn schedule_text(task: &taskify_core::task::Task, locale: &str) -> Option<String
                 "every N days"
             }
         )),
-        Schedule::Once => Some(if russian { "один раз" } else { "once" }.to_string()),
+        Schedule::Once => Some(if russian { "ваншот" } else { "one-shot" }.to_string()),
         Schedule::Manual => Some(if russian { "вручную" } else { "manual" }.to_string()),
     }
 }

@@ -32,7 +32,8 @@ pub enum Kind {
     Habit,
     /// Раз в N дней.
     Repeat,
-    /// Один раз.
+    /// Ваншот: выполняется один раз и больше не появляется.
+    #[serde(alias = "one_shot", alias = "oneshot")]
     Once,
 }
 
@@ -55,6 +56,7 @@ pub enum Schedule {
     /// Появляется раз в `days` дней.
     Interval { days: u32 },
     /// Появляется один раз, без даты.
+    #[serde(alias = "one_shot", alias = "oneshot")]
     Once,
     /// Не появляется сама, только вручную.
     Manual,
@@ -223,6 +225,11 @@ impl Task {
         }
     }
 
+    /// Ваншот: задание выполняется ровно один раз и после этого исчезает.
+    pub fn is_one_shot(&self) -> bool {
+        self.kind == Kind::Once || self.schedule == Schedule::Once
+    }
+
     /// Текущий id или один из прежних.
     pub fn id_in_use(&self, id: &str) -> bool {
         self.id == id || self.former_ids.iter().any(|former| former == id)
@@ -361,6 +368,17 @@ mod tests {
             .validate()
             .iter()
             .any(|e| matches!(e, TaskError::IntervalDaysZero)));
+    }
+
+    #[test]
+    fn once_kind_or_schedule_marks_a_one_shot() {
+        let mut task = sample();
+        assert!(!task.is_one_shot());
+        task.kind = Kind::Once;
+        assert!(task.is_one_shot());
+        task.kind = Kind::Repeat;
+        task.schedule = Schedule::Once;
+        assert!(task.is_one_shot());
     }
 
     #[test]

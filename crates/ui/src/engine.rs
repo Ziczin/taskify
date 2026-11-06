@@ -157,6 +157,17 @@ impl Engine {
             .unwrap_or(false)
     }
 
+    /// Ваншот уже выполнен когда-либо и больше не должен показываться.
+    pub fn is_spent_one_shot(&self, task: &Task) -> bool {
+        task.is_one_shot()
+            && self
+                .store
+                .state
+                .task_ref(&task.id)
+                .and_then(|state| state.last_done)
+                .is_some()
+    }
+
     /// Задание взято в работу в этот день.
     pub fn is_started(&self, task_id: &str, date: NaiveDate) -> bool {
         self.store
@@ -197,6 +208,12 @@ impl Engine {
             return true;
         };
         if state.last_done == Some(date) {
+            return false;
+        }
+        // Ваншот не возвращается ни на следующий день, ни позже. Проверяем
+        // именно факт выполнения, а не только расписание: тип задания тоже
+        // может делать его однократным.
+        if task.is_one_shot() && state.last_done.is_some() {
             return false;
         }
         match task.schedule {

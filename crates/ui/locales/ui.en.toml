@@ -95,7 +95,7 @@ streak = "Streak"
 reward = "Reward"
 habit = "Habit"
 repeat = "Repeat"
-once = "Once"
+once = "One-shot"
 
 [week]
 title = "Week"
