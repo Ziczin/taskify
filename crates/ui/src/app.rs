@@ -2001,7 +2001,7 @@ impl TaskifyApp {
                 ui.label(format!(
                     "{} {}",
                     self.t("app.title"),
-                    env!("CARGO_PKG_VERSION")
+                    env!("CARGO_PKG_VERSION_MAJOR")
                 ));
                 ui.label(self.t("about.text"));
                 ui.separator();

@@ -57,10 +57,7 @@ pub fn run(args: Vec<String>) -> Result<()> {
     match command {
         "help" | "-h" | "--help" => help(),
         "version" | "-V" | "--version" => {
-            println!("taskify {}", env!("CARGO_PKG_VERSION"));
-            println!("core    {}", taskify_core::version());
-            println!("store   {}", taskify_store::version());
-            println!("packs   {}", taskify_packs::version());
+            println!("taskify {}", env!("CARGO_PKG_VERSION_MAJOR"));
         }
         "packs" => {
             let root = data_root(args.get(1));

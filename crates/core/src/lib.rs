@@ -11,9 +11,9 @@ pub use metrics::{MetricEffect, MetricOp};
 pub use reward::{award, Milestone, MilestoneHit, Reward};
 pub use task::{tr, HintCost, Hints, Kind, Locales, Schedule, Subtask, Task, TaskSnapshot};
 
-/// Версия крейта, видна в «О программе».
+/// Номер сборки крейта, виден в «О программе».
 pub fn version() -> &'static str {
-    env!("CARGO_PKG_VERSION")
+    env!("CARGO_PKG_VERSION_MAJOR")
 }
 
 #[cfg(test)]

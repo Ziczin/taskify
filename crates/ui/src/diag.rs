@@ -12,12 +12,12 @@ const LOG_NAME: &str = "taskify-startup.log";
 
 static DESTINATION: OnceLock<Option<PathBuf>> = OnceLock::new();
 
-/// Пишет шапку: версия, пути, пользователь, переменные окружения.
+/// Пишет шапку: номер сборки, пути, пользователь, переменные окружения.
 pub fn init() {
     write(&format!(
         "=== {} taskify {} pid={} exe={} cwd={} user={}",
         chrono::Local::now().to_rfc3339(),
-        env!("CARGO_PKG_VERSION"),
+        env!("CARGO_PKG_VERSION_MAJOR"),
         std::process::id(),
         std::env::current_exe()
             .map(|path| path.display().to_string())

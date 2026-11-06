@@ -16,7 +16,7 @@ pub use manifest::{Manifest, Progression, PACK_SCHEMA};
 pub use validate::{format_issue, has_errors, validate_pack, validate_set};
 
 pub fn version() -> &'static str {
-    env!("CARGO_PKG_VERSION")
+    env!("CARGO_PKG_VERSION_MAJOR")
 }
 
 #[cfg(test)]

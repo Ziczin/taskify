@@ -20,7 +20,7 @@ pub use state::{State, StickerPlacement};
 pub use store::Store;
 
 pub fn version() -> &'static str {
-    env!("CARGO_PKG_VERSION")
+    env!("CARGO_PKG_VERSION_MAJOR")
 }
 
 #[cfg(test)]
