@@ -89,10 +89,6 @@ pub struct State {
     /// позиция. Один стикер может висеть и слева, и справа.
     #[serde(default)]
     pub stickers: BTreeMap<String, StickerPlacement>,
-    /// Снятые с панели стикеры: их последняя позиция, размер и поворот.
-    /// Нужны, чтобы вернуть стикер на место в том же виде.
-    #[serde(default)]
-    pub removed_stickers: BTreeMap<String, StickerPlacement>,
 }
 
 /// Сторона, на которой висит стикер.
@@ -185,7 +181,6 @@ impl Default for State {
             packs: BTreeMap::new(),
             packs_disabled: BTreeSet::new(),
             stickers: BTreeMap::new(),
-            removed_stickers: BTreeMap::new(),
         }
     }
 }

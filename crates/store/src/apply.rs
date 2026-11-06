@@ -262,7 +262,7 @@ pub fn apply(state: &mut State, aggregates: &mut Aggregates, event: &Event, rule
             let side = payload.side.as_deref().unwrap_or("left").to_string();
             let key = crate::state::sticker_slot(&side, &payload.sticker);
             state.stickers.insert(
-                key.clone(),
+                key,
                 StickerPlacement {
                     x: payload.x,
                     y: payload.y,
@@ -272,21 +272,16 @@ pub fn apply(state: &mut State, aggregates: &mut Aggregates, event: &Event, rule
                     rotation: crate::state::normalize_sticker_rotation(payload.rotation),
                 },
             );
-            state.removed_stickers.remove(&key);
         }
         EventKind::StickerRemoved(payload) => match payload.side.as_deref() {
             Some(side) => {
                 let key = crate::state::sticker_slot(side, &payload.sticker);
-                if let Some(placement) = state.stickers.remove(&key) {
-                    state.removed_stickers.insert(key, placement);
-                }
+                state.stickers.remove(&key);
             }
             None => {
                 for side in crate::state::STICKER_SIDES {
                     let key = crate::state::sticker_slot(side, &payload.sticker);
-                    if let Some(placement) = state.stickers.remove(&key) {
-                        state.removed_stickers.insert(key, placement);
-                    }
+                    state.stickers.remove(&key);
                 }
             }
         },

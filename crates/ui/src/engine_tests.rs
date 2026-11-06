@@ -271,7 +271,7 @@ fn sticker_can_be_resized_and_rotated_without_losing_position() {
 }
 
 #[test]
-fn removed_sticker_returns_with_its_size_rotation_and_position() {
+fn removed_sticker_returns_with_default_position_size_and_rotation() {
     let mut fixture = Fixture::new();
     fixture
         .engine
@@ -300,11 +300,11 @@ fn removed_sticker_returns_with_its_size_rotation_and_position() {
         .stickers
         .get("left:star")
         .expect("стикер должен вернуться");
-    assert!(placement.moved);
-    assert!((placement.x - 0.25).abs() < 0.001);
-    assert!((placement.y - 0.7).abs() < 0.001);
-    assert!((placement.scale - 3.5).abs() < 0.001);
-    assert!((placement.rotation - 0.4).abs() < 0.001);
+    assert!(!placement.moved, "стикер возвращается как новый");
+    assert!((placement.x - 0.5).abs() < 0.001);
+    assert!((placement.y - 0.5).abs() < 0.001);
+    assert!((placement.scale - 1.0).abs() < 0.001);
+    assert!(placement.rotation.abs() < 0.001);
 }
 
 #[test]
