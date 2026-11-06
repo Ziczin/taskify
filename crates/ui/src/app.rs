@@ -744,6 +744,12 @@ fn sticker_handle_positions(
     (clamp(resize), clamp(rotate))
 }
 
+/// Радиус ареола: по большей стороне картинки плюс четыре пикселя.
+/// Диагональ здесь не подходит — у широких стикеров она даёт огромный круг.
+fn sticker_aura_radius(size: egui::Vec2) -> f32 {
+    size.x.max(size.y) / 2.0 + 4.0
+}
+
 /// Новый размер при перетаскивании угла: отношение расстояний до центра.
 fn sticker_scale_from_drag(
     base_scale: f32,
@@ -1445,13 +1451,15 @@ impl TaskifyApp {
                     ui.ctx().set_cursor_icon(egui::CursorIcon::Grab);
                 }
                 // Ареол — признак редактируемой доски; вне склада его нет.
+                // Считаем по большей стороне, а не по диагонали: у широкого
+                // гуся диагональ раздувала круг почти вдвое.
                 let fill = if response.dragged() || released || response.hovered() {
                     accent.gamma_multiply(0.55)
                 } else {
                     accent.gamma_multiply(0.35)
                 };
                 ui.painter()
-                    .circle_filled(center, rect.size().length() / 2.0 + 4.0, fill);
+                    .circle_filled(center, sticker_aura_radius(rect.size()), fill);
             }
             let painted_file = sticker
                 .image_path()
@@ -3100,6 +3108,13 @@ mod tests {
         let step = TaskifyApp::scroll_step(&mut velocity, Some(egui::vec2(30.0, 0.0)), 1.0 / 60.0);
         assert!(step.x > 0.0);
         assert_eq!(step.y, 0.0);
+    }
+
+    #[test]
+    fn sticker_aura_uses_the_longest_side_not_the_diagonal() {
+        assert_eq!(sticker_aura_radius(egui::vec2(64.0, 64.0)), 36.0);
+        assert_eq!(sticker_aura_radius(egui::vec2(64.0, 42.666_668)), 36.0);
+        assert_eq!(sticker_aura_radius(egui::vec2(128.0, 85.333_336)), 68.0);
     }
 
     #[test]
