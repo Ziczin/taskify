@@ -647,6 +647,13 @@ fn shell_columns(
     (left, center, right)
 }
 
+/// Боковой отступ содержимого центральной колонки: кнопки у края не должны
+/// прилипать к клипу, иначе при наведении теряется их обводка.
+fn center_content_rect(rect: egui::Rect) -> egui::Rect {
+    let pad = 8.0_f32.min((rect.width() * 0.5).max(0.0));
+    rect.shrink2(egui::vec2(pad, 0.0))
+}
+
 /// Альфа канала, умноженная на проценты: 0 — прозрачно, 100 — как было.
 fn scale_alpha(alpha: u8, percent: u8) -> u8 {
     ((alpha as u16 * percent.min(100) as u16 + 50) / 100) as u8
@@ -1817,6 +1824,9 @@ impl TaskifyApp {
             // не может сдвинуть правую панель.
             let area = ui.available_rect_before_wrap();
             let (left_rect, center_rect, right_rect) = shell_columns(area, 190.0, gap, rail_inset);
+            // Ширину центральной колонки уменьшаем на боковой отступ: кнопки
+            // у её края не должны прилипать к клипу и терять обводку.
+            let center_rect = center_content_rect(center_rect);
             let content_height = (center_rect.height() - 8.0).max(120.0);
 
             ui.scope_builder(
@@ -2997,6 +3007,16 @@ mod tests {
         let narrow = egui::Rect::from_min_size(egui::pos2(0.0, 0.0), egui::vec2(700.0, 800.0));
         let (_, _, narrow_right) = shell_columns(narrow, 190.0, 10.0, 8.0);
         assert_eq!(narrow_right.right(), narrow.right() - 8.0);
+    }
+
+    #[test]
+    fn center_content_keeps_buttons_away_from_the_clip_edges() {
+        let rect = egui::Rect::from_min_size(egui::pos2(100.0, 0.0), egui::vec2(500.0, 800.0));
+        let content = center_content_rect(rect);
+        assert_eq!(content.left(), rect.left() + 8.0);
+        assert_eq!(content.right(), rect.right() - 8.0);
+        assert_eq!(content.top(), rect.top());
+        assert_eq!(content.bottom(), rect.bottom());
     }
 
     #[test]

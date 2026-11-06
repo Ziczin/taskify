@@ -234,18 +234,23 @@ impl Palette {
         widgets.hovered.bg_stroke = egui::Stroke::new(1.0, self.accent);
         widgets.hovered.fg_stroke = egui::Stroke::new(1.5, self.text);
         widgets.hovered.corner_radius = egui::CornerRadius::same(12);
+        // Кнопка не должна вылезать за своё место при наведении: у края
+        // центральной панели этот лишний пиксель обрезался клипом.
+        widgets.hovered.expansion = 0.0;
 
         widgets.active.bg_fill = mix(self.card, self.accent, 0.34);
         widgets.active.weak_bg_fill = mix(self.card, self.accent, 0.30);
         widgets.active.bg_stroke = egui::Stroke::new(1.0, self.accent);
         widgets.active.fg_stroke = egui::Stroke::new(1.5, self.text);
         widgets.active.corner_radius = egui::CornerRadius::same(12);
+        widgets.active.expansion = 0.0;
 
         widgets.open.bg_fill = mix(self.card, self.accent, 0.24);
         widgets.open.weak_bg_fill = mix(self.card, self.accent, 0.20);
         widgets.open.bg_stroke = egui::Stroke::new(1.0, self.accent);
         widgets.open.fg_stroke = egui::Stroke::new(1.0, self.text);
         widgets.open.corner_radius = egui::CornerRadius::same(12);
+        widgets.open.expansion = 0.0;
 
         let mut style = (*ctx.style()).clone();
         style.visuals = visuals;
@@ -301,6 +306,11 @@ mod tests {
         );
         assert_eq!(visuals.override_text_color, Some(palette.text));
         assert_eq!(visuals.hyperlink_color, palette.accent);
+        // Наведение не должно рисовать за пределами кнопки: этот пиксель
+        // обрезался у края центральной панели.
+        assert_eq!(visuals.widgets.hovered.expansion, 0.0);
+        assert_eq!(visuals.widgets.active.expansion, 0.0);
+        assert_eq!(visuals.widgets.open.expansion, 0.0);
     }
 
     /// Все цвета, которые тема обязана задать. Порядок не важен, набор — да.
