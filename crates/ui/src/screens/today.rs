@@ -575,129 +575,128 @@ impl TaskifyApp {
                             );
                         }
                     });
-                    let mut meta = Vec::new();
-                    if !category_name.is_empty() {
-                        meta.push(category_name.clone());
-                    }
-                    meta.extend(tag_names.clone());
-                    meta.push(kind_label(task.kind, self).to_string());
-                    if state.streak_current > 1 {
-                        meta.push(format!(
-                            "{}: {}",
-                            self.t("today.streak"),
-                            state.streak_current
-                        ));
-                    }
-                    if !meta.is_empty() {
-                        let line = meta.join(" · ");
-                        ui.add(
-                            egui::Label::new(
-                                egui::RichText::new(line.clone())
-                                    .small()
-                                    .color(ui.visuals().weak_text_color()),
-                            )
-                            .truncate(),
-                        )
-                        .on_hover_text(line);
-                    }
-                    let description = task.description(&locale);
-                    if !description.is_empty() && !done {
-                        ui.add(
-                            egui::Label::new(egui::RichText::new(description.clone()).small())
-                                .truncate(),
-                        )
-                        .on_hover_text(description);
-                    }
-                    if !task.subtasks.is_empty() && !done {
-                        let done_count = task
-                            .subtasks
-                            .iter()
-                            .filter(|subtask| state.subtasks_done.contains(&subtask.id))
-                            .count();
-                        let mut open = self.subtasks_open.contains(&task.id);
-                        let header = format!(
-                            "{}: {}/{}",
-                            self.t("today.subtasks"),
-                            done_count,
-                            task.subtasks.len()
-                        );
-                        let row = ui.horizontal(|ui| {
-                            let (icon, _) = ui.allocate_exact_size(
-                                egui::vec2(14.0, ui.spacing().interact_size.y),
-                                egui::Sense::hover(),
-                            );
-                            let center = icon.center();
-                            let color = ui.visuals().weak_text_color();
-                            let points = if open {
-                                vec![
-                                    center + egui::vec2(-4.0, -2.0),
-                                    center + egui::vec2(4.0, -2.0),
-                                    center + egui::vec2(0.0, 3.0),
-                                ]
-                            } else {
-                                vec![
-                                    center + egui::vec2(-2.0, -4.0),
-                                    center + egui::vec2(-2.0, 4.0),
-                                    center + egui::vec2(3.0, 0.0),
-                                ]
-                            };
-                            ui.painter().add(egui::Shape::convex_polygon(
-                                points,
-                                color,
-                                egui::Stroke::NONE,
-                            ));
-                            ui.add(egui::Label::new(egui::RichText::new(header).small()));
-                        });
-                        let response = ui.interact(
-                            row.response.rect,
-                            ui.id().with(("subtasks", task.id.as_str())),
-                            egui::Sense::click(),
-                        );
-                        if response.clicked() {
-                            open = !open;
-                            if open {
-                                self.subtasks_open.insert(task.id.clone());
-                            } else {
-                                self.subtasks_open.remove(&task.id);
-                            }
-                            ui.ctx().request_repaint();
-                        }
-                        // Высоту раскрытия ведём сами: у CollapsingHeader первый
-                        // кадр берёт высоту-заглушку, из-за чего карточка прыгает.
-                        let anim_id = ui.make_persistent_id(("today_subtasks", task.id.as_str()));
-                        let openness = ui.ctx().animate_bool_with_time(anim_id, open, 0.18);
-                        if openness > 0.0 {
-                            let row = ui.spacing().interact_size.y + ui.spacing().item_spacing.y;
-                            let full_height = task.subtasks.len() as f32 * row;
-                            let shown = full_height * openness;
-                            let width = ui.available_width();
-                            let (rect, _) = ui.allocate_exact_size(
-                                egui::vec2(width, shown),
-                                egui::Sense::hover(),
-                            );
-                            let body_rect = egui::Rect::from_min_size(
-                                egui::pos2(rect.left() + 18.0, rect.top()),
-                                egui::vec2((rect.width() - 18.0).max(1.0), full_height),
-                            );
-                            let mut body = ui.new_child(
-                                egui::UiBuilder::new()
-                                    .max_rect(body_rect)
-                                    .layout(egui::Layout::top_down(egui::Align::LEFT)),
-                            );
-                            body.set_clip_rect(rect.intersect(ui.clip_rect()));
-                            for subtask in &task.subtasks {
-                                let checked = state.subtasks_done.contains(&subtask.id);
-                                let mut is_checked = checked;
-                                let label = subtask.title(&locale);
-                                if body.checkbox(&mut is_checked, label).changed() && !checked {
-                                    actions
-                                        .push(Action::Subtask(task.id.clone(), subtask.id.clone()));
-                                }
-                            }
-                        }
-                    }
                 });
             });
+            // Метаданные и описание идут от левого края карточки, а не от
+            // текста заголовка: иначе они выглядят сдвинутыми вправо на
+            // ширину иконки.
+            let mut meta = Vec::new();
+            if !category_name.is_empty() {
+                meta.push(category_name.clone());
+            }
+            meta.extend(tag_names.clone());
+            meta.push(kind_label(task.kind, self).to_string());
+            if state.streak_current > 1 {
+                meta.push(format!(
+                    "{}: {}",
+                    self.t("today.streak"),
+                    state.streak_current
+                ));
+            }
+            if !meta.is_empty() {
+                let line = meta.join(" · ");
+                ui.add(
+                    egui::Label::new(
+                        egui::RichText::new(line.clone())
+                            .small()
+                            .color(ui.visuals().weak_text_color()),
+                    )
+                    .truncate(),
+                )
+                .on_hover_text(line);
+            }
+            let description = task.description(&locale);
+            if !description.is_empty() && !done {
+                ui.add(
+                    egui::Label::new(egui::RichText::new(description.clone()).small()).truncate(),
+                )
+                .on_hover_text(description);
+            }
+            if !task.subtasks.is_empty() && !done {
+                let done_count = task
+                    .subtasks
+                    .iter()
+                    .filter(|subtask| state.subtasks_done.contains(&subtask.id))
+                    .count();
+                let mut open = self.subtasks_open.contains(&task.id);
+                let header = format!(
+                    "{}: {}/{}",
+                    self.t("today.subtasks"),
+                    done_count,
+                    task.subtasks.len()
+                );
+                let row = ui.horizontal(|ui| {
+                    let (icon, _) = ui.allocate_exact_size(
+                        egui::vec2(14.0, ui.spacing().interact_size.y),
+                        egui::Sense::hover(),
+                    );
+                    let center = icon.center();
+                    let color = ui.visuals().weak_text_color();
+                    let points = if open {
+                        vec![
+                            center + egui::vec2(-4.0, -2.0),
+                            center + egui::vec2(4.0, -2.0),
+                            center + egui::vec2(0.0, 3.0),
+                        ]
+                    } else {
+                        vec![
+                            center + egui::vec2(-2.0, -4.0),
+                            center + egui::vec2(-2.0, 4.0),
+                            center + egui::vec2(3.0, 0.0),
+                        ]
+                    };
+                    ui.painter().add(egui::Shape::convex_polygon(
+                        points,
+                        color,
+                        egui::Stroke::NONE,
+                    ));
+                    ui.add(egui::Label::new(egui::RichText::new(header).small()));
+                });
+                let response = ui.interact(
+                    row.response.rect,
+                    ui.id().with(("subtasks", task.id.as_str())),
+                    egui::Sense::click(),
+                );
+                if response.clicked() {
+                    open = !open;
+                    if open {
+                        self.subtasks_open.insert(task.id.clone());
+                    } else {
+                        self.subtasks_open.remove(&task.id);
+                    }
+                    ui.ctx().request_repaint();
+                }
+                // Высоту раскрытия ведём сами: у CollapsingHeader первый
+                // кадр берёт высоту-заглушку, из-за чего карточка прыгает.
+                let anim_id = ui.make_persistent_id(("today_subtasks", task.id.as_str()));
+                let openness = ui.ctx().animate_bool_with_time(anim_id, open, 0.18);
+                if openness > 0.0 {
+                    let row = ui.spacing().interact_size.y + ui.spacing().item_spacing.y;
+                    let full_height = task.subtasks.len() as f32 * row;
+                    let shown = full_height * openness;
+                    let width = ui.available_width();
+                    let (rect, _) =
+                        ui.allocate_exact_size(egui::vec2(width, shown), egui::Sense::hover());
+                    let body_rect = egui::Rect::from_min_size(
+                        egui::pos2(rect.left() + 18.0, rect.top()),
+                        egui::vec2((rect.width() - 18.0).max(1.0), full_height),
+                    );
+                    let mut body = ui.new_child(
+                        egui::UiBuilder::new()
+                            .max_rect(body_rect)
+                            .layout(egui::Layout::top_down(egui::Align::LEFT)),
+                    );
+                    body.set_clip_rect(rect.intersect(ui.clip_rect()));
+                    for subtask in &task.subtasks {
+                        let checked = state.subtasks_done.contains(&subtask.id);
+                        let mut is_checked = checked;
+                        let label = subtask.title(&locale);
+                        if body.checkbox(&mut is_checked, label).changed() && !checked {
+                            actions.push(Action::Subtask(task.id.clone(), subtask.id.clone()));
+                        }
+                    }
+                }
+            }
             let reward = format!(
                 "+{} {}  +{} {}",
                 task.reward.xp,
