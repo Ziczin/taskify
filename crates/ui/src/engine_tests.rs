@@ -108,6 +108,79 @@ fn completed_one_shot_never_becomes_due_again() {
 }
 
 #[test]
+fn pack_reset_clears_tasks_but_keeps_one_shots_and_optional_achievements() {
+    let mut fixture = Fixture::new();
+    fixture.engine.complete("starter/water").unwrap();
+    fixture.engine.complete("starter/trip").unwrap();
+    fixture
+        .engine
+        .store
+        .state
+        .combos
+        .insert("starter/morning".into(), Default::default());
+    assert!(fixture
+        .engine
+        .store
+        .state
+        .achievements
+        .contains("starter/first_step"));
+
+    let cleared = fixture.engine.reset_pack("starter", false).unwrap();
+    assert_eq!(cleared, 1);
+    assert!(!fixture
+        .engine
+        .store
+        .state
+        .tasks
+        .contains_key("starter/water"));
+    assert!(
+        fixture
+            .engine
+            .store
+            .state
+            .tasks
+            .contains_key("starter/trip"),
+        "выполненный ваншот не должен сбрасываться"
+    );
+    assert!(fixture.engine.store.state.combos.is_empty());
+    assert!(
+        fixture
+            .engine
+            .store
+            .state
+            .achievements
+            .contains("starter/first_step"),
+        "ачивки сохраняются, пока их не попросили сбросить"
+    );
+    let log_dir = fixture.engine.store.livespace.log_dir();
+    let events_before = taskify_store::log::read_all(&log_dir).unwrap().events.len();
+
+    // После сброса обычное задание снова доступно.
+    assert!(fixture.engine.complete("starter/water").is_ok());
+    fixture.engine.reset_pack("starter", true).unwrap();
+    let events_after = taskify_store::log::read_all(&log_dir).unwrap().events.len();
+    assert!(
+        events_after >= events_before + 2,
+        "сбросы только добавляют события, историю не переписывают"
+    );
+    assert!(!fixture
+        .engine
+        .store
+        .state
+        .achievements
+        .contains("starter/first_step"));
+    assert!(
+        fixture
+            .engine
+            .store
+            .state
+            .tasks
+            .contains_key("starter/trip"),
+        "ваншот остаётся выполненным и после сброса ачивок"
+    );
+}
+
+#[test]
 fn chained_task_opens_only_after_previous_completion() {
     let mut fixture = Fixture::new();
     let mut chained = fixture

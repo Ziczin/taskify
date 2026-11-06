@@ -14,11 +14,13 @@ impl TaskifyApp {
         if let Some(id) = self.pack_detail.clone() {
             if self.engine.packs.packs.contains_key(&id) {
                 self.screen_pack_detail(ui, &id);
+                self.pack_reset_dialog(ui.ctx());
                 return;
             }
             self.pack_detail = None;
         }
         self.pack_list(ui);
+        self.pack_reset_dialog(ui.ctx());
     }
 
     /// Опыт пака: сумма опыта за все выполнения его заданий.
@@ -356,6 +358,12 @@ impl TaskifyApp {
                         .color(self.palette().danger),
                 );
             }
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                if ui.button(self.t("packs.reset")).clicked() {
+                    self.pack_reset_pending = Some(pack.id.clone());
+                    self.pack_reset_achievements = false;
+                }
+            });
         });
         ui.add_space(4.0);
 
@@ -1083,6 +1091,78 @@ impl TaskifyApp {
                 ui.add_space(6.0);
                 ui.label(description);
             }
+        }
+    }
+
+    /// Подтверждение сброса прогресса пака. Ачивки — по желанию.
+    fn pack_reset_dialog(&mut self, ctx: &egui::Context) {
+        let Some(id) = self.pack_reset_pending.clone() else {
+            return;
+        };
+        let Some(pack) = self.engine.packs.packs.get(&id).cloned() else {
+            self.pack_reset_pending = None;
+            return;
+        };
+        let locale = self.settings.ui.locale.clone();
+        let name = self.pack_display_name(&pack, &locale);
+        let title = self.t("packs.reset_title");
+        let hint = self.t("packs.reset_hint");
+        let achievements = self.t("packs.reset_achievements");
+        let cancel = self.t("common.cancel");
+        let confirm = self.t("packs.reset_confirm");
+        let danger = self.palette().danger;
+        let on_danger = self.palette().on_danger;
+
+        let mut open = true;
+        let mut clear_achievements = self.pack_reset_achievements;
+        let mut do_reset = false;
+        let mut cancel_clicked = false;
+        egui::Window::new(title)
+            .id(egui::Id::new("pack_reset"))
+            .collapsible(false)
+            .resizable(false)
+            .anchor(egui::Align2::CENTER_CENTER, egui::vec2(0.0, 0.0))
+            .open(&mut open)
+            .show(ctx, |ui| {
+                ui.set_min_width(360.0);
+                ui.label(egui::RichText::new(&name).strong());
+                ui.add(egui::Label::new(egui::RichText::new(hint).small().weak()).wrap());
+                ui.add_space(6.0);
+                ui.checkbox(&mut clear_achievements, achievements);
+                ui.add_space(6.0);
+                ui.horizontal(|ui| {
+                    let button =
+                        egui::Button::new(egui::RichText::new(confirm).color(on_danger).strong())
+                            .fill(danger);
+                    if ui.add(button).clicked() {
+                        do_reset = true;
+                    }
+                    if ui.button(cancel).clicked() {
+                        cancel_clicked = true;
+                    }
+                });
+            });
+
+        self.pack_reset_achievements = clear_achievements;
+        if do_reset {
+            match self.engine.reset_pack(&id, clear_achievements) {
+                Ok(cleared) => {
+                    self.pack_reset_pending = None;
+                    self.pack_reset_achievements = false;
+                    self.card_heights.clear();
+                    self.card_anim.clear();
+                    self.subtasks_open.clear();
+                    self.status.clear();
+                    let text = format!("{}: {cleared}", self.t("packs.reset_done"));
+                    self.toast(text, ctx);
+                }
+                Err(error) => self.set_status(format!("{error:#}")),
+            }
+            return;
+        }
+        if !open || cancel_clicked {
+            self.pack_reset_pending = None;
+            self.pack_reset_achievements = false;
         }
     }
 }

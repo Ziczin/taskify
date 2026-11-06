@@ -133,6 +133,57 @@ impl Engine {
         }
     }
 
+    /// Сбрасывает прогресс одного пака. Журнал не переписывается: в него
+    /// добавляется событие сброса, поэтому история остаётся полной.
+    ///
+    /// Ваншоты, которые уже выполнялись, сохраняют результат: сброс не должен
+    /// заставлять проходить их заново. Ачивки очищаются только по просьбе.
+    pub fn reset_pack(&mut self, id: &str, clear_achievements: bool) -> Result<usize> {
+        let pack = self
+            .packs
+            .packs
+            .get(id)
+            .cloned()
+            .ok_or_else(|| anyhow!("пак не найден: {id}"))?;
+        let tasks: Vec<String> = pack.tasks.keys().cloned().collect();
+        let keep_tasks: Vec<String> = pack
+            .tasks
+            .values()
+            .filter(|task| {
+                task.is_one_shot()
+                    && self
+                        .store
+                        .state
+                        .task_ref(&task.id)
+                        .map(|state| state.completions_total > 0)
+                        .unwrap_or(false)
+            })
+            .map(|task| task.id.clone())
+            .collect();
+        let combos: Vec<String> = pack.combos.keys().cloned().collect();
+        let achievements = if clear_achievements {
+            pack.achievements.keys().cloned().collect()
+        } else {
+            Vec::new()
+        };
+        let cleared = tasks
+            .iter()
+            .filter(|task| {
+                !keep_tasks.contains(*task) && self.store.state.tasks.contains_key(*task)
+            })
+            .count();
+        let date = self.today();
+        self.record(EventKind::PackReset(PackReset {
+            pack: id.to_string(),
+            tasks,
+            keep_tasks,
+            combos,
+            achievements,
+            local_date: date,
+        }))?;
+        Ok(cleared)
+    }
+
     pub fn backup_now(&self) -> Result<PathBuf> {
         Ok(self.store.backup_now(Tier::Minutes)?)
     }

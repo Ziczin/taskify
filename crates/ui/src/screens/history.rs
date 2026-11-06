@@ -81,6 +81,13 @@ impl TaskifyApp {
                 format!("{} {} → {}", payload.pack, payload.from, payload.to)
             }
             EventKind::PackDisabled(payload) => payload.pack.clone(),
+            EventKind::PackReset(payload) => format!(
+                "{}  −{} / −{} / −{}",
+                payload.pack,
+                payload.tasks.len().saturating_sub(payload.keep_tasks.len()),
+                payload.combos.len(),
+                payload.achievements.len()
+            ),
             EventKind::SettingsChanged(payload) => {
                 format!("{} = {}", payload.key, payload.value)
             }

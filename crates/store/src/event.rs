@@ -45,6 +45,7 @@ pub enum EventKind {
     PackInstalled(PackInstalled),
     PackUpdated(PackUpdated),
     PackDisabled(PackDisabled),
+    PackReset(PackReset),
     SettingsChanged(SettingsChanged),
     WeekClosed(WeekClosed),
     /// Событие неизвестного типа: строка сохраняется, но не применяется.
@@ -88,7 +89,7 @@ impl Event {
     }
 }
 
-pub const KNOWN_TYPES: [&str; 19] = [
+pub const KNOWN_TYPES: [&str; 20] = [
     "task_completed",
     "task_completion_reverted",
     "subtask_completed",
@@ -106,6 +107,7 @@ pub const KNOWN_TYPES: [&str; 19] = [
     "pack_installed",
     "pack_updated",
     "pack_disabled",
+    "pack_reset",
     "settings_changed",
     "week_closed",
 ];
@@ -130,6 +132,7 @@ impl EventKind {
             EventKind::PackInstalled(_) => "pack_installed",
             EventKind::PackUpdated(_) => "pack_updated",
             EventKind::PackDisabled(_) => "pack_disabled",
+            EventKind::PackReset(_) => "pack_reset",
             EventKind::SettingsChanged(_) => "settings_changed",
             EventKind::WeekClosed(_) => "week_closed",
             EventKind::Unknown => "unknown",
@@ -303,6 +306,25 @@ pub struct PackDisabled {
     pub pack: String,
 }
 
+/// Сброс прогресса одного пака. События истории не удаляются: сброс только
+/// очищает кеш состояния, поэтому журнал остаётся полным.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PackReset {
+    pub pack: String,
+    /// Все задания пака, у которых нужно очистить состояние.
+    #[serde(default)]
+    pub tasks: Vec<String>,
+    /// Ваншоты, которые уже выполнялись: их результат сброс не отменяет.
+    #[serde(default)]
+    pub keep_tasks: Vec<String>,
+    #[serde(default)]
+    pub combos: Vec<String>,
+    /// Пусто, если пользователь решил сохранить ачивки пака.
+    #[serde(default)]
+    pub achievements: Vec<String>,
+    pub local_date: NaiveDate,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SettingsChanged {
     pub key: String,
@@ -434,6 +456,14 @@ mod tests {
             }),
             EventKind::PackDisabled(PackDisabled {
                 pack: "starter".into(),
+            }),
+            EventKind::PackReset(PackReset {
+                pack: "starter".into(),
+                tasks: vec!["starter/water".into()],
+                keep_tasks: vec![],
+                combos: vec!["starter/morning".into()],
+                achievements: vec!["starter/first_step".into()],
+                local_date: date,
             }),
             EventKind::SettingsChanged(SettingsChanged {
                 key: "day_start_hour".into(),

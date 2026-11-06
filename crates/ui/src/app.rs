@@ -484,6 +484,10 @@ pub struct TaskifyApp {
     pub delete_confirm_name: String,
     /// Ошибка удаления.
     pub delete_error: String,
+    /// Пак, для которого открыт диалог сброса прогресса.
+    pub pack_reset_pending: Option<String>,
+    /// Сбрасывать ли ачивки выбранного пака вместе с заданиями.
+    pub pack_reset_achievements: bool,
     pub history: HistoryState,
     pub status: String,
     pub draft: GameSettings,
@@ -986,6 +990,8 @@ impl TaskifyApp {
                 .unwrap_or(0),
             delete_confirm_name: std::env::var("TASKIFY_DELETE_NAME").unwrap_or_default(),
             delete_error: String::new(),
+            pack_reset_pending: None,
+            pack_reset_achievements: false,
             history: HistoryState {
                 query: std::env::var("TASKIFY_HIST_QUERY").unwrap_or_default(),
                 limit: 300,
@@ -2300,6 +2306,8 @@ impl TaskifyApp {
         self.section = section;
         if section != Section::Packs {
             self.pack_detail = None;
+            self.pack_reset_pending = None;
+            self.pack_reset_achievements = false;
         }
         self.section_anim_start = Some(ctx.input(|input| input.time) as f32);
         self.status.clear();

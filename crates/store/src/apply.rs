@@ -300,6 +300,20 @@ pub fn apply(state: &mut State, aggregates: &mut Aggregates, event: &Event, rule
         EventKind::PackDisabled(payload) => {
             state.packs_disabled.insert(payload.pack.clone());
         }
+        EventKind::PackReset(payload) => {
+            // История остаётся на месте: чистим только кеш прогресса.
+            for task_id in &payload.tasks {
+                if !payload.keep_tasks.iter().any(|keep| keep == task_id) {
+                    state.tasks.remove(task_id);
+                }
+            }
+            for combo in &payload.combos {
+                state.combos.remove(combo);
+            }
+            for achievement in &payload.achievements {
+                state.achievements.remove(achievement);
+            }
+        }
         EventKind::SettingsChanged(_) => {}
         EventKind::WeekClosed(payload) => {
             state.week.closed = true;
@@ -413,6 +427,45 @@ mod tests {
         assert_eq!(state.coins, 0);
         assert_eq!(aggs.totals.tasks_completed, 0);
         assert_eq!(state.level, 1);
+    }
+
+    #[test]
+    fn pack_reset_clears_progress_but_keeps_one_shots_and_totals() {
+        let mut state = State::default();
+        let mut aggs = Aggregates::default();
+        let rules = Rules::default();
+        let date = NaiveDate::from_ymd_opt(2024, 3, 10).unwrap();
+        apply(&mut state, &mut aggs, &completed(1, date), &rules);
+        state.task("water/one_shot").completions_total = 1;
+        state
+            .combos
+            .insert("water/morning".into(), Default::default());
+        state.achievements.insert("water/first".into());
+
+        let event = Event {
+            schema: 1,
+            seq: 2,
+            id: "e2".into(),
+            ts: chrono::DateTime::parse_from_rfc3339("2024-03-10T09:05:00+04:00").unwrap(),
+            kind: EventKind::PackReset(PackReset {
+                pack: "water".into(),
+                tasks: vec!["water".into(), "water/one_shot".into()],
+                keep_tasks: vec!["water/one_shot".into()],
+                combos: vec!["water/morning".into()],
+                achievements: vec!["water/first".into()],
+                local_date: date,
+            }),
+        };
+        apply(&mut state, &mut aggs, &event, &rules);
+
+        assert!(!state.tasks.contains_key("water"));
+        assert_eq!(state.tasks["water/one_shot"].completions_total, 1);
+        assert!(state.combos.is_empty());
+        assert!(state.achievements.is_empty());
+        // История и глобальные итоги не переписываются.
+        assert_eq!(state.xp_total, 10);
+        assert_eq!(state.coins, 2);
+        assert_eq!(aggs.totals.tasks_completed, 1);
     }
 
     #[test]
