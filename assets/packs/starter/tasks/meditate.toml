@@ -1,0 +1,30 @@
+id = "meditate"
+kind = "habit"
+category = "mind"
+tags = ["morning"]
+icon = "lotus"
+
+[title]
+ru = "Медитация"
+en = "Meditation"
+uk = "Медитація"
+pl = "Medytacja"
+de = "Meditation"
+es = "Meditación"
+ja = "瞑想"
+zh = "冥想"
+
+[description]
+ru = "Пять минут тишины."
+en = "Five minutes of silence."
+
+[reward]
+xp = 10
+coins = 2
+
+[schedule]
+type = "daily"
+
+[hints]
+cost = { amount = 5, currency = "RUB" }
+requires = { ru = "Сядь ровно, закрой глаза и считай вдохи до десяти." }

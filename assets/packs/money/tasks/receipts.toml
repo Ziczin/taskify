@@ -1,0 +1,20 @@
+id = "receipts"
+kind = "habit"
+category = "budget"
+tags = ["quick"]
+icon = "receipt"
+
+[title]
+ru = "Разобрать чеки"
+en = "File receipts"
+
+[description]
+ru = "Переснять и разложить бумажные чеки."
+en = "Scan and file paper receipts."
+
+[reward]
+xp = 10
+coins = 2
+
+[schedule]
+type = "daily"

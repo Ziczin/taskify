@@ -1,0 +1,20 @@
+schema = 1
+id = "welcome"
+version = "1.0.0"
+official = true
+default_enabled = true
+license = "CC-BY-4.0"
+locales = ["ru", "en"]
+
+[progression]
+base = 50.0
+exponent = 1.4
+max_level = 10
+
+[name]
+ru = "Знакомство с Taskify"
+en = "Welcome to Taskify"
+
+[description]
+ru = "Экскурсия по программе на живом примере: тринадцать небольших заданий с подпунктами показывают экран «Сегодня», фильтры, паки и их уровни, опыт, серии, комбо, метрики, монеты и магазин. Проходи по одному пункту и заглядывай в подпункты — там написано, что именно попробовать. Пак включён по умолчанию, его можно выключить как любой другой."
+en = "A hands-on tour of the app: thirteen small tasks with sub-items walk through Today, filters, packs and their levels, XP, streaks, combos, metrics, coins and the shop. Work through the items one by one and open the sub-items: each says exactly what to try. The pack is enabled by default and can be switched off like any other."

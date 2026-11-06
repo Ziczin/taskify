@@ -1,0 +1,31 @@
+id = "background.image"
+type = "image"
+group = "appearance"
+
+[title]
+ru = "Картинка на фон"
+en = "Backdrop image"
+
+[[variants]]
+id = "paper"
+value = "media/paper.png"
+unlock = { type = "coins", price = 150 }
+[variants.title]
+ru = "Бумага"
+en = "Paper"
+
+[[variants]]
+id = "dusk"
+value = "media/dusk.png"
+unlock = { type = "coins", price = 250 }
+[variants.title]
+ru = "Сумерки"
+en = "Dusk"
+
+[[variants]]
+id = "meadow"
+value = "media/meadow.png"
+unlock = { type = "coins", price = 300 }
+[variants.title]
+ru = "Луг"
+en = "Meadow"

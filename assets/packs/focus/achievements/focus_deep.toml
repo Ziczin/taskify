@@ -1,0 +1,18 @@
+id = "focus_deep"
+
+[condition]
+metric = "sys.combos_completed_total"
+op = "gte"
+value = 5
+
+[title]
+ru = "Глубина"
+en = "Depth"
+
+[description]
+ru = "Пять комбо глубокой работы."
+en = "Five deep work combos."
+
+[reward]
+xp = 30
+coins = 6

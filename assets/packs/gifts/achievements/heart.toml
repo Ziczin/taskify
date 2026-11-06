@@ -1,0 +1,15 @@
+id = "heart"
+sticker = "heart"
+[condition]
+metric = "sys.days_active"
+op = "gte"
+value = 3
+[title]
+ru = "Три дня подряд"
+en = "Three days in"
+[description]
+ru = "Быть активным три дня: сердце за постоянство."
+en = "Be active for three days: a heart for consistency."
+[reward]
+xp = 30
+coins = 8

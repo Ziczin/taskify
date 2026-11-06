@@ -1,0 +1,118 @@
+# Каталог стикеров: что можно купить за монеты и поставить на доску.
+# icon — ключ готовой PNG-картинки из assets/icons.
+
+[[sticker]]
+id = "star"
+icon = "glyph_1F31F"
+price = 40
+name = { ru = "Звезда", en = "Star" }
+
+[[sticker]]
+id = "fire"
+icon = "glyph_1F525"
+price = 60
+name = { ru = "Огонь", en = "Fire" }
+
+[[sticker]]
+id = "target"
+icon = "glyph_1F3AF"
+price = 80
+name = { ru = "Цель", en = "Target" }
+
+[[sticker]]
+id = "rainbow"
+icon = "glyph_1F308"
+price = 100
+name = { ru = "Радуга", en = "Rainbow" }
+
+[[sticker]]
+id = "coffee"
+icon = "glyph_2615"
+price = 120
+name = { ru = "Кофе", en = "Coffee" }
+
+[[sticker]]
+id = "clover"
+icon = "glyph_1F340"
+price = 150
+name = { ru = "Клевер", en = "Clover" }
+
+[[sticker]]
+id = "rocket"
+icon = "glyph_1F680"
+price = 180
+name = { ru = "Ракета", en = "Rocket" }
+
+[[sticker]]
+id = "party"
+icon = "glyph_1F389"
+price = 210
+name = { ru = "Праздник", en = "Party" }
+
+[[sticker]]
+id = "crystal"
+icon = "glyph_1F48E"
+price = 250
+name = { ru = "Кристалл", en = "Crystal" }
+
+[[sticker]]
+id = "cat"
+icon = "glyph_1F431"
+price = 280
+name = { ru = "Котёнок", en = "Kitten" }
+
+[[sticker]]
+id = "sunflower"
+icon = "glyph_1F33B"
+price = 320
+name = { ru = "Подсолнух", en = "Sunflower" }
+
+[[sticker]]
+id = "donut"
+icon = "glyph_1F369"
+price = 360
+name = { ru = "Пончик", en = "Donut" }
+
+# ---- награды пака «Подарки»: не продаются, только за ачивки ----
+
+[[sticker]]
+id = "moon"
+pack = "gifts"
+icon = "glyph_1F319"
+price = 0
+name = { ru = "Луна", en = "Moon" }
+
+[[sticker]]
+id = "heart"
+pack = "gifts"
+icon = "glyph_1F496"
+price = 0
+name = { ru = "Сердце", en = "Heart" }
+
+[[sticker]]
+id = "spark"
+pack = "gifts"
+icon = "glyph_2728"
+price = 0
+name = { ru = "Искра", en = "Spark" }
+
+[[sticker]]
+id = "crown"
+pack = "gifts"
+icon = "glyph_1F451"
+price = 0
+name = { ru = "Корона", en = "Crown" }
+
+[[sticker]]
+id = "gift"
+pack = "gifts"
+icon = "glyph_1F381"
+price = 0
+name = { ru = "Подарок", en = "Gift" }
+
+[[sticker]]
+id = "comet"
+pack = "gifts"
+icon = "glyph_2604"
+price = 0
+name = { ru = "Комета", en = "Comet" }

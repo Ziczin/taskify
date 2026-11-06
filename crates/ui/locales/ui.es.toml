@@ -1,0 +1,31 @@
+[app]
+title = "Taskify"
+
+[nav]
+today = "Hoy"
+week = "Semana"
+packs = "Paquetes"
+achievements = "Logros"
+history = "Historial"
+settings = "Ajustes"
+
+[menu]
+view = "Ver"
+help = "Ayuda"
+
+[menu.view_items]
+fullscreen = "Pantalla completa"
+reset_window = "Restablecer tamaño de ventana"
+
+[menu.help_items]
+about = "Acerca de"
+
+[about]
+title = "Acerca de"
+text = "Gamificación local de tareas. Todos los datos se quedan en tu ordenador."
+
+[section]
+soon = "Esta sección está en construcción."
+
+[common]
+close = "Cerrar"

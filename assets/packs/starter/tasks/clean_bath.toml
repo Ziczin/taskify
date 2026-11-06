@@ -1,0 +1,28 @@
+id = "clean_bath"
+kind = "repeat"
+category = "home"
+tags = ["deep"]
+icon = "bath"
+combos = ["home_month"]
+
+[title]
+ru = "Ванная"
+en = "Bathroom"
+uk = "Ванна"
+pl = "Łazienka"
+de = "Badezimmer"
+es = "Baño"
+ja = "浴室"
+zh = "浴室"
+
+[description]
+ru = "Помыть ванную и раковину."
+en = "Clean the bath and the sink."
+
+[reward]
+xp = 40
+coins = 10
+
+[schedule]
+type = "interval"
+days = 14

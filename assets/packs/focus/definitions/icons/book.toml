@@ -1,0 +1,6 @@
+id = "book"
+image = "glyph_1F4DA"
+
+[title]
+ru = "Книга"
+en = "Book"

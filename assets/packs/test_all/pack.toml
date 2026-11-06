@@ -1,0 +1,20 @@
+schema = 1
+id = "test_all"
+version = "1.1.3"
+official = true
+default_enabled = false
+license = "CC0-1.0"
+locales = ["ru", "en"]
+
+[progression]
+base = 40.0
+exponent = 1.3
+max_level = 5
+
+[name]
+ru = "Тестовый пак: всё сразу"
+en = "Test pack: everything"
+
+[description]
+ru = "Проверочный пак со всеми видами контента: категории, теги, типы, иконки, палитра, метрики, задания, комбо, ачивки, цвета, шрифт, картинка, звуки, светлая тема, четыре тёмные темы, стикеры разных форм и готовые наборы. Включи его в разделе «Паки», чтобы увидеть содержимое."
+en = "A check pack with every content kind: categories, tags, types, icons, palette, metrics, tasks, combos, achievements, colours, font, image, sounds, a light theme, four dark themes, differently shaped stickers and ready bundles. Enable it in Packs to see the content."

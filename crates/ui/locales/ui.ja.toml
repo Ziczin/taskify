@@ -1,0 +1,31 @@
+[app]
+title = "Taskify"
+
+[nav]
+today = "今日"
+week = "週"
+packs = "パック"
+achievements = "実績"
+history = "履歴"
+settings = "設定"
+
+[menu]
+view = "表示"
+help = "ヘルプ"
+
+[menu.view_items]
+fullscreen = "全画面"
+reset_window = "ウィンドウサイズをリセット"
+
+[menu.help_items]
+about = "バージョン情報"
+
+[about]
+title = "バージョン情報"
+text = "ローカルで動くタスクのゲーム化アプリです。データはすべてこのコンピューターに保存されます。"
+
+[section]
+soon = "このセクションは準備中です。"
+
+[common]
+close = "閉じる"

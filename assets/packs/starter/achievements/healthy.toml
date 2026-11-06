@@ -1,0 +1,17 @@
+id = "healthy"
+[condition]
+metric = "sys.tasks_by_category.starter/body"
+op = "gte"
+value = 20
+
+[title]
+ru = "Здоровяк"
+en = "Healthy"
+
+[description]
+ru = "Двадцать заданий тела."
+en = "Twenty body tasks."
+
+[reward]
+xp = 60
+coins = 20

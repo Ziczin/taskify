@@ -1,0 +1,18 @@
+id = "money_combo"
+
+[condition]
+metric = "sys.combos_completed_total"
+op = "gte"
+value = 7
+
+[title]
+ru = "Финансовый порядок"
+en = "Money order"
+
+[description]
+ru = "Семь комбо по деньгам."
+en = "Seven money combos."
+
+[reward]
+xp = 30
+coins = 6

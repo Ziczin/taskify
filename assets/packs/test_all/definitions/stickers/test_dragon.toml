@@ -1,0 +1,6 @@
+id = "test_dragon"
+icon = "glyph_1F451"
+price = 0
+[name]
+ru = "Тестовый дракон"
+en = "Test dragon"

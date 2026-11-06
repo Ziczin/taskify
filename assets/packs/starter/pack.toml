@@ -1,0 +1,25 @@
+schema = 1
+id = "starter"
+version = "1.5.0"
+official = true
+license = "CC-BY-4.0"
+locales = ["ru", "en", "ja", "uk", "pl", "es", "zh", "de"]
+
+[progression]
+base = 50.0
+exponent = 1.4
+max_level = 10
+
+[name]
+ru = "Стартовый набор"
+en = "Starter pack"
+uk = "Стартовий набір"
+pl = "Zestaw startowy"
+de = "Startpaket"
+es = "Paquete inicial"
+ja = "スターターパック"
+zh = "入门包"
+
+[description]
+ru = "Универсальный набор на каждый день: стакан воды утром, разобранная почта, звонок близкому и ещё семнадцать дел, которые незаметно держат жизнь в порядке. Три комбо награждают за серии, десять ачивок — за первые шаги и постоянство. Начинай с него, если не знаешь, с чего начать."
+en = "A universal everyday pack: a glass of water in the morning, an empty inbox, a call to someone you love, and seventeen more things that quietly keep life in order. Three combos reward streaks, ten achievements mark your first steps and your consistency. Start here if you do not know where to start."

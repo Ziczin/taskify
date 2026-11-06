@@ -1,0 +1,17 @@
+id = "tour"
+[condition]
+metric = "sys.tasks_by_category.welcome/tour"
+op = "gte"
+value = 5
+
+[title]
+ru = "Пять пунктов"
+en = "Five items"
+
+[description]
+ru = "Пройти пять заданий пака «Знакомство»."
+en = "Finish five tasks of the Welcome pack."
+
+[reward]
+xp = 10
+coins = 2

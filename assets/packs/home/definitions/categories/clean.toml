@@ -1,0 +1,7 @@
+id = "clean"
+
+[title]
+ru = "Уборка"
+en = "Cleaning"
+
+icon = "broom"

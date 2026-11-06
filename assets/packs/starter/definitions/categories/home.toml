@@ -1,0 +1,13 @@
+id = "home"
+
+[title]
+ru = "Дом"
+en = "Home"
+uk = "Дім"
+pl = "Dom"
+de = "Zuhause"
+es = "Casa"
+ja = "家"
+zh = "家"
+
+icon = "home"

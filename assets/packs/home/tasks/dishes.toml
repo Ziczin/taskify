@@ -1,0 +1,21 @@
+id = "dishes"
+kind = "habit"
+category = "kitchen"
+tags = ["evening", "quick"]
+icon = "sink"
+combos = ["home_daily"]
+
+[title]
+ru = "Посуда"
+en = "Dishes"
+
+[description]
+ru = "Помыть посуду и убрать со стола."
+en = "Wash the dishes and clear the table."
+
+[reward]
+xp = 10
+coins = 2
+
+[schedule]
+type = "daily"

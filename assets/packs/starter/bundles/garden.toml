@@ -1,0 +1,15 @@
+id = "garden"
+price = 570
+base = "light"
+tokens = [
+  "color.accent:green",
+  "background.image:meadow",
+  "font.ui:serif",
+  "sound.ui:soft",
+]
+[title]
+ru = "Сад"
+en = "Garden"
+[description]
+ru = "Шалфейный акцент, луг на фоне, шрифт с засечками и мягкий звук."
+en = "Sage accent, meadow backdrop, a serif font and a soft sound."

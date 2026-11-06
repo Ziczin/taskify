@@ -1,0 +1,17 @@
+id = "level_5"
+[condition]
+metric = "sys.level"
+op = "gte"
+value = 5
+
+[title]
+ru = "Пятый уровень"
+en = "Level five"
+
+[description]
+ru = "Достичь пятого уровня."
+en = "Reach level five."
+
+[reward]
+xp = 50
+coins = 15

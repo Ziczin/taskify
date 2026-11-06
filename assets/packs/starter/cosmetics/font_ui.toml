@@ -1,0 +1,30 @@
+id = "font.ui"
+type = "font"
+group = "theme"
+
+[title]
+ru = "Шрифт"
+en = "Font"
+[[variants]]
+id = "sans"
+value = "NotoSans"
+unlock = { type = "free" }
+[variants.title]
+ru = "Без засечек"
+en = "Sans"
+
+[[variants]]
+id = "serif"
+value = "Georgia"
+unlock = { type = "coins", price = 120 }
+[variants.title]
+ru = "С засечками"
+en = "Serif"
+
+[[variants]]
+id = "mono"
+value = "Consolas"
+unlock = { type = "coins", price = 120 }
+[variants.title]
+ru = "Моно"
+en = "Mono"

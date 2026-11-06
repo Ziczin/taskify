@@ -1,0 +1,31 @@
+[app]
+title = "Taskify"
+
+[nav]
+today = "Сьогодні"
+week = "Тиждень"
+packs = "Паки"
+achievements = "Досягнення"
+history = "Історія"
+settings = "Налаштування"
+
+[menu]
+view = "Вигляд"
+help = "Довідка"
+
+[menu.view_items]
+fullscreen = "Повноекранний режим"
+reset_window = "Скинути розмір вікна"
+
+[menu.help_items]
+about = "Про програму"
+
+[about]
+title = "Про програму"
+text = "Локальна гейміфікація справ. Усі дані зберігаються лише на вашому комп'ютері."
+
+[section]
+soon = "Розділ у розробці."
+
+[common]
+close = "Закрити"

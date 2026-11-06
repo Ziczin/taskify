@@ -1,0 +1,21 @@
+id = "sleep_early"
+kind = "habit"
+category = "sleep"
+tags = ["evening"]
+icon = "moon"
+combos = ["evening_calm"]
+
+[title]
+ru = "Сон до 23:00"
+en = "Bed by 23:00"
+
+[description]
+ru = "Лечь спать до одиннадцати вечера."
+en = "Lights out before eleven in the evening."
+
+[reward]
+xp = 20
+coins = 4
+
+[schedule]
+type = "daily"

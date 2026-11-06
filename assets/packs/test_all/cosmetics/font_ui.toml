@@ -1,0 +1,13 @@
+id = "font.ui"
+type = "font"
+group = "theme"
+[title]
+ru = "Шрифт"
+en = "Font"
+[[variants]]
+id = "test_mono"
+value = "Consolas"
+unlock = { type = "free" }
+[variants.title]
+ru = "Тестовый моно"
+en = "Test mono"

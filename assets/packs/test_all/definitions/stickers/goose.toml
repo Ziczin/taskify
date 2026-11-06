@@ -1,0 +1,7 @@
+id = "goose"
+image = "media/goose.png"
+scale = 1.0
+price = 120
+[name]
+ru = "Гусь"
+en = "Goose"

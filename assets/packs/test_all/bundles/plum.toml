@@ -1,0 +1,13 @@
+id = "plum"
+price = 120
+base = "dark"
+tokens = [
+  "theme:test_plum",
+  "sound.ui:test_chime",
+]
+[title]
+ru = "Слива"
+en = "Plum"
+[description]
+ru = "Глубокая сливовая палитра с лавандовым акцентом и колокольчиком."
+en = "Deep plum palette with a lavender accent and a chime."

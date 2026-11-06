@@ -1,0 +1,22 @@
+id = "body_week"
+window = "week"
+repeat = "once"
+members = ["walk", "stretch", "water"]
+
+[title]
+ru = "Неделя тела"
+en = "Body week"
+uk = "Тиждень тіла"
+pl = "Tydzień ciała"
+de = "Körperwoche"
+es = "Semana del cuerpo"
+ja = "体の週"
+zh = "身体周"
+
+[description]
+ru = "Движение каждый день недели."
+en = "Movement every day of the week."
+
+[bonus]
+xp = 40
+coins = 10

@@ -1,0 +1,19 @@
+schema = 1
+id = "health"
+version = "1.2.0"
+official = true
+license = "CC-BY-4.0"
+locales = ["ru", "en", "ja", "uk", "pl", "es", "zh", "de"]
+
+[progression]
+base = 50.0
+exponent = 1.4
+max_level = 10
+
+[name]
+ru = "Здоровье"
+en = "Health"
+
+[description]
+ru = "Сон, вода, движение и еда без фанатизма — набор про тело, которое хочет высыпаться и не болеть. Девять дел: от короткой зарядки до овощей на тарелке, два комбо за режим и три ачивки за привычку. Подходит, если хочется начать с малого, а не с марафона."
+en = "Sleep, water, movement and food without fanaticism: a pack about a body that wants to rest and stay well. Nine tasks, from a short warm-up to vegetables on the plate, two combos for a steady routine and three achievements for turning it into a habit. Made for starting small instead of starting a marathon."

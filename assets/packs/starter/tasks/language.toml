@@ -1,0 +1,26 @@
+id = "language"
+kind = "habit"
+category = "growth"
+tags = ["quick"]
+icon = "lang"
+
+[title]
+ru = "Язык 15 минут"
+en = "Language 15 min"
+uk = "Мова 15 хв"
+pl = "Język 15 min"
+de = "Sprache 15 Min"
+es = "Idioma 15 min"
+ja = "15分語学"
+zh = "15分钟语言"
+
+[description]
+ru = "Пятнадцать минут иностранного языка."
+en = "Fifteen minutes of a foreign language."
+
+[reward]
+xp = 15
+coins = 3
+
+[schedule]
+type = "daily"

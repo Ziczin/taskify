@@ -1,0 +1,68 @@
+id = "coins"
+kind = "once"
+category = "tour"
+tags = ["welcome", "setup"]
+icon = "bag"
+
+[title]
+ru = "Монеты и магазин"
+en = "Coins and the shop"
+
+[description]
+ru = "За выполненные задания дают опыт и монеты. Монеты тратятся в магазине: косметика, фоны, звуки и наборы. Купленное можно примерить в профилях оформления."
+en = "Completed tasks give XP and coins. Coins are spent in the shop on cosmetics, backgrounds, sounds and bundles. Purchased looks can be applied in appearance profiles."
+
+[reward]
+xp = 10
+coins = 2
+
+[schedule]
+type = "daily"
+
+[[subtasks]]
+id = "market"
+[subtasks.title]
+ru = "Открыть магазин"
+en = "Open the shop"
+[subtasks.description]
+ru = "Магазин — экран с карточками товаров и ценой в монетах."
+en = "Магазин — экран с карточками товаров и ценой в монетах."
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "cosmetic"
+[subtasks.title]
+ru = "Косметика"
+en = "Cosmetics"
+[subtasks.description]
+ru = "Цвета, темы, шрифты и фоны покупаются по отдельности."
+en = "Цвета, темы, шрифты и фоны покупаются по отдельности."
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "bundle"
+[subtasks.title]
+ru = "Наборы"
+en = "Bundles"
+[subtasks.description]
+ru = "Набор дешевле суммы вещей: в нём сразу несколько предметов."
+en = "Набор дешевле суммы вещей: в нём сразу несколько предметов."
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "buy"
+[subtasks.title]
+ru = "Покупка"
+en = "Buying"
+[subtasks.description]
+ru = "После покупки предмет появляется в «Складе» и его можно включить."
+en = "После покупки предмет появляется в «Складе» и его можно включить."
+[subtasks.reward]
+xp = 1
+coins = 0

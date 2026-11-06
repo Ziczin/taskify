@@ -1,0 +1,15 @@
+id = "cozy"
+price = 550
+base = "light"
+tokens = [
+  "color.accent:orange",
+  "color.background:sepia",
+  "background.image:paper",
+  "sound.ui:soft",
+]
+[title]
+ru = "Уютный вечер"
+en = "Cozy evening"
+[description]
+ru = "Тёплые цвета, сепия, бумажный фон и мягкий звук — всё, чтобы вечер стал тише."
+en = "Warm colours, sepia, paper backdrop and a soft sound — everything for a quieter evening."

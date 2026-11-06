@@ -1,0 +1,20 @@
+id = "color.accent"
+type = "color"
+group = "accent"
+[title]
+ru = "Акцент"
+en = "Accent"
+[[variants]]
+id = "test_teal"
+value = "#4f9f86"
+unlock = { type = "free" }
+[variants.title]
+ru = "Тестовый шалфей"
+en = "Test sage"
+[[variants]]
+id = "test_coral"
+value = "#d9826f"
+unlock = { type = "coins", price = 80 }
+[variants.title]
+ru = "Тестовый коралл"
+en = "Test coral"

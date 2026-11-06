@@ -1,0 +1,32 @@
+id = "water"
+kind = "habit"
+category = "body"
+tags = ["morning", "quick"]
+icon = "water"
+combos = ["morning", "body_week"]
+
+[title]
+ru = "Вода"
+en = "Water"
+uk = "Вода"
+pl = "Woda"
+de = "Wasser"
+es = "Agua"
+ja = "水"
+zh = "水"
+
+[description]
+ru = "Выпить два стакана воды."
+en = "Drink two glasses of water."
+
+[reward]
+xp = 10
+coins = 2
+
+[[milestones]]
+every = 10
+xp_mult = 1.5
+coins_mult = 1.5
+
+[schedule]
+type = "daily"

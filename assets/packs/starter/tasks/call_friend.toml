@@ -1,0 +1,26 @@
+id = "call_friend"
+kind = "repeat"
+category = "social"
+icon = "phone"
+
+[title]
+ru = "Позвонить другу"
+en = "Call a friend"
+uk = "Подзвонити другу"
+pl = "Zadzwonić do przyjaciela"
+de = "Freund anrufen"
+es = "Llamar a un amigo"
+ja = "友達に電話"
+zh = "给朋友打电话"
+
+[description]
+ru = "Пятнадцать минут разговора."
+en = "Fifteen minutes of talking."
+
+[reward]
+xp = 25
+coins = 5
+
+[schedule]
+type = "interval"
+days = 7

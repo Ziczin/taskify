@@ -1,0 +1,16 @@
+id = "money_week"
+window = "week"
+repeat = "once"
+members = ["save_transfer", "subscriptions", "budget_plan"]
+
+[title]
+ru = "Финансовая неделя"
+en = "Money week"
+
+[description]
+ru = "Накопления, подписки и план на месяц."
+en = "Savings, subscriptions and a monthly plan."
+
+[bonus]
+xp = 30
+coins = 6

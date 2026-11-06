@@ -1,0 +1,21 @@
+id = "plan_day"
+kind = "habit"
+category = "work"
+tags = ["morning", "quick"]
+icon = "pen"
+combos = ["deep_work"]
+
+[title]
+ru = "План дня"
+en = "Plan the day"
+
+[description]
+ru = "Выбрать три главные задачи на день."
+en = "Pick three main tasks for the day."
+
+[reward]
+xp = 10
+coins = 2
+
+[schedule]
+type = "daily"

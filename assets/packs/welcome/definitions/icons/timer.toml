@@ -1,0 +1,6 @@
+id = "timer"
+image = "glyph_23F1"
+
+[title]
+ru = "Таймер"
+en = "Timer"

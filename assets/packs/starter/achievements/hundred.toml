@@ -1,0 +1,17 @@
+id = "hundred"
+[condition]
+metric = "sys.tasks_completed_total"
+op = "gte"
+value = 100
+
+[title]
+ru = "Сотня"
+en = "Hundred"
+
+[description]
+ru = "Сто выполнений."
+en = "One hundred completions."
+
+[reward]
+xp = 200
+coins = 60

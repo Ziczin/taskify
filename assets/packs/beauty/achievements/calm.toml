@@ -1,0 +1,15 @@
+id = "calm"
+sticker = "heart"
+[condition]
+metric = "sys.days_active"
+op = "gte"
+value = 2
+[title]
+ru = "Спокойствие"
+en = "Calm"
+[description]
+ru = "Два активных дня: сердце за ровный ритм."
+en = "Two active days: a heart for a steady rhythm."
+[reward]
+xp = 20
+coins = 5

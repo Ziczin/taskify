@@ -1,0 +1,13 @@
+id = "pair"
+window = "day"
+repeat = "each_window"
+members = ["focus", "review"]
+[title]
+ru = "Полный цикл"
+en = "Full cycle"
+[description]
+ru = "Фокус и разбор вместе."
+en = "Focus and review together."
+[bonus]
+xp = 10
+coins = 2

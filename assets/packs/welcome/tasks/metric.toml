@@ -1,0 +1,47 @@
+id = "metric"
+kind = "once"
+category = "tour"
+tags = ["welcome"]
+icon = "book"
+
+[title]
+ru = "Метрики"
+en = "Metrics"
+
+[description]
+ru = "Задания могут менять числовые метрики: счётчики, максимумы и суммы. Они копятся в статистике и могут быть условием ачивки — этот пункт добавляет шаг в счётчик."
+en = "Tasks can change numeric metrics: counters, maxima and sums. They accumulate in statistics and can gate achievements — this item adds a step to a counter."
+
+[reward]
+xp = 10
+coins = 2
+
+[metrics]
+"sys.demo.steps" = 1
+
+[schedule]
+type = "daily"
+
+[[subtasks]]
+id = "read"
+[subtasks.title]
+ru = "Прочитать"
+en = "Read"
+[subtasks.description]
+ru = "Метрика — это число, которое меняет выполнение задания."
+en = "Метрика — это число, которое меняет выполнение задания."
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "see"
+[subtasks.title]
+ru = "Посмотреть в статистике"
+en = "Check statistics"
+[subtasks.description]
+ru = "История и агрегаты показывают накопленные значения."
+en = "История и агрегаты показывают накопленные значения."
+[subtasks.reward]
+xp = 1
+coins = 0

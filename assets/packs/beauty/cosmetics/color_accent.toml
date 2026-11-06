@@ -1,0 +1,39 @@
+id = "color.accent"
+type = "color"
+group = "theme"
+
+[title]
+ru = "Акцент"
+en = "Accent"
+
+[[variants]]
+id = "rose"
+value = "#d98fa8"
+unlock = { type = "free" }
+[variants.title]
+ru = "Розовый"
+en = "Rose"
+
+[[variants]]
+id = "mint"
+value = "#8ec9b4"
+unlock = { type = "coins", price = 120 }
+[variants.title]
+ru = "Мятный"
+en = "Mint"
+
+[[variants]]
+id = "peach"
+value = "#e8a87c"
+unlock = { type = "coins", price = 160 }
+[variants.title]
+ru = "Персиковый"
+en = "Peach"
+
+[[variants]]
+id = "ink"
+value = "#4a4f6a"
+unlock = { type = "level", level = 4 }
+[variants.title]
+ru = "Чернильный"
+en = "Ink"

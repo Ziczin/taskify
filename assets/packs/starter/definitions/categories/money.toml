@@ -1,0 +1,13 @@
+id = "money"
+
+[title]
+ru = "Деньги"
+en = "Money"
+uk = "Гроші"
+pl = "Pieniądze"
+de = "Geld"
+es = "Dinero"
+ja = "お金"
+zh = "金钱"
+
+icon = "money"

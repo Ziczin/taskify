@@ -1,0 +1,22 @@
+id = "windows"
+kind = "repeat"
+category = "clean"
+tags = ["weekly"]
+icon = "window"
+combos = ["home_week"]
+
+[title]
+ru = "Помыть окна"
+en = "Wash the windows"
+
+[description]
+ru = "Помыть окна и подоконники."
+en = "Wash windows and sills."
+
+[reward]
+xp = 40
+coins = 8
+
+[schedule]
+type = "interval"
+days = 14

@@ -1,0 +1,26 @@
+id = "doctor"
+kind = "once"
+category = "body"
+tags = ["deep"]
+icon = "doctor"
+
+[title]
+ru = "К врачу"
+en = "Doctor"
+uk = "До лікаря"
+pl = "Do lekarza"
+de = "Zum Arzt"
+es = "Al médico"
+ja = "病院"
+zh = "看医生"
+
+[description]
+ru = "Записаться на приём."
+en = "Book an appointment."
+
+[reward]
+xp = 40
+coins = 10
+
+[schedule]
+type = "once"

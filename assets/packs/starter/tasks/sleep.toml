@@ -1,0 +1,26 @@
+id = "sleep"
+kind = "habit"
+category = "body"
+tags = ["evening"]
+icon = "moon"
+
+[title]
+ru = "Сон до 23:00"
+en = "Sleep by 23:00"
+uk = "Сон до 23:00"
+pl = "Sen do 23:00"
+de = "Schlafen bis 23:00"
+es = "Dormir antes de las 23:00"
+ja = "23時就寝"
+zh = "23点前睡觉"
+
+[description]
+ru = "Лечь спать до одиннадцати."
+en = "Go to bed before eleven."
+
+[reward]
+xp = 20
+coins = 4
+
+[schedule]
+type = "daily"

@@ -1,0 +1,19 @@
+schema = 1
+id = "money"
+version = "1.2.0"
+official = true
+license = "CC-BY-4.0"
+locales = ["ru", "en", "ja", "uk", "pl", "es", "zh", "de"]
+
+[progression]
+base = 50.0
+exponent = 1.4
+max_level = 10
+
+[name]
+ru = "Деньги"
+en = "Money"
+
+[description]
+ru = "Деньги без паники: учёт расходов, накопления, ревизия подписок и один большой финансовый шаг в месяц. Шесть дел, комбо за регулярный учёт и две ачивки за подушку и порядок. Начни с того, за что уже платишь."
+en = "Money without panic: tracking expenses, saving, auditing subscriptions and one big financial step a month. Six tasks, a combo for regular tracking and two achievements for a safety cushion and a tidy budget. Start with what you already pay for."

@@ -1,0 +1,13 @@
+id = "body"
+
+[title]
+ru = "Тело"
+en = "Body"
+uk = "Тіло"
+pl = "Ciało"
+de = "Körper"
+es = "Cuerpo"
+ja = "体"
+zh = "身体"
+
+icon = "body"

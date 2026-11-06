@@ -1,0 +1,55 @@
+id = "theme"
+type = "theme"
+group = "appearance"
+
+[title]
+ru = "Тема"
+en = "Theme"
+
+[[variants]]
+id = "light"
+value = "light"
+unlock = { type = "free" }
+[variants.title]
+ru = "Светлая"
+en = "Light"
+[variants.palette]
+bg = "#f3f5f8"
+panel = "#fbfcfd"
+card = "#ffffff"
+field = "#eef2f7"
+text = "#2c313a"
+muted = "#7c8492"
+accent = "#6d8fc4"
+success = "#5f9e74"
+success_bg = "#e8f2ea"
+danger = "#c07a6c"
+on_danger = "#ffffff"
+warning = "#9a7435"
+coin = "#b08a54"
+border = "#dfe4ec"
+shadow = "#1a1f28"
+
+[[variants]]
+id = "dark"
+value = "dark"
+unlock = { type = "free" }
+[variants.title]
+ru = "Тёмная"
+en = "Dark"
+[variants.palette]
+bg = "#1b1f26"
+panel = "#21262f"
+card = "#272d38"
+field = "#2a303b"
+text = "#e7ebf1"
+muted = "#98a1b0"
+accent = "#8fb0e0"
+success = "#84bd97"
+success_bg = "#26372d"
+danger = "#d79a8d"
+on_danger = "#ffffff"
+warning = "#d3b171"
+coin = "#d4ae72"
+border = "#39414e"
+shadow = "#05070a"

@@ -1,0 +1,21 @@
+id = "stretch_evening"
+kind = "habit"
+category = "body"
+tags = ["evening", "quick"]
+icon = "body"
+combos = ["evening_calm"]
+
+[title]
+ru = "Вечерняя растяжка"
+en = "Evening stretch"
+
+[description]
+ru = "Десять минут спокойной растяжки."
+en = "Ten minutes of calm stretching."
+
+[reward]
+xp = 10
+coins = 2
+
+[schedule]
+type = "daily"

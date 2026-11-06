@@ -1,0 +1,39 @@
+id = "color.accent"
+type = "color"
+group = "theme"
+
+[title]
+ru = "Акцент"
+en = "Accent"
+
+[[variants]]
+id = "blue"
+value = "#6d8fc4"
+unlock = { type = "free" }
+[variants.title]
+ru = "Пыльно-синий"
+en = "Dusty blue"
+
+[[variants]]
+id = "green"
+value = "#7ba883"
+unlock = { type = "coins", price = 100 }
+[variants.title]
+ru = "Шалфей"
+en = "Sage"
+
+[[variants]]
+id = "orange"
+value = "#c08a6f"
+unlock = { type = "coins", price = 200 }
+[variants.title]
+ru = "Терракота"
+en = "Terracotta"
+
+[[variants]]
+id = "purple"
+value = "#9a8fc4"
+unlock = { type = "level", level = 5 }
+[variants.title]
+ru = "Лаванда"
+en = "Lavender"

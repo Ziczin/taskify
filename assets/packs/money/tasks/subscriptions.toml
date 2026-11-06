@@ -1,0 +1,22 @@
+id = "subscriptions"
+kind = "repeat"
+category = "budget"
+tags = ["weekly"]
+icon = "card"
+combos = ["money_week"]
+
+[title]
+ru = "Ревизия подписок"
+en = "Subscription audit"
+
+[description]
+ru = "Отключить неиспользуемые подписки."
+en = "Cancel subscriptions you do not use."
+
+[reward]
+xp = 40
+coins = 8
+
+[schedule]
+type = "interval"
+days = 30

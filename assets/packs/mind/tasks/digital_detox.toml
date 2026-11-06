@@ -1,0 +1,21 @@
+id = "digital_detox"
+kind = "repeat"
+category = "calm"
+tags = ["weekly"]
+icon = "moon"
+
+[title]
+ru = "Цифровой детокс"
+en = "Digital detox"
+
+[description]
+ru = "День без соцсетей и новостей."
+en = "A day without social media and news."
+
+[reward]
+xp = 45
+coins = 9
+
+[schedule]
+type = "interval"
+days = 7

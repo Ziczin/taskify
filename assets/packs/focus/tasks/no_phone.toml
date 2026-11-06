@@ -1,0 +1,21 @@
+id = "no_phone"
+kind = "habit"
+category = "work"
+tags = ["deep"]
+icon = "phone"
+combos = ["deep_work"]
+
+[title]
+ru = "Час без телефона"
+en = "An hour without phone"
+
+[description]
+ru = "Час работы без телефона и мессенджеров."
+en = "An hour of work without phone or chats."
+
+[reward]
+xp = 20
+coins = 4
+
+[schedule]
+type = "daily"

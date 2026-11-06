@@ -1,0 +1,21 @@
+id = "journal_week"
+kind = "repeat"
+category = "reflection"
+tags = ["weekly"]
+icon = "pen"
+
+[title]
+ru = "Итоги недели"
+en = "Weekly reflection"
+
+[description]
+ru = "Описать week: что радовало, что тянуло вниз."
+en = "Describe the week: what lifted you, what dragged."
+
+[reward]
+xp = 35
+coins = 7
+
+[schedule]
+type = "interval"
+days = 7

@@ -1,0 +1,30 @@
+id = "color.background"
+type = "color"
+group = "theme"
+
+[title]
+ru = "Фон"
+en = "Background"
+[[variants]]
+id = "light"
+value = "#f3f5f8"
+unlock = { type = "free" }
+[variants.title]
+ru = "Светлый"
+en = "Light"
+
+[[variants]]
+id = "dark"
+value = "#1b1f26"
+unlock = { type = "free" }
+[variants.title]
+ru = "Тёмный"
+en = "Dark"
+
+[[variants]]
+id = "sepia"
+value = "#efe6d5"
+unlock = { type = "coins", price = 150 }
+[variants.title]
+ru = "Сепия"
+en = "Sepia"

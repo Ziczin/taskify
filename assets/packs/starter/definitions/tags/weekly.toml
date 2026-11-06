@@ -1,0 +1,11 @@
+id = "weekly"
+
+[title]
+ru = "Неделя"
+en = "Weekly"
+uk = "Тиждень"
+pl = "Tydzień"
+de = "Woche"
+es = "Semana"
+ja = "週"
+zh = "每周"

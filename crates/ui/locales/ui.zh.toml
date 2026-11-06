@@ -1,0 +1,31 @@
+[app]
+title = "Taskify"
+
+[nav]
+today = "今天"
+week = "本周"
+packs = "内容包"
+achievements = "成就"
+history = "历史"
+settings = "设置"
+
+[menu]
+view = "视图"
+help = "帮助"
+
+[menu.view_items]
+fullscreen = "全屏"
+reset_window = "重置窗口大小"
+
+[menu.help_items]
+about = "关于"
+
+[about]
+title = "关于"
+text = "本地任务游戏化应用。所有数据都保存在你的电脑上。"
+
+[section]
+soon = "此部分正在建设中。"
+
+[common]
+close = "关闭"

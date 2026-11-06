@@ -1,0 +1,22 @@
+id = "run"
+kind = "repeat"
+category = "cardio"
+tags = ["outdoor"]
+icon = "run"
+combos = ["cardio_day"]
+
+[title]
+ru = "Пробежка"
+en = "Run"
+
+[description]
+ru = "Тридцать минут бега в спокойном темпе."
+en = "Thirty minutes of easy running."
+
+[reward]
+xp = 35
+coins = 7
+
+[schedule]
+type = "interval"
+days = 2

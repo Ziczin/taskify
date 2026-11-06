@@ -1,0 +1,21 @@
+id = "laundry"
+kind = "repeat"
+category = "clean"
+tags = ["quick"]
+icon = "iron"
+
+[title]
+ru = "Стирка"
+en = "Laundry"
+
+[description]
+ru = "Загрузить и развесить бельё."
+en = "Load and hang the laundry."
+
+[reward]
+xp = 25
+coins = 5
+
+[schedule]
+type = "interval"
+days = 5

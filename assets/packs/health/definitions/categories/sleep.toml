@@ -1,0 +1,7 @@
+id = "sleep"
+
+[title]
+ru = "Сон"
+en = "Sleep"
+
+icon = "moon"

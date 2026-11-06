@@ -1,0 +1,23 @@
+id = "background.image"
+type = "image"
+group = "appearance"
+
+[title]
+ru = "Картинка на фон"
+en = "Backdrop image"
+
+[[variants]]
+id = "silk"
+value = "media/silk.png"
+unlock = { type = "coins", price = 220 }
+[variants.title]
+ru = "Шёлк"
+en = "Silk"
+
+[[variants]]
+id = "marble"
+value = "media/marble.png"
+unlock = { type = "coins", price = 260 }
+[variants.title]
+ru = "Мрамор"
+en = "Marble"

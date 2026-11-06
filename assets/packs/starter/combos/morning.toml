@@ -1,0 +1,22 @@
+id = "morning"
+window = "day"
+repeat = "each_window"
+members = ["water", "stretch", "journal"]
+
+[title]
+ru = "Утро"
+en = "Morning"
+uk = "Ранок"
+pl = "Rano"
+de = "Morgen"
+es = "Mañana"
+ja = "朝"
+zh = "早晨"
+
+[description]
+ru = "Вода, разминка и дневник."
+en = "Water, stretch and journal."
+
+[bonus]
+xp = 15
+coins = 3

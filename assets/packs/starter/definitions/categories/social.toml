@@ -1,0 +1,13 @@
+id = "social"
+
+[title]
+ru = "Общение"
+en = "Social"
+uk = "Спілкування"
+pl = "Kontakty"
+de = "Soziales"
+es = "Social"
+ja = "交流"
+zh = "社交"
+
+icon = "social"

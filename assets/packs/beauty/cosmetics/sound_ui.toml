@@ -1,0 +1,15 @@
+id = "sound.ui"
+type = "sound"
+group = "sound"
+
+[title]
+ru = "Звук"
+en = "Sound"
+
+[[variants]]
+id = "sparkle"
+value = "media/sparkle.wav"
+unlock = { type = "coins", price = 150 }
+[variants.title]
+ru = "Искры"
+en = "Sparkle"

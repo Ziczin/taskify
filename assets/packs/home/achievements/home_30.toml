@@ -1,0 +1,18 @@
+id = "home_30"
+
+[condition]
+metric = "sys.tasks_by_category.home/clean"
+op = "gte"
+value = 30
+
+[title]
+ru = "Чистый дом"
+en = "Clean home"
+
+[description]
+ru = "Тридцать заданий уборки."
+en = "Thirty cleaning tasks."
+
+[reward]
+xp = 30
+coins = 6

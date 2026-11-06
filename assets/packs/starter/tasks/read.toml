@@ -1,0 +1,31 @@
+id = "read"
+kind = "habit"
+category = "mind"
+tags = ["evening", "deep"]
+icon = "book"
+
+[title]
+ru = "Чтение"
+en = "Reading"
+uk = "Читання"
+pl = "Czytanie"
+de = "Lesen"
+es = "Lectura"
+ja = "読書"
+zh = "阅读"
+
+[description]
+ru = "Десять страниц книги."
+en = "Ten pages of a book."
+
+[reward]
+xp = 15
+coins = 3
+
+[[milestones]]
+every = 7
+xp_mult = 1.2
+coins_mult = 1.2
+
+[schedule]
+type = "daily"

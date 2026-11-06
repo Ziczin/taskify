@@ -1,0 +1,31 @@
+id = "sound.ui"
+type = "sound"
+group = "sound"
+
+[title]
+ru = "Звук"
+en = "Sound"
+
+[[variants]]
+id = "quiet"
+value = "media/quiet.wav"
+unlock = { type = "free" }
+[variants.title]
+ru = "Тихий"
+en = "Quiet"
+
+[[variants]]
+id = "soft"
+value = "media/soft.wav"
+unlock = { type = "coins", price = 100 }
+[variants.title]
+ru = "Мягкий"
+en = "Soft"
+
+[[variants]]
+id = "chime"
+value = "media/chime.wav"
+unlock = { type = "coins", price = 200 }
+[variants.title]
+ru = "Колокольчик"
+en = "Chime"

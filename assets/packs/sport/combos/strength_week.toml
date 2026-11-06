@@ -1,0 +1,16 @@
+id = "strength_week"
+window = "week"
+repeat = "once"
+members = ["gym", "plank", "squats"]
+
+[title]
+ru = "Силовая неделя"
+en = "Strength week"
+
+[description]
+ru = "Зал, планка и приседания за неделю."
+en = "Gym, plank and squats within a week."
+
+[bonus]
+xp = 30
+coins = 6

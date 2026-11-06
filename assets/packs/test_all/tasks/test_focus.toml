@@ -1,0 +1,24 @@
+id = "focus"
+kind = "habit"
+category = "lab"
+tags = ["quick"]
+icon = "icon_lab"
+combos = ["pair"]
+[title]
+ru = "Сфокусироваться на 15 минут"
+en = "Focus for 15 minutes"
+[description]
+ru = "Один короткий подход к тестовому делу."
+en = "One short pass over the test task."
+[reward]
+xp = 12
+coins = 2
+[metrics]
+"test.energy" = 1
+[schedule]
+type = "daily"
+
+[[milestones]]
+every = 5
+xp_mult = 1.2
+coins_mult = 1.2

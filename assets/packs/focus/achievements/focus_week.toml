@@ -1,0 +1,18 @@
+id = "focus_week"
+
+[condition]
+metric = "sys.days_active"
+op = "gte"
+value = 7
+
+[title]
+ru = "Неделя в фокусе"
+en = "Focus week"
+
+[description]
+ru = "Семь активных дней."
+en = "Seven active days."
+
+[reward]
+xp = 20
+coins = 4

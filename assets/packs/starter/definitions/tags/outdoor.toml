@@ -1,0 +1,11 @@
+id = "outdoor"
+
+[title]
+ru = "Улица"
+en = "Outdoor"
+uk = "Вулиця"
+pl = "Dwór"
+de = "Draußen"
+es = "Exterior"
+ja = "外"
+zh = "户外"

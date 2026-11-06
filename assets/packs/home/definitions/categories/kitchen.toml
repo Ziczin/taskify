@@ -1,0 +1,7 @@
+id = "kitchen"
+
+[title]
+ru = "Кухня"
+en = "Kitchen"
+
+icon = "pot"

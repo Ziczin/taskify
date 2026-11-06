@@ -1,0 +1,20 @@
+id = "no_social"
+kind = "habit"
+category = "calm"
+tags = ["morning"]
+icon = "phone"
+
+[title]
+ru = "Утро без соцсетей"
+en = "Morning without social media"
+
+[description]
+ru = "Первый час после подъёма без ленты."
+en = "The first hour after waking without feeds."
+
+[reward]
+xp = 25
+coins = 5
+
+[schedule]
+type = "daily"

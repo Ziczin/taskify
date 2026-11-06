@@ -1,0 +1,16 @@
+id = "evening_calm"
+window = "day"
+repeat = "each_window"
+members = ["stretch_evening", "sleep_early"]
+
+[title]
+ru = "Спокойный вечер"
+en = "Calm evening"
+
+[description]
+ru = "Растяжка и сон вовремя."
+en = "Stretch and sleep on time."
+
+[bonus]
+xp = 15
+coins = 3

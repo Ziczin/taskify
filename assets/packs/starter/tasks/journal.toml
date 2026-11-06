@@ -1,0 +1,27 @@
+id = "journal"
+kind = "habit"
+category = "mind"
+tags = ["evening", "quick"]
+icon = "pen"
+combos = ["morning"]
+
+[title]
+ru = "Дневник"
+en = "Journal"
+uk = "Щоденник"
+pl = "Dziennik"
+de = "Tagebuch"
+es = "Diario"
+ja = "日記"
+zh = "日记"
+
+[description]
+ru = "Записать три мысли за день."
+en = "Write down three thoughts."
+
+[reward]
+xp = 10
+coins = 2
+
+[schedule]
+type = "daily"

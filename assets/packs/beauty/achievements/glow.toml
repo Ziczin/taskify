@@ -1,0 +1,15 @@
+id = "glow"
+sticker = "spark"
+[condition]
+metric = "sys.xp_total"
+op = "gte"
+value = 100
+[title]
+ru = "Сияние"
+en = "Glow"
+[description]
+ru = "Набрать сто опыта и получить искру на доску."
+en = "Earn one hundred XP and get a spark for the board."
+[reward]
+xp = 25
+coins = 6

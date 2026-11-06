@@ -1,0 +1,16 @@
+id = "night"
+price = 420
+base = "dark"
+tokens = [
+  "theme:dark",
+  "color.accent:purple",
+  "color.background:dark",
+  "background.image:dusk",
+  "sound.ui:chime",
+]
+[title]
+ru = "Ночная смена"
+en = "Night shift"
+[description]
+ru = "Тёмная тема, лавандовый акцент, сумеречный фон и колокольчик для тех, кто работает после полуночи."
+en = "Dark theme, lavender accent, dusk backdrop and a chime for those who work past midnight."

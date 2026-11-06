@@ -1,0 +1,19 @@
+schema = 1
+id = "home"
+version = "1.2.0"
+official = true
+license = "CC-BY-4.0"
+locales = ["ru", "en", "ja", "uk", "pl", "es", "zh", "de"]
+
+[progression]
+base = 50.0
+exponent = 1.4
+max_level = 10
+
+[name]
+ru = "Дом и быт"
+en = "Home and chores"
+
+[description]
+ru = "Дом без авралов: посуда, полы, растения и размусоривание по десять минут. Восемь маленьких дел, два комбо за уборку по расписанию и две ачивки за уют. Не про идеальный порядок, а про то, чтобы не тонуть в быту."
+en = "A home without emergency clean-ups: dishes, floors, plants and ten-minute decluttering. Eight small tasks, two combos for cleaning on schedule, two achievements for cosiness. Not about a perfect home, but about not drowning in chores."

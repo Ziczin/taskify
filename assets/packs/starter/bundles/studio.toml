@@ -1,0 +1,14 @@
+id = "studio"
+price = 250
+base = "light"
+tokens = [
+  "font.ui:mono",
+  "background.image:paper",
+  "sound.ui:quiet",
+]
+[title]
+ru = "Студия"
+en = "Studio"
+[description]
+ru = "Моноширинный шрифт, бумажный фон и тихий щелчок: минимум, который не мешает."
+en = "Monospace font, paper backdrop and a quiet click: minimal and unobtrusive."

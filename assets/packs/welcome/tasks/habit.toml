@@ -1,0 +1,25 @@
+id = "habit"
+kind = "habit"
+category = "tour"
+tags = ["welcome"]
+icon = "water"
+
+[title]
+ru = "Привычка дня"
+en = "Daily habit"
+
+[description]
+ru = "Привычка появляется каждый день. Серия считает дни подряд, а каждый третий раз даёт полуторную награду — это майлстоун. Отмечай её и смотри, как растёт серия."
+en = "A habit appears every day. The streak counts consecutive days, and every third completion pays one and a half times — that is a milestone. Tick it and watch the streak grow."
+
+[reward]
+xp = 10
+coins = 2
+
+[[milestones]]
+every = 3
+xp_mult = 1.5
+coins_mult = 1.5
+
+[schedule]
+type = "daily"

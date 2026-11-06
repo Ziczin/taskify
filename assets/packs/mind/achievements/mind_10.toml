@@ -1,0 +1,18 @@
+id = "mind_10"
+
+[condition]
+metric = "sys.task_completions.mind/meditate10"
+op = "gte"
+value = 10
+
+[title]
+ru = "Десять медитаций"
+en = "Ten meditations"
+
+[description]
+ru = "Десять сессий по десять минут."
+en = "Ten ten-minute sessions."
+
+[reward]
+xp = 25
+coins = 5

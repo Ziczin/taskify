@@ -1,0 +1,21 @@
+id = "strength"
+kind = "repeat"
+category = "body"
+tags = ["outdoor"]
+icon = "body"
+
+[title]
+ru = "Силовая тренировка"
+en = "Strength training"
+
+[description]
+ru = "Сорок минут силовой, через день."
+en = "Forty minutes of strength work, every other day."
+
+[reward]
+xp = 30
+coins = 6
+
+[schedule]
+type = "interval"
+days = 2

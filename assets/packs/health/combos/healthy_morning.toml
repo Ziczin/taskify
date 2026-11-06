@@ -1,0 +1,16 @@
+id = "healthy_morning"
+window = "day"
+repeat = "each_window"
+members = ["water_two", "vitamins", "walk30"]
+
+[title]
+ru = "Здоровое утро"
+en = "Healthy morning"
+
+[description]
+ru = "Вода, витамины и прогулка до обеда."
+en = "Water, vitamins and a walk before noon."
+
+[bonus]
+xp = 15
+coins = 3

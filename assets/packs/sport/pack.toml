@@ -1,0 +1,19 @@
+schema = 1
+id = "sport"
+version = "1.2.0"
+official = true
+license = "CC-BY-4.0"
+locales = ["ru", "en", "ja", "uk", "pl", "es", "zh", "de"]
+
+[progression]
+base = 50.0
+exponent = 1.4
+max_level = 10
+
+[name]
+ru = "Движение"
+en = "Movement"
+
+[description]
+ru = "Шаги, силовые и растяжка — с залом и без. Восемь дел от прогулки до тренировки, два комбо за регулярность и две ачивки: за первую и за сотую тренировку. Даже десять минут считаются — главное не пропускать."
+en = "Steps, strength and mobility, with or without a gym. Eight tasks from a walk to a full workout, two combos for staying regular and two achievements: the first workout and the hundredth one. Ten minutes count too, as long as you keep showing up."

@@ -1,0 +1,401 @@
+//! Модель задания.
+
+use std::collections::BTreeMap;
+
+use serde::{Deserialize, Serialize};
+
+use crate::metrics::MetricEffect;
+use crate::reward::{Milestone, Reward};
+
+/// Строка на нескольких языках: код языка → текст.
+pub type Locales = BTreeMap<String, String>;
+
+pub const KNOWN_LOCALES: [&str; 8] = ["ru", "en", "ja", "uk", "pl", "es", "zh", "de"];
+
+/// Текст на выбранном языке, затем на английском.
+pub fn tr(map: &Locales, locale: &str) -> Option<String> {
+    map.get(locale)
+        .or_else(|| map.get("en"))
+        .filter(|value| !value.trim().is_empty())
+        .cloned()
+}
+
+/// Текст с последним фолбэком на технический id.
+pub fn tr_or(map: &Locales, locale: &str, id: &str) -> String {
+    tr(map, locale).unwrap_or_else(|| format!("[{id}]"))
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Kind {
+    /// Каждый день.
+    Habit,
+    /// Раз в N дней.
+    Repeat,
+    /// Один раз.
+    Once,
+}
+
+impl Kind {
+    pub fn key(self) -> &'static str {
+        match self {
+            Kind::Habit => "habit",
+            Kind::Repeat => "repeat",
+            Kind::Once => "once",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum Schedule {
+    /// Появляется каждый день.
+    #[default]
+    Daily,
+    /// Появляется раз в `days` дней.
+    Interval { days: u32 },
+    /// Появляется один раз, без даты.
+    Once,
+    /// Не появляется сама, только вручную.
+    Manual,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct HintCost {
+    pub amount: f64,
+    #[serde(default = "default_currency")]
+    pub currency: String,
+}
+
+fn default_currency() -> String {
+    "RUB".to_string()
+}
+
+#[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
+pub struct Hints {
+    #[serde(default)]
+    pub duration_min: Option<u32>,
+    #[serde(default)]
+    pub cost: Option<HintCost>,
+    #[serde(default)]
+    pub requires: Option<Locales>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Subtask {
+    pub id: String,
+    #[serde(default)]
+    pub title: Locales,
+    #[serde(default)]
+    pub description: Locales,
+    #[serde(default)]
+    pub tags: Vec<String>,
+    #[serde(default)]
+    pub reward: Reward,
+    #[serde(default)]
+    pub metrics: BTreeMap<String, MetricEffect>,
+}
+
+impl Subtask {
+    pub fn title(&self, locale: &str) -> String {
+        tr_or(&self.title, locale, &self.id)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct Task {
+    pub id: String,
+    #[serde(default = "default_kind")]
+    pub kind: Kind,
+    #[serde(default)]
+    pub title: Locales,
+    #[serde(default)]
+    pub description: Locales,
+    #[serde(default)]
+    pub category: Option<String>,
+    #[serde(default)]
+    pub tags: Vec<String>,
+    #[serde(default)]
+    pub icon: Option<String>,
+    #[serde(default)]
+    pub reward: Reward,
+    #[serde(default)]
+    pub milestones: Vec<Milestone>,
+    #[serde(default)]
+    pub schedule: Schedule,
+    #[serde(default)]
+    pub combos: Vec<String>,
+    #[serde(default)]
+    pub hints: Hints,
+    #[serde(default)]
+    pub subtasks: Vec<Subtask>,
+    #[serde(default)]
+    pub metrics: BTreeMap<String, MetricEffect>,
+    #[serde(default)]
+    pub former_ids: Vec<String>,
+    #[serde(default = "default_rev")]
+    pub rev: u32,
+}
+
+fn default_kind() -> Kind {
+    Kind::Habit
+}
+
+fn default_rev() -> u32 {
+    1
+}
+
+/// Снимок задания в событии: полная копия, читается без пака.
+pub type TaskSnapshot = Task;
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TaskError {
+    EmptyTitle,
+    EmptyId,
+    BadId,
+    InvalidLocale { code: String },
+    DuplicateSubtaskId { subtask: String },
+    EmptySubtaskTitle { subtask: String },
+    IntervalDaysZero,
+    MilestoneEveryZero { index: usize },
+    MilestoneMultiplierBelowOne { index: usize },
+    DuplicateFormerId { id: String },
+    FormerIdMatchesSelf { id: String },
+    InvalidCurrency { currency: String },
+}
+
+impl TaskError {
+    pub fn code(&self) -> &'static str {
+        match self {
+            TaskError::EmptyTitle => "T001",
+            TaskError::EmptyId | TaskError::BadId => "T002",
+            TaskError::InvalidLocale { .. } => "T003",
+            TaskError::DuplicateSubtaskId { .. } | TaskError::EmptySubtaskTitle { .. } => "T004",
+            TaskError::IntervalDaysZero => "T005",
+            TaskError::MilestoneEveryZero { .. }
+            | TaskError::MilestoneMultiplierBelowOne { .. } => "T006",
+            TaskError::DuplicateFormerId { .. } | TaskError::FormerIdMatchesSelf { .. } => "T007",
+            TaskError::InvalidCurrency { .. } => "T008",
+        }
+    }
+}
+
+pub fn is_valid_currency(code: &str) -> bool {
+    const KNOWN: [&str; 12] = [
+        "RUB", "USD", "EUR", "GBP", "JPY", "CNY", "PLN", "UAH", "KZT", "BYN", "CHF", "TRY",
+    ];
+    KNOWN.contains(&code)
+}
+
+pub fn is_valid_id(id: &str) -> bool {
+    !id.is_empty()
+        && id
+            .chars()
+            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || matches!(c, '-' | '_' | '.'))
+}
+
+/// Id с префиксом пака: `pack/id`, каждый сегмент — обычный id.
+pub fn is_valid_qualified_id(id: &str) -> bool {
+    if !id.contains('/') {
+        return is_valid_id(id);
+    }
+    let mut parts = id.split('/');
+    match (parts.next(), parts.next(), parts.next()) {
+        (Some(pack), Some(local), None) => is_valid_id(pack) && is_valid_id(local),
+        _ => false,
+    }
+}
+
+impl Task {
+    pub fn title(&self, locale: &str) -> String {
+        tr_or(&self.title, locale, &self.id)
+    }
+
+    pub fn description(&self, locale: &str) -> String {
+        tr(&self.description, locale).unwrap_or_default()
+    }
+
+    pub fn interval_days(&self) -> Option<u32> {
+        match self.schedule {
+            Schedule::Interval { days } => Some(days),
+            _ => None,
+        }
+    }
+
+    /// Текущий id или один из прежних.
+    pub fn id_in_use(&self, id: &str) -> bool {
+        self.id == id || self.former_ids.iter().any(|former| former == id)
+    }
+
+    pub fn all_ids(&self) -> Vec<&str> {
+        let mut ids = vec![self.id.as_str()];
+        ids.extend(self.former_ids.iter().map(String::as_str));
+        ids
+    }
+
+    pub fn subtask(&self, id: &str) -> Option<&Subtask> {
+        self.subtasks.iter().find(|subtask| subtask.id == id)
+    }
+
+    pub fn validate(&self) -> Vec<TaskError> {
+        let mut errors = Vec::new();
+
+        if self.id.trim().is_empty() {
+            errors.push(TaskError::EmptyId);
+        } else if !is_valid_qualified_id(&self.id) {
+            errors.push(TaskError::BadId);
+        }
+
+        if tr(&self.title, "en").is_none() && self.title.is_empty() {
+            errors.push(TaskError::EmptyTitle);
+        }
+
+        for code in self.title.keys().chain(self.description.keys()) {
+            if !KNOWN_LOCALES.contains(&code.as_str()) {
+                errors.push(TaskError::InvalidLocale { code: code.clone() });
+            }
+        }
+
+        if let Schedule::Interval { days } = self.schedule {
+            if days == 0 {
+                errors.push(TaskError::IntervalDaysZero);
+            }
+        }
+
+        for (index, milestone) in self.milestones.iter().enumerate() {
+            if milestone.every == 0 {
+                errors.push(TaskError::MilestoneEveryZero { index });
+            }
+            if milestone.xp_mult < 1.0 || milestone.coins_mult < 1.0 {
+                errors.push(TaskError::MilestoneMultiplierBelowOne { index });
+            }
+        }
+
+        let mut seen = std::collections::BTreeSet::new();
+        for subtask in &self.subtasks {
+            if !seen.insert(subtask.id.clone()) {
+                errors.push(TaskError::DuplicateSubtaskId {
+                    subtask: subtask.id.clone(),
+                });
+            }
+            if tr(&subtask.title, "en").is_none() {
+                errors.push(TaskError::EmptySubtaskTitle {
+                    subtask: subtask.id.clone(),
+                });
+            }
+        }
+
+        let mut former_seen = std::collections::BTreeSet::new();
+        for former in &self.former_ids {
+            if former == &self.id {
+                errors.push(TaskError::FormerIdMatchesSelf { id: former.clone() });
+            }
+            if !former_seen.insert(former.clone()) {
+                errors.push(TaskError::DuplicateFormerId { id: former.clone() });
+            }
+        }
+
+        if let Some(cost) = &self.hints.cost {
+            if !is_valid_currency(&cost.currency) {
+                errors.push(TaskError::InvalidCurrency {
+                    currency: cost.currency.clone(),
+                });
+            }
+        }
+
+        errors
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn sample() -> Task {
+        let mut title = Locales::new();
+        title.insert("en".into(), "Drink water".into());
+        title.insert("ru".into(), "Пить воду".into());
+        Task {
+            id: "water".into(),
+            kind: Kind::Habit,
+            title,
+            description: Locales::new(),
+            category: Some("body".into()),
+            tags: vec!["health".into()],
+            icon: None,
+            reward: Reward::new(10, 2),
+            milestones: vec![Milestone {
+                every: 7,
+                xp_mult: 2.0,
+                coins_mult: 2.0,
+            }],
+            schedule: Schedule::Daily,
+            combos: vec![],
+            hints: Hints::default(),
+            subtasks: vec![],
+            metrics: BTreeMap::new(),
+            former_ids: vec![],
+            rev: 1,
+        }
+    }
+
+    #[test]
+    fn sample_is_valid() {
+        assert!(sample().validate().is_empty());
+    }
+
+    #[test]
+    fn title_falls_back_through_english() {
+        let task = sample();
+        assert_eq!(task.title("ru"), "Пить воду");
+        assert_eq!(task.title("de"), "Drink water");
+        assert_eq!(task.title("xx"), "Drink water");
+    }
+
+    #[test]
+    fn interval_zero_is_invalid() {
+        let mut task = sample();
+        task.schedule = Schedule::Interval { days: 0 };
+        assert!(task
+            .validate()
+            .iter()
+            .any(|e| matches!(e, TaskError::IntervalDaysZero)));
+    }
+
+    #[test]
+    fn duplicate_subtasks_are_caught() {
+        let mut task = sample();
+        let subtask = Subtask {
+            id: "a".into(),
+            title: Locales::new(),
+            description: Locales::new(),
+            tags: vec![],
+            reward: Reward::default(),
+            metrics: BTreeMap::new(),
+        };
+        task.subtasks = vec![subtask.clone(), subtask];
+        assert!(task
+            .validate()
+            .iter()
+            .any(|e| matches!(e, TaskError::DuplicateSubtaskId { .. })));
+    }
+
+    #[test]
+    fn former_ids_resolve() {
+        let mut task = sample();
+        task.id = "water2".into();
+        task.former_ids = vec!["water".into()];
+        assert!(task.id_in_use("water"));
+        assert!(task.id_in_use("water2"));
+        assert!(!task.id_in_use("tea"));
+    }
+
+    #[test]
+    fn toml_roundtrip() {
+        let task = sample();
+        let text = toml::to_string(&task).unwrap();
+        let back: Task = toml::from_str(&text).unwrap();
+        assert_eq!(back, task);
+    }
+}

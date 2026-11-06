@@ -1,0 +1,24 @@
+id = "review"
+kind = "once"
+category = "lab"
+tags = ["deep"]
+icon = "icon_lab"
+combos = ["pair"]
+[title]
+ru = "Разобрать результат"
+en = "Review the result"
+[description]
+ru = "Посмотреть, что получилось, и записать вывод."
+en = "See what came out and write down the conclusion."
+[reward]
+xp = 18
+coins = 3
+
+[[subtasks]]
+id = "notes"
+[subtasks.title]
+ru = "Записать вывод"
+en = "Write the conclusion"
+[subtasks.reward]
+xp = 3
+coins = 0

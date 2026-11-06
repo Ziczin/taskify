@@ -1,0 +1,13 @@
+id = "background.image"
+type = "image"
+group = "appearance"
+[title]
+ru = "Фон"
+en = "Backdrop"
+[[variants]]
+id = "test_sky"
+value = "media/test_sky.png"
+unlock = { type = "free" }
+[variants.title]
+ru = "Тестовое небо"
+en = "Test sky"

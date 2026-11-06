@@ -1,0 +1,20 @@
+id = "sound.ui"
+type = "sound"
+group = "sound"
+[title]
+ru = "Звук"
+en = "Sound"
+[[variants]]
+id = "test_ping"
+value = "media/test_ping.wav"
+unlock = { type = "free" }
+[variants.title]
+ru = "Тестовый сигнал"
+en = "Test ping"
+[[variants]]
+id = "test_chime"
+value = "media/test_chime.wav"
+unlock = { type = "coins", price = 40 }
+[variants.title]
+ru = "Тестовый колокольчик"
+en = "Test chime"

@@ -1,0 +1,21 @@
+id = "steps10k"
+kind = "habit"
+category = "cardio"
+tags = ["outdoor"]
+icon = "shoes"
+combos = ["cardio_day"]
+
+[title]
+ru = "Десять тысяч шагов"
+en = "Ten thousand steps"
+
+[description]
+ru = "Набрать десять тысяч шагов за день."
+en = "Reach ten thousand steps a day."
+
+[reward]
+xp = 25
+coins = 5
+
+[schedule]
+type = "daily"

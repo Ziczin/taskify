@@ -1,0 +1,31 @@
+[app]
+title = "Taskify"
+
+[nav]
+today = "Heute"
+week = "Woche"
+packs = "Pakete"
+achievements = "Erfolge"
+history = "Verlauf"
+settings = "Einstellungen"
+
+[menu]
+view = "Ansicht"
+help = "Hilfe"
+
+[menu.view_items]
+fullscreen = "Vollbild"
+reset_window = "Fenstergröße zurücksetzen"
+
+[menu.help_items]
+about = "Über"
+
+[about]
+title = "Über"
+text = "Lokale Gamifizierung von Aufgaben. Alle Daten bleiben auf deinem Computer."
+
+[section]
+soon = "Dieser Abschnitt ist in Arbeit."
+
+[common]
+close = "Schließen"

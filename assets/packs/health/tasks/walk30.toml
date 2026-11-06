@@ -1,0 +1,21 @@
+id = "walk30"
+kind = "habit"
+category = "body"
+tags = ["outdoor"]
+icon = "walk"
+combos = ["healthy_morning"]
+
+[title]
+ru = "Прогулка 30 минут"
+en = "Walk 30 minutes"
+
+[description]
+ru = "Полчаса пешком на свежем воздухе."
+en = "Half an hour on foot outdoors."
+
+[reward]
+xp = 25
+coins = 5
+
+[schedule]
+type = "daily"

@@ -1,0 +1,22 @@
+id = "budget_plan"
+kind = "repeat"
+category = "budget"
+tags = ["weekly"]
+icon = "chart"
+combos = ["money_week"]
+
+[title]
+ru = "План на месяц"
+en = "Monthly plan"
+
+[description]
+ru = "Разложить доходы и траты на месяц вперёд."
+en = "Plan income and spending for the month ahead."
+
+[reward]
+xp = 45
+coins = 9
+
+[schedule]
+type = "interval"
+days = 30

@@ -1,0 +1,28 @@
+id = "laundry"
+kind = "repeat"
+category = "home"
+tags = ["weekly"]
+icon = "laundry"
+combos = ["home_month"]
+
+[title]
+ru = "Стирка"
+en = "Laundry"
+uk = "Прання"
+pl = "Pranie"
+de = "Wäsche"
+es = "Colada"
+ja = "洗濯"
+zh = "洗衣"
+
+[description]
+ru = "Постирать и развесить вещи."
+en = "Wash and hang the clothes."
+
+[reward]
+xp = 25
+coins = 5
+
+[schedule]
+type = "interval"
+days = 7

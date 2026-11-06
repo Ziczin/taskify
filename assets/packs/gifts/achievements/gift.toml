@@ -1,0 +1,15 @@
+id = "gift"
+sticker = "gift"
+[condition]
+metric = "sys.tasks_completed_total"
+op = "gte"
+value = 60
+[title]
+ru = "Подарок"
+en = "Gift"
+[description]
+ru = "Шестьдесят заданий: подарок за упорство."
+en = "Sixty tasks: a gift for persistence."
+[reward]
+xp = 120
+coins = 30

@@ -1,0 +1,56 @@
+id = "levels"
+kind = "once"
+category = "tour"
+tags = ["welcome", "quick"]
+icon = "leaf"
+
+[title]
+ru = "Опыт и уровни"
+en = "XP and levels"
+
+[description]
+ru = "Опыт копится за задания, серии и комбо. Уровень игрока растёт без потолка, а в шапке видно, сколько осталось до следующего. Ачивки выдают за достижения и тоже дают опыт."
+en = "XP accumulates from tasks, streaks and combos. The player level has no cap, and the header shows how much is left to the next one. Achievements reward milestones and also give XP."
+
+[reward]
+xp = 10
+coins = 2
+
+[schedule]
+type = "daily"
+
+[[subtasks]]
+id = "header"
+[subtasks.title]
+ru = "Шапка"
+en = "Header"
+[subtasks.description]
+ru = "Опыт, уровень и монеты видны на каждом экране."
+en = "Опыт, уровень и монеты видны на каждом экране."
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "week"
+[subtasks.title]
+ru = "Неделя"
+en = "Week"
+[subtasks.description]
+ru = "Полоса недели показывает опыт по дням — удобно искать провалы."
+en = "Полоса недели показывает опыт по дням — удобно искать провалы."
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "ach"
+[subtasks.title]
+ru = "Ачивки"
+en = "Achievements"
+[subtasks.description]
+ru = "Экран ачивок фильтруется по паку, состоянию и сортируется по проценту."
+en = "Экран ачивок фильтруется по паку, состоянию и сортируется по проценту."
+[subtasks.reward]
+xp = 1
+coins = 0

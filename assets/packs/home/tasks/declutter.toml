@@ -1,0 +1,20 @@
+id = "declutter"
+kind = "habit"
+category = "clean"
+tags = ["quick"]
+icon = "broom"
+
+[title]
+ru = "Убрать десять вещей"
+en = "Declutter ten items"
+
+[description]
+ru = "Выбросить или убрать десять лишних вещей."
+en = "Throw away or put away ten unnecessary things."
+
+[reward]
+xp = 15
+coins = 3
+
+[schedule]
+type = "daily"

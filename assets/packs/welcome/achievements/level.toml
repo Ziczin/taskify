@@ -1,0 +1,17 @@
+id = "level"
+[condition]
+metric = "sys.level"
+op = "gte"
+value = 2
+
+[title]
+ru = "Второй уровень"
+en = "Level two"
+
+[description]
+ru = "Достичь второго уровня игрока."
+en = "Reach player level two."
+
+[reward]
+xp = 10
+coins = 2

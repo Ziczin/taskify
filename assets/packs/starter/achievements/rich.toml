@@ -1,0 +1,17 @@
+id = "rich"
+[condition]
+metric = "sys.coins_earned_total"
+op = "gte"
+value = 500
+
+[title]
+ru = "Богач"
+en = "Rich"
+
+[description]
+ru = "Заработать пятьсот монет."
+en = "Earn five hundred coins."
+
+[reward]
+xp = 80
+coins = 20

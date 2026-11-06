@@ -1,0 +1,17 @@
+id = "combo_first"
+[condition]
+metric = "sys.combos_completed_total"
+op = "gte"
+value = 1
+
+[title]
+ru = "Связка"
+en = "Combo"
+
+[description]
+ru = "Собрать первое комбо."
+en = "Collect your first combo."
+
+[reward]
+xp = 20
+coins = 5

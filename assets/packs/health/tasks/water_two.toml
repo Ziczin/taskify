@@ -1,0 +1,21 @@
+id = "water_two"
+kind = "habit"
+category = "body"
+tags = ["morning", "quick"]
+icon = "water"
+combos = ["healthy_morning"]
+
+[title]
+ru = "Два стакана воды"
+en = "Two glasses of water"
+
+[description]
+ru = "Вода сразу после подъёма."
+en = "Water right after waking up."
+
+[reward]
+xp = 10
+coins = 2
+
+[schedule]
+type = "daily"

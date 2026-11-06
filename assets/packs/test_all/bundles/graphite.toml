@@ -1,0 +1,14 @@
+id = "graphite"
+price = 130
+base = "dark"
+tokens = [
+  "theme:test_graphite",
+  "font.ui:test_mono",
+  "sound.ui:test_ping",
+]
+[title]
+ru = "Графит"
+en = "Graphite"
+[description]
+ru = "Нейтральный графит с тёплым янтарным акцентом и моноширинным шрифтом."
+en = "Neutral graphite with a warm amber accent and a monospace font."

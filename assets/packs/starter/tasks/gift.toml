@@ -1,0 +1,25 @@
+id = "gift"
+kind = "once"
+category = "social"
+icon = "gift"
+
+[title]
+ru = "Подарок"
+en = "Gift"
+uk = "Подарунок"
+pl = "Prezent"
+de = "Geschenk"
+es = "Regalo"
+ja = "プレゼント"
+zh = "礼物"
+
+[description]
+ru = "Выбрать подарок близкому."
+en = "Choose a gift for someone close."
+
+[reward]
+xp = 30
+coins = 8
+
+[schedule]
+type = "once"

@@ -1,0 +1,31 @@
+[app]
+title = "Taskify"
+
+[nav]
+today = "Dziś"
+week = "Tydzień"
+packs = "Pakiety"
+achievements = "Osiągnięcia"
+history = "Historia"
+settings = "Ustawienia"
+
+[menu]
+view = "Widok"
+help = "Pomoc"
+
+[menu.view_items]
+fullscreen = "Pełny ekran"
+reset_window = "Resetuj rozmiar okna"
+
+[menu.help_items]
+about = "O programie"
+
+[about]
+title = "O programie"
+text = "Lokalna grywalizacja zadań. Wszystkie dane zostają na Twoim komputerze."
+
+[section]
+soon = "Ta sekcja jest w budowie."
+
+[common]
+close = "Zamknij"

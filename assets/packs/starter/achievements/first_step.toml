@@ -1,0 +1,17 @@
+id = "first_step"
+[condition]
+metric = "sys.tasks_completed_total"
+op = "gte"
+value = 1
+
+[title]
+ru = "Первый шаг"
+en = "First step"
+
+[description]
+ru = "Завершить первое задание."
+en = "Complete your first task."
+
+[reward]
+xp = 10
+coins = 2

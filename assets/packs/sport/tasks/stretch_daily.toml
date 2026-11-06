@@ -1,0 +1,20 @@
+id = "stretch_daily"
+kind = "habit"
+category = "mobility"
+tags = ["quick"]
+icon = "stretch"
+
+[title]
+ru = "Мобилити"
+en = "Mobility"
+
+[description]
+ru = "Десять минут суставной гимнастики."
+en = "Ten minutes of joint mobility."
+
+[reward]
+xp = 10
+coins = 2
+
+[schedule]
+type = "daily"

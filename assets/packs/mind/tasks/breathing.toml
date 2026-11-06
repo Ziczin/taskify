@@ -1,0 +1,21 @@
+id = "breathing"
+kind = "habit"
+category = "calm"
+tags = ["quick"]
+icon = "breathe"
+combos = ["calm_evening"]
+
+[title]
+ru = "Дыхание 4-7-8"
+en = "4-7-8 breathing"
+
+[description]
+ru = "Пять циклов дыхания на четыре-семь-восемь."
+en = "Five cycles of four-seven-eight breathing."
+
+[reward]
+xp = 10
+coins = 2
+
+[schedule]
+type = "daily"

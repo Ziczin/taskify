@@ -1,0 +1,23 @@
+id = "week_active"
+[condition]
+metric = "sys.days_active"
+op = "gte"
+value = 7
+
+[title]
+ru = "Неделя в деле"
+en = "Week in"
+uk = "Тиждень у ділі"
+pl = "Tydzień w grze"
+de = "Woche dabei"
+es = "Semana activa"
+ja = "1週間"
+zh = "一周坚持"
+
+[description]
+ru = "Семь активных дней."
+en = "Seven active days."
+
+[reward]
+xp = 30
+coins = 10

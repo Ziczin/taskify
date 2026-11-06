@@ -1,0 +1,71 @@
+id = "packs"
+kind = "once"
+category = "tour"
+tags = ["welcome", "setup"]
+icon = "bag"
+
+[title]
+ru = "Паки и их уровни"
+en = "Packs and their levels"
+
+[description]
+ru = "Пак — это набор заданий, комбо и ачивок. У каждого пака свой уровень: он растёт от опыта его заданий. В карточке задания можно задать level_from и level_to — тогда задание появляется и пропадает на нужном уровне пака."
+en = "A pack is a set of tasks, combos and achievements. Each pack has its own level, growing from the XP of its tasks. A task can set level_from and level_to so it appears and disappears at a given pack level."
+
+[reward]
+xp = 10
+coins = 2
+
+level_from = 1
+level_to = 99
+
+[schedule]
+type = "daily"
+
+[[subtasks]]
+id = "open"
+[subtasks.title]
+ru = "Открыть «Паки»"
+en = "Open Packs"
+[subtasks.description]
+ru = "Список паков показывает уровень, опыт и число заданий в каждом."
+en = "Список паков показывает уровень, опыт и число заданий в каждом."
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "card"
+[subtasks.title]
+ru = "Карточка пака"
+en = "Pack page"
+[subtasks.description]
+ru = "Внутри — вкладки «Задания», «Комбо», «Ачивки» и «Инфо»."
+en = "Внутри — вкладки «Задания», «Комбо», «Ачивки» и «Инфо»."
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "level"
+[subtasks.title]
+ru = "Уровень пака"
+en = "Pack level"
+[subtasks.description]
+ru = "Полоса прогресса показывает, сколько опыта до следующего уровня."
+en = "Полоса прогресса показывает, сколько опыта до следующего уровня."
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "toggle"
+[subtasks.title]
+ru = "Включить и выключить"
+en = "Enable and disable"
+[subtasks.description]
+ru = "Выключенный пак не отдаёт задания, но остаётся в списке."
+en = "Выключенный пак не отдаёт задания, но остаётся в списке."
+[subtasks.reward]
+xp = 1
+coins = 0

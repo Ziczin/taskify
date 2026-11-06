@@ -1,0 +1,13 @@
+id = "mind"
+
+[title]
+ru = "Разум"
+en = "Mind"
+uk = "Розум"
+pl = "Umysł"
+de = "Geist"
+es = "Mente"
+ja = "心"
+zh = "心智"
+
+icon = "mind"
