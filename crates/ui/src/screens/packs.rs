@@ -25,26 +25,13 @@ impl TaskifyApp {
 
     /// Опыт пака: сумма опыта за все выполнения его заданий.
     fn pack_xp(&self, pack: &Pack) -> i64 {
-        pack.tasks
-            .values()
-            .map(|task| {
-                let done = self
-                    .engine
-                    .store
-                    .state
-                    .tasks
-                    .get(&task.id)
-                    .map(|state| state.completions_total)
-                    .unwrap_or(0);
-                (done as i64).saturating_mul(task.reward.xp)
-            })
-            .sum()
+        self.engine.pack_xp(pack)
     }
 
     /// Уровень пака и прогресс внутри уровня.
     pub(crate) fn pack_level(&self, pack: &Pack) -> (u32, u64, u64, i64) {
         let xp = self.pack_xp(pack);
-        let level = taskify_core::level_for(xp);
+        let level = self.engine.pack_level(pack);
         let (inside, span) = taskify_core::level_progress(xp);
         (level, inside, span, xp)
     }

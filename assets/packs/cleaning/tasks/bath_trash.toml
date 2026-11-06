@@ -1,0 +1,15 @@
+id = "bath_trash"
+category = "main"
+kind = "once"
+after = "choose_room"
+
+[title]
+ru = "Выбросить мусор"
+en = "Throw away the trash"
+
+[reward]
+xp = 3
+coins = 0
+
+[schedule]
+type = "once"

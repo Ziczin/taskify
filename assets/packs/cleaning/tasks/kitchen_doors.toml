@@ -1,0 +1,15 @@
+id = "kitchen_doors"
+category = "main"
+kind = "once"
+after = "kitchen_apron"
+
+[title]
+ru = "Помыть фасады"
+en = "Wipe the cabinet fronts"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

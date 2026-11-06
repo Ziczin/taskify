@@ -1,0 +1,15 @@
+id = "kitchen_table"
+category = "main"
+kind = "once"
+after = "kitchen_put"
+
+[title]
+ru = "Протереть стол"
+en = "Wipe the table"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

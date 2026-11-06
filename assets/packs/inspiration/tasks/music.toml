@@ -1,0 +1,14 @@
+id = "music"
+category = "main"
+level_from = 2
+
+[title]
+ru = "Послушать одну песню"
+en = "Listen to one song"
+
+[reward]
+xp = 2
+coins = 1
+
+[schedule]
+type = "daily"

@@ -1,0 +1,15 @@
+id = "reply"
+category = "main"
+kind = "once"
+after = "hello_friend"
+
+[title]
+ru = "Ответить на одно сообщение"
+en = "Reply to one message"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

@@ -1,0 +1,15 @@
+id = "compliment"
+category = "main"
+kind = "once"
+after = "call"
+
+[title]
+ru = "Сказать комплимент"
+en = "Give a compliment"
+
+[reward]
+xp = 4
+coins = 0
+
+[schedule]
+type = "once"

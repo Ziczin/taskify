@@ -1,0 +1,13 @@
+id = "page"
+category = "main"
+
+[title]
+ru = "Прочитать одну страницу"
+en = "Read one page"
+
+[reward]
+xp = 2
+coins = 1
+
+[schedule]
+type = "daily"

@@ -1,0 +1,15 @@
+id = "hall_door"
+category = "main"
+kind = "once"
+after = "hall_clothes"
+
+[title]
+ru = "Протереть дверь"
+en = "Wipe the door"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

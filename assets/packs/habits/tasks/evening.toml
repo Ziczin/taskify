@@ -1,0 +1,48 @@
+id = "evening"
+category = "main"
+level_from = 3
+
+[title]
+ru = "Вечерняя рутина"
+en = "Evening routine"
+
+[description]
+ru = "Три шага, чтобы мягко закончить день."
+en = "Three steps to end the day gently."
+
+[reward]
+xp = 5
+coins = 1
+
+[schedule]
+type = "daily"
+
+[[subtasks]]
+id = "teeth"
+[subtasks.title]
+ru = "Почистить зубы"
+en = "Brush your teeth"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "wash"
+[subtasks.title]
+ru = "Умыться"
+en = "Wash your face"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "air"
+[subtasks.title]
+ru = "Проветрить комнату"
+en = "Air out the room"
+
+[subtasks.reward]
+xp = 1
+coins = 0

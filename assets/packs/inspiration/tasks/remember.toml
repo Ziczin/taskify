@@ -1,0 +1,14 @@
+id = "remember"
+category = "main"
+kind = "once"
+
+[title]
+ru = "Вспомнить одну любимую вещь"
+en = "Remember one thing you love"
+
+[reward]
+xp = 3
+coins = 0
+
+[schedule]
+type = "once"

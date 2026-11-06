@@ -1,0 +1,13 @@
+id = "thank"
+category = "main"
+
+[title]
+ru = "Поблагодарить одного человека"
+en = "Thank one person"
+
+[reward]
+xp = 2
+coins = 1
+
+[schedule]
+type = "daily"

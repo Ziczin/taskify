@@ -1,0 +1,15 @@
+id = "kitchen_put"
+category = "main"
+kind = "once"
+after = "kitchen_wash"
+
+[title]
+ru = "Сложить посуду в шкаф"
+en = "Put the dishes in the cupboard"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

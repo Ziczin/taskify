@@ -6,7 +6,7 @@ use anyhow::{anyhow, bail, Context, Result};
 use chrono::{Datelike, Local, NaiveDate};
 use taskify_core::reward::{award, MilestoneHit, Reward};
 use taskify_core::task::{Kind, Locales, Schedule, Task};
-use taskify_packs::{CmpOp, Combo, Condition, PackSet, Repeat, Window};
+use taskify_packs::{CmpOp, Combo, Condition, Pack, PackSet, Repeat, Window};
 use taskify_store::backup::Tier;
 use taskify_store::event::*;
 use taskify_store::{EventKind, GameSettings, Store};
@@ -92,6 +92,42 @@ impl Engine {
             Some(pack) => !pack.enabled,
             None => self.store.state.packs_disabled.contains(id),
         }
+    }
+
+    /// Опыт пака: сумма опыта за все выполнения его заданий.
+    pub fn pack_xp(&self, pack: &Pack) -> i64 {
+        pack.tasks
+            .values()
+            .map(|task| {
+                let done = self
+                    .store
+                    .state
+                    .tasks
+                    .get(&task.id)
+                    .map(|state| state.completions_total)
+                    .unwrap_or(0);
+                (done as i64).saturating_mul(task.reward.xp)
+            })
+            .sum()
+    }
+
+    pub fn pack_level(&self, pack: &Pack) -> u32 {
+        taskify_core::level_for(self.pack_xp(pack))
+    }
+
+    /// Видно ли задание на текущем уровне его пака: уровневые рамки
+    /// скрывают задание до `level_from` и после `level_to`.
+    pub fn task_level_visible(&self, task: &Task) -> bool {
+        let Some(pack_id) = task.id.split('/').next() else {
+            return true;
+        };
+        let Some(pack) = self.packs.packs.get(pack_id) else {
+            return true;
+        };
+        let Some(gate) = pack.task_levels.get(&task.id) else {
+            return true;
+        };
+        gate.visible(self.pack_level(pack))
     }
 
     pub fn set_pack_enabled(&mut self, id: &str, enabled: bool) -> Result<()> {
@@ -995,7 +1031,7 @@ pub fn remaining_today(engine: &Engine, date: NaiveDate) -> usize {
         .packs
         .tasks()
         .into_iter()
-        .filter(|task| engine.is_due(task, date))
+        .filter(|task| engine.task_level_visible(task) && engine.is_due(task, date))
         .count()
 }
 

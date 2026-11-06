@@ -1,0 +1,20 @@
+schema = 1
+id = "cleaning"
+version = "1.0.0"
+official = true
+default_enabled = false
+license = "CC-BY-4.0"
+locales = ["ru", "en"]
+
+[progression]
+base = 50.0
+exponent = 1.4
+max_level = 10
+
+[name]
+ru = "Уборка"
+en = "Cleaning"
+
+[description]
+ru = "План чистого дома по комнатам. На экране всегда один следующий шаг: сделал — открылся новый. Кухня, ванная, спальня, гостиная и прихожая."
+en = "A room-by-room clean-home plan. There is always one next step on screen: finish it and the next one opens. Kitchen, bathroom, bedroom, living room and hallway."

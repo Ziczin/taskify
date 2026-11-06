@@ -1,0 +1,16 @@
+id = "walk"
+category = "main"
+kind = "repeat"
+level_from = 2
+
+[title]
+ru = "Пройтись 10 минут без телефона"
+en = "Walk for 10 minutes without your phone"
+
+[reward]
+xp = 2
+coins = 1
+
+[schedule]
+type = "interval"
+days = 2

@@ -1,0 +1,15 @@
+id = "living_dishes"
+category = "main"
+kind = "once"
+after = "choose_room"
+
+[title]
+ru = "Убрать посуду"
+en = "Take out the dishes"
+
+[reward]
+xp = 3
+coins = 0
+
+[schedule]
+type = "once"

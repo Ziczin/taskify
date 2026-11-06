@@ -1,0 +1,15 @@
+id = "kitchen_wash"
+category = "main"
+kind = "once"
+after = "kitchen_collect"
+
+[title]
+ru = "Помыть посуду"
+en = "Wash the dishes"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

@@ -1,0 +1,78 @@
+id = "morning_plus"
+category = "main"
+level_from = 3
+
+[title]
+ru = "Утренняя рутина+"
+en = "Morning routine+"
+
+[description]
+ru = "Та же рутина, но чуть длиннее. Подключай шаги постепенно."
+en = "The same routine, a little longer. Add steps gradually."
+
+[reward]
+xp = 6
+coins = 1
+
+[schedule]
+type = "daily"
+
+[[subtasks]]
+id = "teeth"
+[subtasks.title]
+ru = "Почистить зубы"
+en = "Brush your teeth"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "wash"
+[subtasks.title]
+ru = "Умыться"
+en = "Wash your face"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "stretch"
+[subtasks.title]
+ru = "Потянуться"
+en = "Stretch"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "hair"
+[subtasks.title]
+ru = "Причесаться"
+en = "Comb your hair"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "cream"
+[subtasks.title]
+ru = "Нанести крем"
+en = "Apply moisturizer"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "water"
+[subtasks.title]
+ru = "Выпить стакан воды"
+en = "Drink a glass of water"
+
+[subtasks.reward]
+xp = 1
+coins = 0

@@ -1,0 +1,13 @@
+id = "water"
+category = "main"
+
+[title]
+ru = "Выпить стакан воды"
+en = "Drink a glass of water"
+
+[reward]
+xp = 2
+coins = 1
+
+[schedule]
+type = "daily"

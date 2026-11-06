@@ -1,0 +1,15 @@
+id = "idea"
+category = "main"
+kind = "once"
+after = "find"
+
+[title]
+ru = "Записать одну идею"
+en = "Write down one idea"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

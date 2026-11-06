@@ -402,20 +402,14 @@ impl TaskifyApp {
 
     /// Видно ли задание на текущем уровне его пака.
     fn task_level_visible(&self, task: &Task) -> bool {
-        let Some(pack_id) = task.id.split('/').next() else {
-            return true;
-        };
-        let Some(pack) = self.engine.packs.packs.get(pack_id) else {
-            return true;
-        };
-        let Some(gate) = pack.task_levels.get(&task.id) else {
-            return true;
-        };
-        let (level, _, _, _) = self.pack_level(pack);
-        gate.visible(level)
+        self.engine.task_level_visible(task)
     }
 
     fn task_matches(&self, task: &Task, date: chrono::NaiveDate) -> bool {
+        // Задание вне уровневых рамок пака скрыто до открытия.
+        if !self.task_level_visible(task) {
+            return false;
+        }
         // Ваншот после выполнения остаётся только во вкладке «Сделано».
         let done = self.engine.is_done_today(&task.id, date);
         if self.engine.is_spent_one_shot(task) && !done {

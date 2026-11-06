@@ -1,0 +1,15 @@
+id = "bed_clothes"
+category = "main"
+kind = "once"
+after = "choose_room"
+
+[title]
+ru = "Освободить кровать"
+en = "Clear the bed"
+
+[reward]
+xp = 3
+coins = 0
+
+[schedule]
+type = "once"

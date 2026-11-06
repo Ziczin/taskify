@@ -1,0 +1,14 @@
+id = "smile"
+category = "main"
+level_from = 2
+
+[title]
+ru = "Улыбнуться себе"
+en = "Smile at yourself"
+
+[reward]
+xp = 2
+coins = 1
+
+[schedule]
+type = "daily"

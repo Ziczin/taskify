@@ -1,0 +1,15 @@
+id = "window"
+category = "main"
+kind = "once"
+after = "breath"
+
+[title]
+ru = "Открыть окно"
+en = "Open a window"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

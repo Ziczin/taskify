@@ -1,0 +1,15 @@
+id = "call"
+category = "main"
+kind = "once"
+after = "ask"
+
+[title]
+ru = "Позвонить близкому"
+en = "Call someone close"
+
+[reward]
+xp = 4
+coins = 0
+
+[schedule]
+type = "once"

@@ -11,6 +11,7 @@ Taskify is a local-first life gamification app for Windows. Keep habits, repeati
 - Four task kinds: habits, repeating tasks, one-shot tasks, and checklists with subtasks.
 - Task chains: a task opens only after its predecessor has been completed at least once.
 - Pack progress can be reset without deleting history or purchases; completed one-shots stay completed.
+- Five gentle starter packs: Greeting, Cleaning, Useful Habits, Inspiration, and Socializing, built from one-action steps and story chains.
 - Unlimited levels, daily and weekly progress, streaks, combos, and achievements.
 - Coins, a cosmetic shop, themes, accents, backgrounds, fonts, sounds, and draggable stickers.
 - Content packs in TOML: tasks, categories, tags, icons, palettes, combos, achievements, cosmetics, and bundles.

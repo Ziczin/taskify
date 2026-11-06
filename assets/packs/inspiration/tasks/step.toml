@@ -1,0 +1,19 @@
+id = "step"
+category = "main"
+kind = "once"
+after = "idea"
+
+[title]
+ru = "Сделать один маленький шаг"
+en = "Take one small step"
+
+[description]
+ru = "Один шаг по этой идее. Не весь путь."
+en = "One step toward that idea. Not the whole path."
+
+[reward]
+xp = 4
+coins = 0
+
+[schedule]
+type = "once"

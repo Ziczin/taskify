@@ -859,6 +859,37 @@ mod tests {
     }
 
     #[test]
+    fn gentle_packs_use_chains_and_level_gates() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../assets/packs");
+        let set = PackSet::load(&root);
+        for id in ["greeting", "cleaning", "habits", "inspiration", "social"] {
+            assert!(set.packs.contains_key(id), "нет пака {id}");
+        }
+        let cleaning = set.packs.get("cleaning").unwrap();
+        let wash = cleaning.tasks.get("cleaning/kitchen_wash").unwrap();
+        assert_eq!(wash.after.as_deref(), Some("cleaning/kitchen_collect"));
+        assert!(cleaning.tasks.len() >= 40, "план дома слишком короткий");
+
+        let habits = set.packs.get("habits").unwrap();
+        let basic = habits.task_levels.get("habits/morning").unwrap();
+        let advanced = habits.task_levels.get("habits/morning_plus").unwrap();
+        assert_eq!(basic.to, Some(2));
+        assert_eq!(advanced.from, Some(3));
+    }
+
+    #[test]
+    fn every_builtin_pack_passes_validation() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../assets/packs");
+        let set = PackSet::load(&root);
+        let issues = crate::validate::validate_set(&set);
+        let errors: Vec<&Issue> = issues
+            .iter()
+            .filter(|issue| issue.severity == Severity::Error)
+            .collect();
+        assert!(errors.is_empty(), "ошибки встроенных паков: {errors:#?}");
+    }
+
+    #[test]
     fn every_builtin_theme_declares_a_base() {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../assets/packs");
         let set = PackSet::load(&root);

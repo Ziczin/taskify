@@ -1,0 +1,15 @@
+id = "kitchen_apron"
+category = "main"
+kind = "once"
+after = "kitchen_tap"
+
+[title]
+ru = "Помыть фартук"
+en = "Wash the apron"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

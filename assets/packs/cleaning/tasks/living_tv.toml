@@ -1,0 +1,15 @@
+id = "living_tv"
+category = "main"
+kind = "once"
+after = "living_floor_clothes"
+
+[title]
+ru = "Протереть телевизор"
+en = "Wipe the TV"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

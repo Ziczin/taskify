@@ -1,0 +1,13 @@
+id = "gratitude"
+category = "main"
+
+[title]
+ru = "Записать одну благодарность"
+en = "Write down one gratitude"
+
+[reward]
+xp = 2
+coins = 1
+
+[schedule]
+type = "daily"

@@ -1,0 +1,15 @@
+id = "bath_air"
+category = "main"
+kind = "once"
+after = "bath_floor"
+
+[title]
+ru = "Проветрить комнату"
+en = "Air out the room"
+
+[reward]
+xp = 4
+coins = 0
+
+[schedule]
+type = "once"

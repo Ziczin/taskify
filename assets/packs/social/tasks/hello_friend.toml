@@ -1,0 +1,14 @@
+id = "hello_friend"
+category = "main"
+kind = "once"
+
+[title]
+ru = "Написать «привет» другу"
+en = "Send “hi” to a friend"
+
+[reward]
+xp = 3
+coins = 0
+
+[schedule]
+type = "once"

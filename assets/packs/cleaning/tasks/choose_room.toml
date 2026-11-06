@@ -1,0 +1,18 @@
+id = "choose_room"
+category = "main"
+kind = "once"
+
+[title]
+ru = "Выбрать одну комнату"
+en = "Choose one room"
+
+[description]
+ru = "План чистого дома: сегодня одна комната. Остальные подождут."
+en = "The clean-home plan: one room today. The others can wait."
+
+[reward]
+xp = 3
+coins = 0
+
+[schedule]
+type = "once"

@@ -1,0 +1,16 @@
+id = "meet"
+category = "main"
+kind = "once"
+level_from = 3
+after = "call"
+
+[title]
+ru = "Предложить встречу"
+en = "Suggest meeting up"
+
+[reward]
+xp = 4
+coins = 0
+
+[schedule]
+type = "once"

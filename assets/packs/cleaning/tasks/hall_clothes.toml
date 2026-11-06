@@ -1,0 +1,15 @@
+id = "hall_clothes"
+category = "main"
+kind = "once"
+after = "hall_shelf"
+
+[title]
+ru = "Освободить вешалку"
+en = "Clear the coat rack"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

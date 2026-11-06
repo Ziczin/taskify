@@ -1,0 +1,20 @@
+schema = 1
+id = "social"
+version = "1.0.0"
+official = true
+default_enabled = false
+license = "CC-BY-4.0"
+locales = ["ru", "en"]
+
+[progression]
+base = 50.0
+exponent = 1.4
+max_level = 10
+
+[name]
+ru = "Социализация"
+en = "Socializing"
+
+[description]
+ru = "Короткие шаги к людям: одно сообщение, один звонок, один комплимент. Начни с одного и не торопись."
+en = "Short steps toward people: one message, one call, one compliment. Start with one and take your time."

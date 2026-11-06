@@ -1,0 +1,15 @@
+id = "bath_sink"
+category = "main"
+kind = "once"
+after = "bath_mirror"
+
+[title]
+ru = "Помыть раковину"
+en = "Wash the sink"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

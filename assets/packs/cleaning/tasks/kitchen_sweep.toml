@@ -1,0 +1,15 @@
+id = "kitchen_sweep"
+category = "main"
+kind = "once"
+after = "kitchen_doors"
+
+[title]
+ru = "Подмести или пропылесосить"
+en = "Sweep or vacuum"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

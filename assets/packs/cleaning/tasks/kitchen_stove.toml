@@ -1,0 +1,15 @@
+id = "kitchen_stove"
+category = "main"
+kind = "once"
+after = "kitchen_table"
+
+[title]
+ru = "Протереть плиту"
+en = "Wipe the stove"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

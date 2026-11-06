@@ -1,0 +1,15 @@
+id = "hall_shoes"
+category = "main"
+kind = "once"
+after = "choose_room"
+
+[title]
+ru = "Убрать обувь"
+en = "Put the shoes away"
+
+[reward]
+xp = 3
+coins = 0
+
+[schedule]
+type = "once"

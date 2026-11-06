@@ -1,0 +1,14 @@
+id = "message"
+category = "main"
+level_from = 2
+
+[title]
+ru = "Написать одному человеку"
+en = "Message one person"
+
+[reward]
+xp = 2
+coins = 1
+
+[schedule]
+type = "daily"

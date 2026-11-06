@@ -1,0 +1,19 @@
+id = "note"
+category = "main"
+kind = "once"
+after = "window"
+
+[title]
+ru = "Записать одну мысль"
+en = "Write down one thought"
+
+[description]
+ru = "Любую. Одной строки достаточно."
+en = "Any thought. One line is enough."
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

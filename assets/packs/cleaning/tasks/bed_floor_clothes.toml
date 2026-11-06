@@ -1,0 +1,15 @@
+id = "bed_floor_clothes"
+category = "main"
+kind = "once"
+after = "bed_wipe"
+
+[title]
+ru = "Освободить пол"
+en = "Clear the floor"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

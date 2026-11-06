@@ -1,0 +1,15 @@
+id = "breath"
+category = "main"
+kind = "once"
+after = "hello"
+
+[title]
+ru = "Сделать один глубокий вдох"
+en = "Take one deep breath"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

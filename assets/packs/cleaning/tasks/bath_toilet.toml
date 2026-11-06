@@ -1,0 +1,15 @@
+id = "bath_toilet"
+category = "main"
+kind = "once"
+after = "bath_tap"
+
+[title]
+ru = "Почистить унитаз"
+en = "Clean the toilet"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

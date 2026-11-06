@@ -1,0 +1,79 @@
+id = "exercise"
+category = "main"
+kind = "repeat"
+
+[title]
+ru = "Физкульт-привет"
+en = "A little exercise"
+
+[description]
+ru = "Шесть коротких упражнений. Не спеши и дыши."
+en = "Six short exercises. Take your time and breathe."
+
+[reward]
+xp = 6
+coins = 1
+
+[schedule]
+type = "interval"
+days = 2
+
+[[subtasks]]
+id = "squats"
+[subtasks.title]
+ru = "Присесть 10 раз"
+en = "Do 10 squats"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "turns"
+[subtasks.title]
+ru = "Повороты корпуса 1 минута"
+en = "Torso turns for 1 minute"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "swings"
+[subtasks.title]
+ru = "Взмахи руками 1 минута"
+en = "Arm swings for 1 minute"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "wall_pushups"
+[subtasks.title]
+ru = "Отжимания от стены 5 раз"
+en = "Do 5 wall push-ups"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "calves"
+[subtasks.title]
+ru = "Подъёмы на носки 10 раз"
+en = "Do 10 calf raises"
+
+[subtasks.reward]
+xp = 1
+coins = 0
+
+[[subtasks]]
+id = "breath"
+[subtasks.title]
+ru = "Подышать 1 минута"
+en = "Breathe for 1 minute"
+
+[subtasks.reward]
+xp = 1
+coins = 0

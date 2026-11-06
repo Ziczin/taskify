@@ -1,0 +1,15 @@
+id = "hall_mirror"
+category = "main"
+kind = "once"
+after = "hall_door"
+
+[title]
+ru = "Протереть зеркало"
+en = "Wipe the mirror"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"

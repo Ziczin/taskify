@@ -1,0 +1,15 @@
+id = "kitchen_floor"
+category = "main"
+kind = "once"
+after = "kitchen_sweep"
+
+[title]
+ru = "Помыть пол"
+en = "Wash the floor"
+
+[reward]
+xp = 2
+coins = 0
+
+[schedule]
+type = "once"
