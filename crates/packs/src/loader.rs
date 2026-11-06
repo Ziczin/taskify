@@ -63,6 +63,27 @@ fn is_system_metric(id: &str) -> bool {
     id.starts_with("sys.")
 }
 
+/// Метрики в условиях ачивок живут в пространстве имён пака, как и в заданиях.
+fn qualify_condition(pack_id: &str, condition: &mut Condition) {
+    match condition {
+        Condition::Leaf { metric, .. } => {
+            if !is_system_metric(metric) {
+                *metric = qualify(pack_id, metric);
+            }
+        }
+        Condition::All { all_of } => {
+            for item in all_of {
+                qualify_condition(pack_id, item);
+            }
+        }
+        Condition::Any { any_of } => {
+            for item in any_of {
+                qualify_condition(pack_id, item);
+            }
+        }
+    }
+}
+
 fn collect_toml(dir: &Path, out: &mut Vec<PathBuf>) {
     let Ok(entries) = std::fs::read_dir(dir) else {
         return;
@@ -523,6 +544,7 @@ impl PackSet {
             match toml::from_str::<Achievement>(&text) {
                 Ok(mut achievement) => {
                     achievement.id = qualify(&pack_id, &achievement.id);
+                    qualify_condition(&pack_id, &mut achievement.condition);
                     if let Some(id) = achievement.sticker.take() {
                         let qualified = qualify(&pack_id, &id);
                         achievement.sticker = Some(if pack.stickers.contains_key(&qualified) {
@@ -853,18 +875,26 @@ mod tests {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../assets/packs");
         let set = PackSet::load(&root);
         let pack = set.packs.get("test_all").expect("тестовый пак");
-        assert!(!pack.categories.is_empty());
-        assert!(!pack.tags.is_empty());
-        assert!(!pack.types.is_empty());
-        assert!(!pack.icons.is_empty());
-        assert!(!pack.palette.is_empty());
-        assert!(!pack.metrics_declared.is_empty());
-        assert!(!pack.tasks.is_empty());
-        assert!(!pack.combos.is_empty());
-        assert!(!pack.achievements.is_empty());
-        assert!(!pack.tokens.is_empty());
-        assert!(!pack.stickers.is_empty());
-        assert!(!pack.bundles.is_empty());
+        assert!(pack.categories.len() >= 3, "мало категорий");
+        assert!(pack.tags.len() >= 3, "мало тегов");
+        assert!(pack.types.len() >= 3, "мало типов");
+        assert!(pack.icons.len() >= 3, "мало иконок");
+        assert!(pack.palette.len() >= 3, "мало палитр");
+        assert!(pack.metrics_declared.len() >= 3, "мало метрик");
+        assert!(pack.tasks.len() >= 3, "мало заданий");
+        assert!(pack.task_levels.len() >= 3, "мало уровневых рамок");
+        assert!(pack.combos.len() >= 3, "мало комбо");
+        assert!(pack.achievements.len() >= 3, "мало ачивок");
+        assert!(pack.tokens.len() >= 3, "мало видов косметики");
+        assert!(pack.stickers.len() >= 3, "мало стикеров");
+        assert!(pack.bundles.len() >= 3, "мало наборов");
+        for token in pack.tokens.values() {
+            assert!(
+                token.variants.len() >= 3,
+                "у {} меньше трёх вариантов",
+                token.id
+            );
+        }
         assert!(pack.stickers.contains_key("test_all/test_spark"));
         let goose = pack.stickers.get("test_all/goose").expect("гусь");
         assert_eq!(goose.image, "media/goose.png");

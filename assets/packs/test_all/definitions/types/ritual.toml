@@ -1,0 +1,9 @@
+id = "ritual"
+icon = "icon_lab"
+color = "#c58f6a"
+[title]
+ru = "Ритуал"
+en = "Ritual"
+[default_reward]
+xp = 8
+coins = 1

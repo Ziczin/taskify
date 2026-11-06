@@ -1,0 +1,13 @@
+id = "weekly"
+window = "week"
+repeat = "each_window"
+members = ["focus", "create"]
+[title]
+ru = "Недельный рывок"
+en = "Weekly push"
+[description]
+ru = "Фокус и новое дело в одну неделю."
+en = "Focus and a new task in one week."
+[bonus]
+xp = 15
+coins = 3

@@ -11,3 +11,17 @@ unlock = { type = "free" }
 [variants.title]
 ru = "Тестовый моно"
 en = "Test mono"
+[[variants]]
+id = "test_serif"
+value = "Georgia"
+unlock = { type = "coins", price = 60 }
+[variants.title]
+ru = "Тестовый сериф"
+en = "Test serif"
+[[variants]]
+id = "test_sans"
+value = "Segoe UI"
+unlock = { type = "level", level = 2 }
+[variants.title]
+ru = "Тестовый гротеск"
+en = "Test sans"

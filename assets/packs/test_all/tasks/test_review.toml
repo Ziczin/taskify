@@ -1,9 +1,10 @@
 id = "review"
+level_from = 1
 kind = "once"
 category = "lab"
 tags = ["deep"]
 icon = "icon_lab"
-combos = ["pair"]
+combos = ["pair", "monthly"]
 [title]
 ru = "Разобрать результат"
 en = "Review the result"
@@ -13,6 +14,9 @@ en = "See what came out and write down the conclusion."
 [reward]
 xp = 18
 coins = 3
+
+[metrics]
+"test.mood" = 1
 
 [[subtasks]]
 id = "notes"

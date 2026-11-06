@@ -18,3 +18,10 @@ unlock = { type = "coins", price = 80 }
 [variants.title]
 ru = "Тестовый коралл"
 en = "Test coral"
+[[variants]]
+id = "test_amber"
+value = "#d8a657"
+unlock = { type = "level", level = 2 }
+[variants.title]
+ru = "Тестовый янтарь"
+en = "Test amber"

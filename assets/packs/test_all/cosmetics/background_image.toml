@@ -11,3 +11,17 @@ unlock = { type = "free" }
 [variants.title]
 ru = "Тестовое небо"
 en = "Test sky"
+[[variants]]
+id = "test_dawn"
+value = "media/test_dawn.png"
+unlock = { type = "coins", price = 50 }
+[variants.title]
+ru = "Тестовый рассвет"
+en = "Test dawn"
+[[variants]]
+id = "test_dusk"
+value = "media/test_dusk.png"
+unlock = { type = "level", level = 2 }
+[variants.title]
+ru = "Тестовые сумерки"
+en = "Test dusk"

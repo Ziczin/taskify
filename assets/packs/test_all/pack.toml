@@ -1,6 +1,6 @@
 schema = 1
 id = "test_all"
-version = "1.1.3"
+version = "1.2.0"
 official = true
 default_enabled = false
 license = "CC0-1.0"
@@ -16,5 +16,5 @@ ru = "Тестовый пак: всё сразу"
 en = "Test pack: everything"
 
 [description]
-ru = "Проверочный пак со всеми видами контента: категории, теги, типы, иконки, палитра, метрики, задания, комбо, ачивки, цвета, шрифт, картинка, звуки, светлая тема, четыре тёмные темы, стикеры разных форм и готовые наборы. Включи его в разделе «Паки», чтобы увидеть содержимое."
-en = "A check pack with every content kind: categories, tags, types, icons, palette, metrics, tasks, combos, achievements, colours, font, image, sounds, a light theme, four dark themes, differently shaped stickers and ready bundles. Enable it in Packs to see the content."
+ru = "Проверочный пак, где каждого вида контента минимум по три варианта: категории, теги, типы, иконки, палитры, метрики, задания, комбо, ачивки, акценты, шрифты, фоны, звуки, темы, стикеры и наборы. Включи его в разделе «Паки», чтобы увидеть содержимое."
+en = "A check pack with at least three variants of every content kind: categories, tags, types, icons, palettes, metrics, tasks, combos, achievements, accents, fonts, backgrounds, sounds, themes, stickers and bundles. Enable it in Packs to see the content."

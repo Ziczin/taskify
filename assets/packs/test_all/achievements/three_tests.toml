@@ -1,0 +1,15 @@
+id = "three_tests"
+sticker = "test_spark"
+[condition]
+metric = "sys.tasks_completed_total"
+op = "gte"
+value = 3
+[title]
+ru = "Три теста"
+en = "Three tests"
+[description]
+ru = "Завершить три задания тестового пака."
+en = "Complete three test pack tasks."
+[reward]
+xp = 25
+coins = 3

@@ -1,0 +1,26 @@
+id = "create"
+level_from = 1
+kind = "repeat"
+category = "home"
+tags = ["quick", "morning"]
+icon = "icon_rocket"
+combos = ["weekly", "monthly"]
+[title]
+ru = "Придумать маленькое дело"
+en = "Invent a small task"
+[description]
+ru = "Повторяющееся дело раз в три дня: проверка интервального расписания."
+en = "A repeating task every three days: checks the interval schedule."
+[reward]
+xp = 15
+coins = 2
+[metrics]
+"test.focus" = 1
+[schedule]
+type = "interval"
+days = 3
+
+[[milestones]]
+every = 3
+xp_mult = 1.1
+coins_mult = 1.1

@@ -1,0 +1,15 @@
+id = "combo_test"
+sticker = "gosling"
+[condition]
+metric = "sys.combos_completed_total"
+op = "gte"
+value = 1
+[title]
+ru = "Комбо-тест"
+en = "Combo test"
+[description]
+ru = "Собрать одно тестовое комбо."
+en = "Complete one test combo."
+[reward]
+xp = 30
+coins = 4

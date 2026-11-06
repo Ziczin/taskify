@@ -1,9 +1,10 @@
 id = "focus"
+level_from = 1
 kind = "habit"
 category = "lab"
-tags = ["quick"]
+tags = ["quick", "morning"]
 icon = "icon_lab"
-combos = ["pair"]
+combos = ["pair", "weekly"]
 [title]
 ru = "Сфокусироваться на 15 минут"
 en = "Focus for 15 minutes"
