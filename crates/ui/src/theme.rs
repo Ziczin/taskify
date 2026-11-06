@@ -54,6 +54,21 @@ fn rgb(hex: &str) -> egui::Color32 {
     egui::Color32::from_rgb(parse(0..2), parse(2..4), parse(4..6))
 }
 
+/// Consolas сидит в строке выше её середины: буквы кажутся прижатыми к верху
+/// кнопок и полей. Сдвигаем глифы вниз на долю кегля; остальные шрифты
+/// отцентрированы своими метриками.
+pub fn font_tweak(family: &str) -> egui::FontTweak {
+    let y_offset_factor = if family.eq_ignore_ascii_case("Consolas") {
+        0.10
+    } else {
+        0.0
+    };
+    egui::FontTweak {
+        y_offset_factor,
+        ..Default::default()
+    }
+}
+
 /// Подключает шрифт из системы, если он есть: остальные остаются как были.
 pub fn apply_font(ctx: &egui::Context, family: &str) {
     let candidates: &[&str] = match family {
@@ -71,7 +86,7 @@ pub fn apply_font(ctx: &egui::Context, family: &str) {
     let mut fonts = egui::FontDefinitions::default();
     fonts.font_data.insert(
         "app.font".to_owned(),
-        std::sync::Arc::new(egui::FontData::from_owned(bytes)),
+        std::sync::Arc::new(egui::FontData::from_owned(bytes).tweak(font_tweak(family))),
     );
     for family_name in [egui::FontFamily::Proportional, egui::FontFamily::Monospace] {
         fonts

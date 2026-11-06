@@ -2840,6 +2840,21 @@ pub fn install_fonts(ctx: &egui::Context) {
     ctx.set_fonts(fonts);
 }
 
+/// Кнопка заданного размера с текстом по центру и по горизонтали, и по
+/// вертикали. В вертикальном списке `add_sized` прижимает подпись к верху.
+pub(crate) fn centered_button(
+    ui: &mut egui::Ui,
+    size: egui::Vec2,
+    button: egui::Button<'_>,
+) -> egui::Response {
+    ui.allocate_ui_with_layout(
+        size,
+        egui::Layout::left_to_right(egui::Align::Center),
+        |ui| ui.add(button.min_size(size)),
+    )
+    .inner
+}
+
 /// Вкладка с текстом, выровненным по центру самой плашки по обеим осям.
 ///
 /// `selectable_label` центрирует строку шрифта, а не видимые глифы: в высокой

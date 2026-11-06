@@ -281,7 +281,7 @@ impl TaskifyApp {
                 .strong(),
         )
         .fill(danger);
-        if ui.add_sized([240.0, 32.0], delete_button).clicked() {
+        if crate::app::centered_button(ui, egui::vec2(240.0, 32.0), delete_button).clicked() {
             self.delete_stage = 1;
             self.delete_confirm_name.clear();
             self.delete_error.clear();

@@ -152,12 +152,12 @@ impl SetupApp {
                                     }
                                 });
                                 ui.add_space(12.0);
-                                if ui
-                                    .add_sized(
-                                        [220.0, 34.0],
-                                        egui::Button::new(self.t("setup.create")),
-                                    )
-                                    .clicked()
+                                if crate::app::centered_button(
+                                    ui,
+                                    egui::vec2(220.0, 34.0),
+                                    egui::Button::new(self.t("setup.create")),
+                                )
+                                .clicked()
                                 {
                                     self.create();
                                 }
