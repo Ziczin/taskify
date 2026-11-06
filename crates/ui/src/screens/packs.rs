@@ -5,9 +5,9 @@
 //! сколько раз задания пака выполняли, умноженное на их награду.
 
 use eframe::egui;
-use taskify_packs::{format_issue, Pack, Severity};
+use taskify_packs::{format_issue, Pack, Severity, TokenKind, Unlock};
 
-use crate::app::{PackTab, PacksFilter, TaskifyApp};
+use crate::app::{hex_color, PackTab, PacksFilter, TaskifyApp};
 
 impl TaskifyApp {
     pub(crate) fn screen_packs(&mut self, ui: &mut egui::Ui) {
@@ -255,8 +255,14 @@ impl TaskifyApp {
         }
 
         if let Some(id) = open {
+            self.pack_tab = self
+                .engine
+                .packs
+                .packs
+                .get(&id)
+                .and_then(|pack| PackTab::for_pack(pack).first().copied())
+                .unwrap_or(PackTab::Info);
             self.pack_detail = Some(id);
-            self.pack_tab = PackTab::Tasks;
         }
 
         if let Some((id, enable)) = toggle {
@@ -390,20 +396,20 @@ impl TaskifyApp {
         }
         ui.add_space(8.0);
 
-        let mut tab = self.pack_tab;
+        let tabs = PackTab::for_pack(&pack);
+        let mut tab = if tabs.contains(&self.pack_tab) {
+            self.pack_tab
+        } else {
+            tabs.first().copied().unwrap_or(PackTab::Info)
+        };
         ui.horizontal_wrapped(|ui| {
             ui.spacing_mut().item_spacing.x = 6.0;
-            for value in PackTab::ALL {
-                let count = match value {
-                    PackTab::Tasks => pack.tasks.len(),
-                    PackTab::Combos => pack.combos.len(),
-                    PackTab::Achievements => pack.achievements.len(),
-                    PackTab::Info => 0,
-                };
+            for value in tabs {
+                let count = value.count(&pack);
                 let label = if count > 0 {
                     format!("{} {count}", self.t(value.key()))
                 } else {
-                    self.t(value.key()).to_string()
+                    self.t(value.key())
                 };
                 if ui.selectable_label(tab == value, label).clicked() {
                     tab = value;
@@ -417,6 +423,15 @@ impl TaskifyApp {
             PackTab::Tasks => self.pack_tasks_tab(ui, &pack, &locale),
             PackTab::Combos => self.pack_combos_tab(ui, &pack, &locale),
             PackTab::Achievements => self.pack_achievements_tab(ui, &pack, &locale),
+            PackTab::Categories => self.pack_categories_tab(ui, &pack, &locale),
+            PackTab::Tags => self.pack_tags_tab(ui, &pack, &locale),
+            PackTab::Types => self.pack_types_tab(ui, &pack, &locale),
+            PackTab::Icons => self.pack_icons_tab(ui, &pack, &locale),
+            PackTab::Palette => self.pack_palette_tab(ui, &pack),
+            PackTab::Tokens => self.pack_tokens_tab(ui, &pack, &locale),
+            PackTab::Bundles => self.pack_bundles_tab(ui, &pack, &locale),
+            PackTab::Stickers => self.pack_stickers_tab(ui, &pack, &locale),
+            PackTab::Metrics => self.pack_metrics_tab(ui, &pack),
             PackTab::Info => self.pack_info_tab(ui, &pack, &locale),
         }
     }
@@ -628,6 +643,349 @@ impl TaskifyApp {
         }
     }
 
+    fn pack_categories_tab(&mut self, ui: &mut egui::Ui, pack: &Pack, locale: &str) {
+        if pack.categories.is_empty() {
+            ui.label(self.t("packs.empty"));
+            return;
+        }
+        let mut categories: Vec<_> = pack.categories.values().collect();
+        categories.sort_by_key(|category| {
+            taskify_core::task::tr_or(&category.title, locale, &category.id)
+        });
+        for category in categories {
+            let title = taskify_core::task::tr_or(&category.title, locale, &category.id);
+            let color = category
+                .color
+                .as_deref()
+                .and_then(|value| pack_color(pack, value));
+            egui::Frame::group(ui.style())
+                .inner_margin(egui::Margin::symmetric(12, 8))
+                .show(ui, |ui| {
+                    ui.set_width(ui.available_width());
+                    ui.horizontal(|ui| {
+                        if let Some(icon) = category.icon.as_deref() {
+                            self.show_pack_icon(ui, pack, icon, 20.0);
+                        }
+                        if let Some(color) = color {
+                            color_dot(ui, color);
+                        }
+                        ui.label(egui::RichText::new(&title).strong());
+                        ui.label(egui::RichText::new(&category.id).small().weak());
+                    });
+                    if !category.synonyms.is_empty() {
+                        ui.label(
+                            egui::RichText::new(category.synonyms.join(" · "))
+                                .small()
+                                .weak(),
+                        );
+                    }
+                });
+            ui.add_space(4.0);
+        }
+    }
+
+    fn pack_tags_tab(&mut self, ui: &mut egui::Ui, pack: &Pack, locale: &str) {
+        if pack.tags.is_empty() {
+            ui.label(self.t("packs.empty"));
+            return;
+        }
+        let mut tags: Vec<_> = pack.tags.values().collect();
+        tags.sort_by_key(|tag| taskify_core::task::tr_or(&tag.title, locale, &tag.id));
+        for tag in tags {
+            let title = taskify_core::task::tr_or(&tag.title, locale, &tag.id);
+            egui::Frame::group(ui.style())
+                .inner_margin(egui::Margin::symmetric(12, 8))
+                .show(ui, |ui| {
+                    ui.set_width(ui.available_width());
+                    ui.horizontal(|ui| {
+                        ui.label(egui::RichText::new(&title).strong());
+                        ui.label(egui::RichText::new(&tag.id).small().weak());
+                    });
+                    if !tag.synonyms.is_empty() {
+                        ui.label(egui::RichText::new(tag.synonyms.join(" · ")).small().weak());
+                    }
+                });
+            ui.add_space(4.0);
+        }
+    }
+
+    fn pack_types_tab(&mut self, ui: &mut egui::Ui, pack: &Pack, locale: &str) {
+        if pack.types.is_empty() {
+            ui.label(self.t("packs.empty"));
+            return;
+        }
+        let mut types: Vec<_> = pack.types.values().collect();
+        types.sort_by_key(|kind| taskify_core::task::tr_or(&kind.title, locale, &kind.id));
+        for kind in types {
+            let title = taskify_core::task::tr_or(&kind.title, locale, &kind.id);
+            let color = kind
+                .color
+                .as_deref()
+                .and_then(|value| pack_color(pack, value));
+            egui::Frame::group(ui.style())
+                .inner_margin(egui::Margin::symmetric(12, 8))
+                .show(ui, |ui| {
+                    ui.set_width(ui.available_width());
+                    ui.horizontal(|ui| {
+                        if let Some(icon) = kind.icon.as_deref() {
+                            self.show_pack_icon(ui, pack, icon, 20.0);
+                        }
+                        if let Some(color) = color {
+                            color_dot(ui, color);
+                        }
+                        ui.label(egui::RichText::new(&title).strong());
+                        ui.label(egui::RichText::new(&kind.id).small().weak());
+                    });
+                    ui.label(
+                        egui::RichText::new(format!(
+                            "+{} {} · +{} {}",
+                            kind.default_reward.xp,
+                            self.t("common.xp"),
+                            kind.default_reward.coins,
+                            self.t("common.coins_short")
+                        ))
+                        .small()
+                        .weak(),
+                    );
+                });
+            ui.add_space(4.0);
+        }
+    }
+
+    fn pack_icons_tab(&mut self, ui: &mut egui::Ui, pack: &Pack, locale: &str) {
+        if pack.icons.is_empty() {
+            ui.label(self.t("packs.empty"));
+            return;
+        }
+        let mut icons: Vec<_> = pack.icons.values().collect();
+        icons.sort_by_key(|icon| taskify_core::task::tr_or(&icon.title, locale, &icon.id));
+        for icon in icons {
+            let title = taskify_core::task::tr_or(&icon.title, locale, &icon.id);
+            egui::Frame::group(ui.style())
+                .inner_margin(egui::Margin::symmetric(12, 8))
+                .show(ui, |ui| {
+                    ui.set_width(ui.available_width());
+                    ui.horizontal(|ui| {
+                        if !icon.image.is_empty() {
+                            self.icons.show(ui, &icon.image, 24.0);
+                        }
+                        ui.label(egui::RichText::new(&title).strong());
+                        ui.label(egui::RichText::new(&icon.id).small().weak());
+                        ui.label(egui::RichText::new(&icon.image).small().weak());
+                    });
+                });
+            ui.add_space(4.0);
+        }
+    }
+
+    fn pack_palette_tab(&mut self, ui: &mut egui::Ui, pack: &Pack) {
+        if pack.palette.is_empty() {
+            ui.label(self.t("packs.empty"));
+            return;
+        }
+        let mut colors: Vec<_> = pack.palette.values().collect();
+        colors.sort_by_key(|color| &color.id);
+        for color in colors {
+            egui::Frame::group(ui.style())
+                .inner_margin(egui::Margin::symmetric(12, 8))
+                .show(ui, |ui| {
+                    ui.set_width(ui.available_width());
+                    ui.horizontal(|ui| {
+                        ui.label(egui::RichText::new(&color.id).strong());
+                        if let Some(light) = hex_color(&color.light) {
+                            color_dot(ui, light);
+                        }
+                        ui.label(egui::RichText::new(&color.light).small().weak());
+                        if let Some(dark) = hex_color(&color.dark) {
+                            color_dot(ui, dark);
+                        }
+                        ui.label(egui::RichText::new(&color.dark).small().weak());
+                    });
+                });
+            ui.add_space(4.0);
+        }
+    }
+
+    fn pack_tokens_tab(&mut self, ui: &mut egui::Ui, pack: &Pack, locale: &str) {
+        if pack.tokens.is_empty() {
+            ui.label(self.t("packs.empty"));
+            return;
+        }
+        let mut tokens: Vec<_> = pack.tokens.values().collect();
+        tokens.sort_by_key(|token| taskify_core::task::tr_or(&token.title, locale, &token.id));
+        for token in tokens {
+            let title = taskify_core::task::tr_or(&token.title, locale, &token.id);
+            egui::Frame::group(ui.style())
+                .inner_margin(egui::Margin::symmetric(12, 8))
+                .show(ui, |ui| {
+                    ui.set_width(ui.available_width());
+                    ui.horizontal(|ui| {
+                        ui.label(egui::RichText::new(&title).strong());
+                        ui.label(
+                            egui::RichText::new(self.pack_token_kind_label(token.kind))
+                                .small()
+                                .weak(),
+                        );
+                        ui.label(egui::RichText::new(&token.id).small().weak());
+                    });
+                    for variant in &token.variants {
+                        let variant_title =
+                            taskify_core::task::tr_or(&variant.title, locale, &variant.id);
+                        let swatch = pack_color(pack, &variant.value);
+                        ui.horizontal(|ui| {
+                            if let Some(color) = swatch {
+                                color_dot(ui, color);
+                            }
+                            ui.label(egui::RichText::new(variant_title).small());
+                            if swatch.is_none() {
+                                ui.label(egui::RichText::new(&variant.value).small().weak());
+                            }
+                            ui.label(
+                                egui::RichText::new(self.pack_unlock_note(&variant.unlock))
+                                    .small()
+                                    .color(self.accent),
+                            );
+                        });
+                    }
+                });
+            ui.add_space(4.0);
+        }
+    }
+
+    fn pack_bundles_tab(&mut self, ui: &mut egui::Ui, pack: &Pack, locale: &str) {
+        if pack.bundles.is_empty() {
+            ui.label(self.t("packs.empty"));
+            return;
+        }
+        let mut bundles: Vec<_> = pack.bundles.values().collect();
+        bundles.sort_by_key(|bundle| taskify_core::task::tr_or(&bundle.title, locale, &bundle.id));
+        for bundle in bundles {
+            let title = taskify_core::task::tr_or(&bundle.title, locale, &bundle.id);
+            let description =
+                taskify_core::task::tr(&bundle.description, locale).unwrap_or_default();
+            egui::Frame::group(ui.style())
+                .inner_margin(egui::Margin::symmetric(12, 8))
+                .show(ui, |ui| {
+                    ui.set_width(ui.available_width());
+                    ui.horizontal(|ui| {
+                        ui.label(egui::RichText::new(&title).strong());
+                        ui.label(
+                            egui::RichText::new(format!(
+                                "{} {} · {} {}",
+                                bundle.price,
+                                self.t("common.coins_short"),
+                                bundle.contents_count(),
+                                self.t("market.contents")
+                            ))
+                            .small()
+                            .weak(),
+                        );
+                    });
+                    if !description.is_empty() {
+                        ui.label(egui::RichText::new(description).small().weak());
+                    }
+                    if !bundle.tokens.is_empty() {
+                        ui.label(
+                            egui::RichText::new(bundle.tokens.join(" · "))
+                                .small()
+                                .weak(),
+                        );
+                    }
+                });
+            ui.add_space(4.0);
+        }
+    }
+
+    fn pack_stickers_tab(&mut self, ui: &mut egui::Ui, pack: &Pack, locale: &str) {
+        if pack.stickers.is_empty() {
+            ui.label(self.t("packs.empty"));
+            return;
+        }
+        let mut stickers: Vec<_> = pack.stickers.values().collect();
+        stickers.sort_by_key(|sticker| sticker.title(locale));
+        for sticker in stickers {
+            let title = sticker.title(locale);
+            egui::Frame::group(ui.style())
+                .inner_margin(egui::Margin::symmetric(12, 8))
+                .show(ui, |ui| {
+                    ui.set_width(ui.available_width());
+                    ui.horizontal(|ui| {
+                        let mut drawn = false;
+                        if let Some(path) = sticker.image_path(&pack.root) {
+                            drawn = self.icons.show_file(ui, &path, 30.0).is_some();
+                        }
+                        if !drawn && !sticker.icon.is_empty() {
+                            drawn = self.icons.show(ui, &sticker.icon, 26.0).is_some();
+                        }
+                        if !drawn {
+                            ui.label(egui::RichText::new("—").weak());
+                        }
+                        ui.vertical(|ui| {
+                            ui.label(egui::RichText::new(&title).strong());
+                            ui.label(
+                                egui::RichText::new(format!(
+                                    "{} {} · {}",
+                                    sticker.price,
+                                    self.t("common.coins_short"),
+                                    sticker.id
+                                ))
+                                .small()
+                                .weak(),
+                            );
+                        });
+                    });
+                });
+            ui.add_space(4.0);
+        }
+    }
+
+    fn pack_metrics_tab(&mut self, ui: &mut egui::Ui, pack: &Pack) {
+        if pack.metrics_declared.is_empty() {
+            ui.label(self.t("packs.empty"));
+            return;
+        }
+        let mut metrics = pack.metrics_declared.clone();
+        metrics.sort();
+        for metric in metrics {
+            egui::Frame::group(ui.style())
+                .inner_margin(egui::Margin::symmetric(12, 8))
+                .show(ui, |ui| {
+                    ui.set_width(ui.available_width());
+                    ui.monospace(metric);
+                });
+            ui.add_space(4.0);
+        }
+    }
+
+    fn show_pack_icon(&self, ui: &mut egui::Ui, pack: &Pack, icon: &str, size: f32) {
+        if let Some(key) = pack_icon_key(pack, icon) {
+            self.icons.show(ui, key, size);
+        }
+    }
+
+    fn pack_unlock_note(&self, unlock: &Unlock) -> String {
+        match unlock {
+            Unlock::Free => self.t("col.free"),
+            Unlock::Coins { price } => {
+                format!("{price} {}", self.t("common.coins_short"))
+            }
+            Unlock::Level { level } | Unlock::PackLevel { level } => {
+                format!("{} {}", self.t("common.level"), level)
+            }
+            Unlock::Achievement { id } => format!("{} {id}", self.t("market.achievement")),
+        }
+    }
+
+    fn pack_token_kind_label(&self, kind: TokenKind) -> String {
+        self.t(match kind {
+            TokenKind::Color => "market.t_color",
+            TokenKind::Font => "market.t_font",
+            TokenKind::Image => "market.t_image",
+            TokenKind::Sound => "market.t_sound",
+            TokenKind::Theme => "market.t_theme",
+        })
+    }
+
     fn install_pack(&mut self, path: &std::path::Path, ctx: &egui::Context) {
         let packs_dir = crate::bootstrap::packs_dir(&self.settings);
         match taskify_packs::install::install_zip(path, &packs_dir, &Default::default()) {
@@ -674,9 +1032,14 @@ impl TaskifyApp {
             (self.t("packs.tags"), pack.tags.len().to_string()),
             (self.t("packs.types"), pack.types.len().to_string()),
             (self.t("packs.icons"), pack.icons.len().to_string()),
+            (self.t("packs.tab_palette"), pack.palette.len().to_string()),
             (self.t("packs.tokens"), pack.tokens.len().to_string()),
             (self.t("packs.stickers"), pack.stickers.len().to_string()),
             (self.t("packs.bundles"), pack.bundles.len().to_string()),
+            (
+                self.t("packs.tab_metrics"),
+                pack.metrics_declared.len().to_string(),
+            ),
             (self.t("packs.folder"), pack.root.display().to_string()),
         ];
         if let Some(manifest) = &pack.manifest {
@@ -701,6 +1064,37 @@ impl TaskifyApp {
             }
         }
     }
+}
+
+/// Иконка пака: `icon` может быть локальным id или полным `<пак>/<id>`.
+fn pack_icon_key<'a>(pack: &'a Pack, icon: &'a str) -> Option<&'a str> {
+    if let Some(def) = pack.icons.get(icon) {
+        return Some(def.image.as_str());
+    }
+    let qualified = if icon.contains('/') {
+        icon.to_string()
+    } else {
+        format!("{}/{}", pack.id, icon)
+    };
+    pack.icons
+        .get(&qualified)
+        .map(|def| def.image.as_str())
+        .or(Some(icon))
+}
+
+/// Цвет из `#rrggbb` или имя цвета в палитре пака.
+fn pack_color(pack: &Pack, value: &str) -> Option<egui::Color32> {
+    hex_color(value).or_else(|| {
+        pack.palette
+            .get(value)
+            .and_then(|color| hex_color(&color.light))
+    })
+}
+
+fn color_dot(ui: &mut egui::Ui, color: egui::Color32) {
+    let (rect, _) = ui.allocate_exact_size(egui::vec2(14.0, 14.0), egui::Sense::hover());
+    ui.painter()
+        .rect_filled(rect, egui::CornerRadius::same(3), color);
 }
 
 /// Человеческое описание расписания задания для страницы пака.

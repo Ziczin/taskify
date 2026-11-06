@@ -136,20 +136,38 @@ impl SettingsTab {
 }
 
 /// Вкладки внутри пака.
-#[derive(Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub enum PackTab {
     #[default]
     Tasks,
     Combos,
     Achievements,
+    Categories,
+    Tags,
+    Types,
+    Icons,
+    Palette,
+    Tokens,
+    Bundles,
+    Stickers,
+    Metrics,
     Info,
 }
 
 impl PackTab {
-    pub const ALL: [PackTab; 4] = [
+    pub const ALL: [PackTab; 13] = [
         PackTab::Tasks,
         PackTab::Combos,
         PackTab::Achievements,
+        PackTab::Categories,
+        PackTab::Tags,
+        PackTab::Types,
+        PackTab::Icons,
+        PackTab::Palette,
+        PackTab::Tokens,
+        PackTab::Bundles,
+        PackTab::Stickers,
+        PackTab::Metrics,
         PackTab::Info,
     ];
 
@@ -158,8 +176,45 @@ impl PackTab {
             PackTab::Tasks => "packs.tab_tasks",
             PackTab::Combos => "packs.tab_combos",
             PackTab::Achievements => "packs.tab_achievements",
+            PackTab::Categories => "packs.tab_categories",
+            PackTab::Tags => "packs.tab_tags",
+            PackTab::Types => "packs.tab_types",
+            PackTab::Icons => "packs.tab_icons",
+            PackTab::Palette => "packs.tab_palette",
+            PackTab::Tokens => "packs.tab_tokens",
+            PackTab::Bundles => "packs.tab_bundles",
+            PackTab::Stickers => "packs.tab_stickers",
+            PackTab::Metrics => "packs.tab_metrics",
             PackTab::Info => "packs.tab_info",
         }
+    }
+
+    /// Количество единиц контента этого вида в паке.
+    pub fn count(self, pack: &taskify_packs::Pack) -> usize {
+        match self {
+            PackTab::Tasks => pack.tasks.len(),
+            PackTab::Combos => pack.combos.len(),
+            PackTab::Achievements => pack.achievements.len(),
+            PackTab::Categories => pack.categories.len(),
+            PackTab::Tags => pack.tags.len(),
+            PackTab::Types => pack.types.len(),
+            PackTab::Icons => pack.icons.len(),
+            PackTab::Palette => pack.palette.len(),
+            PackTab::Tokens => pack.tokens.len(),
+            PackTab::Bundles => pack.bundles.len(),
+            PackTab::Stickers => pack.stickers.len(),
+            PackTab::Metrics => pack.metrics_declared.len(),
+            PackTab::Info => 0,
+        }
+    }
+
+    /// Вкладки, которые имеют контент в этом паке; «О паке» есть всегда.
+    pub fn for_pack(pack: &taskify_packs::Pack) -> Vec<PackTab> {
+        Self::ALL
+            .iter()
+            .copied()
+            .filter(|tab| *tab == PackTab::Info || tab.count(pack) > 0)
+            .collect()
     }
 }
 
@@ -763,6 +818,15 @@ impl TaskifyApp {
             pack_tab: match std::env::var("TASKIFY_PACK_TAB").as_deref() {
                 Ok("combos") => PackTab::Combos,
                 Ok("ach") | Ok("achievements") => PackTab::Achievements,
+                Ok("categories") => PackTab::Categories,
+                Ok("tags") => PackTab::Tags,
+                Ok("types") => PackTab::Types,
+                Ok("icons") => PackTab::Icons,
+                Ok("palette") => PackTab::Palette,
+                Ok("tokens") | Ok("cosmetics") => PackTab::Tokens,
+                Ok("bundles") | Ok("themes") => PackTab::Bundles,
+                Ok("stickers") => PackTab::Stickers,
+                Ok("metrics") => PackTab::Metrics,
                 Ok("info") => PackTab::Info,
                 _ => PackTab::Tasks,
             },
@@ -2664,6 +2728,61 @@ mod tests {
         assert!(keys.contains("nav.today"));
         assert!(keys.contains("nav.stats"));
         assert!(keys.contains("nav.settings"));
+    }
+
+    #[test]
+    fn pack_tabs_follow_pack_content() {
+        let mut pack = taskify_packs::Pack::default();
+        assert_eq!(PackTab::for_pack(&pack), vec![PackTab::Info]);
+
+        pack.categories
+            .insert("demo/category".into(), Default::default());
+        pack.tags.insert("demo/tag".into(), Default::default());
+        pack.types.insert("demo/type".into(), Default::default());
+        pack.icons.insert("demo/icon".into(), Default::default());
+        pack.palette.insert("demo/color".into(), Default::default());
+        pack.tokens.insert(
+            "demo/token".into(),
+            taskify_packs::Token {
+                id: "demo/token".into(),
+                kind: taskify_packs::TokenKind::Color,
+                group: String::new(),
+                title: Default::default(),
+                variants: Vec::new(),
+            },
+        );
+        pack.bundles.insert(
+            "demo/theme".into(),
+            taskify_packs::Bundle {
+                id: "demo/theme".into(),
+                price: 10,
+                base: None,
+                title: Default::default(),
+                description: Default::default(),
+                tokens: Vec::new(),
+                stickers: Vec::new(),
+            },
+        );
+        pack.stickers
+            .insert("demo/sticker".into(), Default::default());
+        pack.metrics_declared.push("demo/metric".into());
+
+        let tabs = PackTab::for_pack(&pack);
+        for expected in [
+            PackTab::Categories,
+            PackTab::Tags,
+            PackTab::Types,
+            PackTab::Icons,
+            PackTab::Palette,
+            PackTab::Tokens,
+            PackTab::Bundles,
+            PackTab::Stickers,
+            PackTab::Metrics,
+        ] {
+            assert!(tabs.contains(&expected), "нет вкладки {expected:?}");
+        }
+        assert_eq!(tabs.last(), Some(&PackTab::Info));
+        assert!(!tabs.contains(&PackTab::Tasks));
     }
 
     #[test]
