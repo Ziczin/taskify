@@ -608,7 +608,9 @@ impl TaskifyApp {
             }
             let description = task.description(&locale);
             if !description.is_empty() && !done {
-                ui.add(egui::Label::new(egui::RichText::new(description).small()).truncate());
+                // Описание переносится по словам: карточка растёт по высоте,
+                // а не обрезает текст многоточием.
+                ui.add(egui::Label::new(egui::RichText::new(description).small()).wrap());
             }
             if !task.subtasks.is_empty() && !done {
                 let done_count = task
