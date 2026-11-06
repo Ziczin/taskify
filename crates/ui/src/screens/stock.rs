@@ -157,17 +157,6 @@ impl TaskifyApp {
             .filter(|sticker| self.engine.sticker_owned(&sticker.id))
             .collect();
         let profiles = self.settings.look_profiles.len();
-        let owned_theme_variants: usize = tokens
-            .iter()
-            .filter(|token| token.kind == TokenKind::Theme)
-            .map(|token| {
-                token
-                    .variants
-                    .iter()
-                    .filter(|variant| self.engine.owned(&token.id, &variant.id))
-                    .count()
-            })
-            .sum();
         let cosmetics_count: usize = tokens
             .iter()
             .filter(|token| token.kind != TokenKind::Theme)
@@ -179,7 +168,7 @@ impl TaskifyApp {
                     .count()
             })
             .sum();
-        let themes_count = owned_bundles.len() + owned_theme_variants;
+        let themes_count = owned_bundles.len() + 2;
 
         // Вкладки с количеством.
         let counts = [
@@ -229,7 +218,6 @@ impl TaskifyApp {
                 self.stock_themes(
                     ui,
                     &owned_bundles,
-                    &tokens,
                     &locale,
                     &mut apply_bundle,
                     &mut apply_base,
@@ -412,59 +400,43 @@ impl TaskifyApp {
         }
     }
 
-    /// Темы: готовые наборы и базовые темы одним списком.
+    /// Готовые темы и ровно две базовые: светлая и тёмная.
     fn stock_themes(
         &mut self,
         ui: &mut egui::Ui,
         bundles: &[Bundle],
-        tokens: &[Token],
         locale: &str,
         apply_bundle: &mut Option<String>,
         apply_base: &mut Option<String>,
     ) {
-        let mut any = false;
         if !bundles.is_empty() {
             ui.label(egui::RichText::new(self.t("stock.ready_themes")).strong());
             ui.add_space(4.0);
             self.stock_bundles(ui, bundles, locale, apply_bundle);
-            any = true;
+            ui.add_space(10.0);
         }
 
-        let base_owned = tokens.iter().any(|token| {
-            token.kind == TokenKind::Theme
-                && token
-                    .variants
-                    .iter()
-                    .any(|variant| self.engine.owned(&token.id, &variant.id))
-        });
-        if base_owned {
-            if any {
-                ui.add_space(10.0);
-            }
-            ui.label(egui::RichText::new(self.t("stock.base_themes")).strong());
-            ui.add_space(4.0);
-            let owned: Vec<(&Token, &taskify_packs::Variant)> = tokens
-                .iter()
-                .filter(|token| token.kind == TokenKind::Theme)
-                .flat_map(|token| {
-                    token
-                        .variants
-                        .iter()
-                        .filter(|variant| self.engine.owned(&token.id, &variant.id))
-                        .map(move |variant| (token, variant))
-                })
-                .collect();
-            any |= !owned.is_empty();
-            stock_grid(ui, CARD_WIDTH, 10.0, &owned, |ui, item, width| {
-                let (token, variant) = *item;
-                let title = taskify_core::task::tr_or(&variant.title, locale, &variant.id);
-                let group = taskify_core::task::tr_or(&token.title, locale, &token.id);
-                let applied = self
-                    .settings
-                    .extra
-                    .get(&token.id)
-                    .map(|value| value == &variant.id)
-                    .unwrap_or(false);
+        ui.label(egui::RichText::new(self.t("stock.base_themes")).strong());
+        ui.add_space(4.0);
+        stock_grid(
+            ui,
+            CARD_WIDTH,
+            10.0,
+            &["light", "dark"],
+            |ui, base, width| {
+                let base = *base;
+                let title = self.t(if base == "dark" {
+                    "stock.theme_dark"
+                } else {
+                    "stock.theme_light"
+                });
+                let group = self.t("stock.cosmetic_theme");
+                // Подпись «применено» только у одной темы: либо у готового набора,
+                // либо у одной из двух баз. Ручная правка снимает обе.
+                let applied = self.settings.look_bundle.is_none()
+                    && !self.settings.look_draft
+                    && self.settings.look_base.as_deref()
+                        == Some(crate::settings::base_profile_key(base));
                 stock_card(
                     ui,
                     width,
@@ -484,24 +456,12 @@ impl TaskifyApp {
                                     .color(self.accent),
                             );
                         } else if ui.button(self.t("col.apply")).clicked() {
-                            *apply_base = Some(if variant.id == "dark" {
-                                "dark".to_string()
-                            } else {
-                                "light".to_string()
-                            });
+                            *apply_base = Some(base.to_string());
                         }
                     },
                 );
-            });
-        }
-
-        if !any {
-            ui.label(
-                egui::RichText::new(self.t("stock.no_themes"))
-                    .small()
-                    .weak(),
-            );
-        }
+            },
+        );
     }
 
     /// Готовые темы: купленные, карточками.
@@ -552,7 +512,14 @@ impl TaskifyApp {
                     ui.add(egui::Label::new(egui::RichText::new(&base).small()).truncate());
                 },
                 |ui| {
-                    if ui.button(self.t("stock.apply_bundle")).clicked() {
+                    let applied = self.settings.look_bundle.as_deref() == Some(bundle.id.as_str());
+                    if applied {
+                        ui.label(
+                            egui::RichText::new(self.t("col.applied"))
+                                .small()
+                                .color(self.accent),
+                        );
+                    } else if ui.button(self.t("stock.apply_bundle")).clicked() {
                         *apply_bundle = Some(bundle.id.clone());
                     }
                 },
@@ -959,6 +926,7 @@ impl TaskifyApp {
         // Готовый набор — основа новой временной темы, пока его не собрали.
         self.settings.look_base = None;
         self.settings.look_draft = true;
+        self.settings.look_bundle = Some(bundle.id.clone());
 
         self.apply_look(ctx);
         self.settings.save();

@@ -410,6 +410,8 @@ apply_bundle = "Применить тему"
 no_bundles = "Тем пока нет: загляни в маркет."
 ready_themes = "Готовые темы"
 base_themes = "Базовые темы"
+theme_light = "Светлая"
+theme_dark = "Тёмная"
 no_themes = "Тем пока нет: загляни в маркет."
 
 profiles = "Мои темы"

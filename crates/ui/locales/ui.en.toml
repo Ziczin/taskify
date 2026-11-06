@@ -410,6 +410,8 @@ apply_bundle = "Apply theme"
 no_bundles = "No themes yet: check the market."
 ready_themes = "Ready themes"
 base_themes = "Base themes"
+theme_light = "Light"
+theme_dark = "Dark"
 no_themes = "No themes yet: check the market."
 
 profiles = "My themes"

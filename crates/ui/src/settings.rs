@@ -263,6 +263,12 @@ pub struct Settings {
     /// Текущий вид — временная тема, а не сохранённая.
     #[serde(default)]
     pub look_draft: bool,
+    /// Готовая тема из маркета, которая сейчас применена целиком.
+    ///
+    /// Отдельно от `look_base`: готовый набор — не профиль и не базовая тема,
+    /// но подписей «применено» на экране должна быть ровно одна.
+    #[serde(default)]
+    pub look_bundle: Option<String>,
     /// Переключать профили оформления по времени суток.
     #[serde(default)]
     pub auto_look: bool,
@@ -283,6 +289,7 @@ impl Default for Settings {
             look_profiles: BTreeMap::new(),
             look_base: None,
             look_draft: false,
+            look_bundle: None,
             auto_look: false,
         }
     }
@@ -315,6 +322,8 @@ impl Settings {
         self.extra
             .retain(|key, _| !key.contains('/') || key == token || cosmetic_role(key) != role);
         self.extra.insert(token.to_string(), variant.to_string());
+        // Ручная правка ломает готовую тему: она больше не применена целиком.
+        self.look_bundle = None;
     }
 
     /// Сбрасывает оформление на базовую светлую или тёмную тему.
@@ -323,6 +332,7 @@ impl Settings {
         let base = base_profile(theme);
         self.ui.theme = base.theme;
         self.extra = base.extra;
+        self.look_bundle = None;
     }
 
     /// Применяет тему: сначала полная база, затем элементы темы.
@@ -437,6 +447,7 @@ impl Settings {
             .insert(name.to_string(), self.current_look(None));
         self.look_base = Some(name.to_string());
         self.look_draft = false;
+        self.look_bundle = None;
         Ok(())
     }
 
@@ -456,6 +467,7 @@ impl Settings {
             .insert(name.to_string(), self.current_look(at));
         self.look_base = Some(name.to_string());
         self.look_draft = false;
+        self.look_bundle = None;
         Ok(())
     }
 
@@ -469,6 +481,7 @@ impl Settings {
         self.dedupe_cosmetics();
         self.look_base = Some(name.to_string());
         self.look_draft = false;
+        self.look_bundle = None;
         true
     }
 
@@ -779,6 +792,20 @@ default = "D:/Sync/Taskify/default"
             settings.extra.get("starter/font.ui").map(String::as_str),
             Some("sans")
         );
+    }
+
+    #[test]
+    fn bundle_marker_is_cleared_by_base_or_manual_choice() {
+        let mut settings = Settings {
+            look_bundle: Some("starter/cozy".into()),
+            ..Settings::default()
+        };
+        settings.apply_cosmetic("starter/color.accent", "orange");
+        assert!(settings.look_bundle.is_none());
+
+        settings.look_bundle = Some("starter/cozy".into());
+        settings.apply_base_theme("dark");
+        assert!(settings.look_bundle.is_none());
     }
 
     #[test]
