@@ -595,22 +595,20 @@ impl TaskifyApp {
             }
             if !meta.is_empty() {
                 let line = meta.join(" · ");
+                // Label сам показывает полный текст, если строка не влезла.
+                // Второй on_hover_text давал два тултипа подряд.
                 ui.add(
                     egui::Label::new(
-                        egui::RichText::new(line.clone())
+                        egui::RichText::new(line)
                             .small()
                             .color(ui.visuals().weak_text_color()),
                     )
                     .truncate(),
-                )
-                .on_hover_text(line);
+                );
             }
             let description = task.description(&locale);
             if !description.is_empty() && !done {
-                ui.add(
-                    egui::Label::new(egui::RichText::new(description.clone()).small()).truncate(),
-                )
-                .on_hover_text(description);
+                ui.add(egui::Label::new(egui::RichText::new(description).small()).truncate());
             }
             if !task.subtasks.is_empty() && !done {
                 let done_count = task
