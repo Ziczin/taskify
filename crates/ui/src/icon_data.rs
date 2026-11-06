@@ -84,7 +84,7 @@ pub const ICONS: &[(&str, &[u8], bool)] = &[
     (
         "ui.coin",
         include_bytes!("../../../assets/icons/ui_coin.png"),
-        false,
+        true,
     ),
     (
         "glyph_23F1",
@@ -94,12 +94,12 @@ pub const ICONS: &[(&str, &[u8], bool)] = &[
     (
         "glyph_2600",
         include_bytes!("../../../assets/icons/glyph_2600.png"),
-        false,
+        true,
     ),
     (
         "glyph_2604",
         include_bytes!("../../../assets/icons/glyph_2604.png"),
-        false,
+        true,
     ),
     (
         "glyph_2615",
@@ -109,57 +109,57 @@ pub const ICONS: &[(&str, &[u8], bool)] = &[
     (
         "glyph_270D",
         include_bytes!("../../../assets/icons/glyph_270D.png"),
-        false,
+        true,
     ),
     (
         "glyph_2728",
         include_bytes!("../../../assets/icons/glyph_2728.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F308",
         include_bytes!("../../../assets/icons/glyph_1F308.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F319",
         include_bytes!("../../../assets/icons/glyph_1F319.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F31F",
         include_bytes!("../../../assets/icons/glyph_1F31F.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F32C",
         include_bytes!("../../../assets/icons/glyph_1F32C.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F33B",
         include_bytes!("../../../assets/icons/glyph_1F33B.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F33F",
         include_bytes!("../../../assets/icons/glyph_1F33F.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F340",
         include_bytes!("../../../assets/icons/glyph_1F340.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F343",
         include_bytes!("../../../assets/icons/glyph_1F343.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F369",
         include_bytes!("../../../assets/icons/glyph_1F369.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F373",
@@ -169,37 +169,37 @@ pub const ICONS: &[(&str, &[u8], bool)] = &[
     (
         "glyph_1F381",
         include_bytes!("../../../assets/icons/glyph_1F381.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F389",
         include_bytes!("../../../assets/icons/glyph_1F389.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F3AF",
         include_bytes!("../../../assets/icons/glyph_1F3AF.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F3C3",
         include_bytes!("../../../assets/icons/glyph_1F3C3.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F3CA",
         include_bytes!("../../../assets/icons/glyph_1F3CA.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F431",
         include_bytes!("../../../assets/icons/glyph_1F431.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F451",
         include_bytes!("../../../assets/icons/glyph_1F451.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F45F",
@@ -209,37 +209,37 @@ pub const ICONS: &[(&str, &[u8], bool)] = &[
     (
         "glyph_1F48A",
         include_bytes!("../../../assets/icons/glyph_1F48A.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F48E",
         include_bytes!("../../../assets/icons/glyph_1F48E.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F496",
         include_bytes!("../../../assets/icons/glyph_1F496.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F4A7",
         include_bytes!("../../../assets/icons/glyph_1F4A7.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F4AA",
         include_bytes!("../../../assets/icons/glyph_1F4AA.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F4B0",
         include_bytes!("../../../assets/icons/glyph_1F4B0.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F4B3",
         include_bytes!("../../../assets/icons/glyph_1F4B3.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F4C4",
@@ -259,22 +259,22 @@ pub const ICONS: &[(&str, &[u8], bool)] = &[
     (
         "glyph_1F4DA",
         include_bytes!("../../../assets/icons/glyph_1F4DA.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F4DE",
         include_bytes!("../../../assets/icons/glyph_1F4DE.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F4F5",
         include_bytes!("../../../assets/icons/glyph_1F4F5.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F525",
         include_bytes!("../../../assets/icons/glyph_1F525.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F5E3",
@@ -284,22 +284,22 @@ pub const ICONS: &[(&str, &[u8], bool)] = &[
     (
         "glyph_1F680",
         include_bytes!("../../../assets/icons/glyph_1F680.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F6B0",
         include_bytes!("../../../assets/icons/glyph_1F6B0.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F6B4",
         include_bytes!("../../../assets/icons/glyph_1F6B4.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F6B6",
         include_bytes!("../../../assets/icons/glyph_1F6B6.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F6C1",
@@ -314,22 +314,22 @@ pub const ICONS: &[(&str, &[u8], bool)] = &[
     (
         "glyph_1F938",
         include_bytes!("../../../assets/icons/glyph_1F938.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F957",
         include_bytes!("../../../assets/icons/glyph_1F957.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F9CA",
         include_bytes!("../../../assets/icons/glyph_1F9CA.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F9D8",
         include_bytes!("../../../assets/icons/glyph_1F9D8.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F9F3",
@@ -339,12 +339,12 @@ pub const ICONS: &[(&str, &[u8], bool)] = &[
     (
         "glyph_1F9F9",
         include_bytes!("../../../assets/icons/glyph_1F9F9.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F9FA",
         include_bytes!("../../../assets/icons/glyph_1F9FA.png"),
-        false,
+        true,
     ),
     (
         "glyph_1F9FE",
@@ -354,7 +354,7 @@ pub const ICONS: &[(&str, &[u8], bool)] = &[
     (
         "glyph_1FA7A",
         include_bytes!("../../../assets/icons/glyph_1FA7A.png"),
-        false,
+        true,
     ),
     (
         "glyph_1FA9F",
