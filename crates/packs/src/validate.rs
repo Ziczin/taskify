@@ -1,8 +1,8 @@
-//! Валидатор пака: коды PK001–PK015 и предупреждения W001–W006.
+//! Валидатор пака: коды PK001–PK016 и предупреждения W001–W006.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
-use taskify_core::task::{is_valid_id, KNOWN_LOCALES};
+use taskify_core::task::{is_valid_id, Task, KNOWN_LOCALES};
 
 use crate::entities::{Pack, TokenKind, Unlock};
 use crate::loader::{Issue, PackSet, Severity};
@@ -358,6 +358,58 @@ pub fn validate_set(set: &PackSet) -> Vec<Issue> {
     for pack in set.packs.values() {
         issues.extend(validate_pack(pack));
     }
+
+    // Цепочки заданий: предыдущая должна существовать, а цикл не должен
+    // запереть всю цепочку навсегда.
+    let tasks: BTreeMap<&str, &Task> = set
+        .packs
+        .values()
+        .flat_map(|pack| pack.tasks.values())
+        .map(|task| (task.id.as_str(), task))
+        .collect();
+    for task in tasks.values() {
+        let Some(after) = task.after.as_deref() else {
+            continue;
+        };
+        let file = format!("tasks/{}.toml", short(&task.id));
+        let mut cursor = after;
+        let mut seen = BTreeSet::new();
+        loop {
+            if !seen.insert(cursor.to_string()) {
+                issues.push(Issue::error(
+                    "PK016",
+                    &file,
+                    format!("цикл в цепочке заданий: {cursor}"),
+                ));
+                break;
+            }
+            let Some(previous) = tasks
+                .get(cursor)
+                .copied()
+                .or_else(|| tasks.values().copied().find(|item| item.id_in_use(cursor)))
+            else {
+                issues.push(Issue::error(
+                    "PK016",
+                    &file,
+                    format!("предыдущая задача не найдена: {cursor}"),
+                ));
+                break;
+            };
+            if previous.id == task.id {
+                issues.push(Issue::error(
+                    "PK016",
+                    &file,
+                    format!("задача ссылается сама на себя: {cursor}"),
+                ));
+                break;
+            }
+            match previous.after.as_deref() {
+                Some(next) => cursor = next,
+                None => break,
+            }
+        }
+    }
+
     issues
 }
 
@@ -415,9 +467,53 @@ mod tests {
             &root.join("demo/tasks/water.toml"),
             "id = \"water\"\ncategory = \"body\"\n[title]\nen = \"Water\"\n",
         );
+        write(
+            &root.join("demo/tasks/follow.toml"),
+            "id = \"follow\"\nafter = \"water\"\n[title]\nen = \"Follow\"\n",
+        );
         let set = PackSet::load(&root);
         let issues = validate_set(&set);
         assert!(!has_errors(&issues), "{issues:?}");
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn missing_prerequisite_is_pk016() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/tasks/follow.toml"),
+            "id = \"follow\"\nafter = \"missing\"\n[title]\nen = \"Follow\"\n",
+        );
+        let set = PackSet::load(&root);
+        let issues = validate_set(&set);
+        assert!(
+            issues
+                .iter()
+                .any(|issue| issue.code == "PK016" && issue.message.contains("не найдена")),
+            "{issues:?}"
+        );
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn prerequisite_cycle_is_pk016() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/tasks/a.toml"),
+            "id = \"a\"\nafter = \"b\"\n[title]\nen = \"A\"\n",
+        );
+        write(
+            &root.join("demo/tasks/b.toml"),
+            "id = \"b\"\nafter = \"a\"\n[title]\nen = \"B\"\n",
+        );
+        let set = PackSet::load(&root);
+        let issues = validate_set(&set);
+        assert!(
+            issues.iter().any(|issue| issue.code == "PK016"),
+            "{issues:?}"
+        );
         let _ = std::fs::remove_dir_all(&root);
     }
 

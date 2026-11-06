@@ -168,6 +168,30 @@ impl Engine {
                 .is_some()
     }
 
+    /// Открыта ли задача в цепочке: предыдущая выполнена хотя бы один раз.
+    pub fn is_unlocked(&self, task: &Task) -> bool {
+        let Some(after) = task.after.as_deref() else {
+            return true;
+        };
+        if after.trim().is_empty() {
+            return false;
+        }
+        let previous = self.packs.task(after).or_else(|| {
+            self.packs
+                .tasks()
+                .into_iter()
+                .find(|item| item.id_in_use(after))
+        });
+        let Some(previous) = previous else {
+            return false;
+        };
+        self.store
+            .state
+            .task_ref(&previous.id)
+            .map(|state| state.completions_total > 0)
+            .unwrap_or(false)
+    }
+
     /// Задание взято в работу в этот день.
     pub fn is_started(&self, task_id: &str, date: NaiveDate) -> bool {
         self.store
@@ -188,6 +212,14 @@ impl Engine {
     }
 
     pub fn start_task(&mut self, task_id: &str) -> Result<()> {
+        let task = self
+            .packs
+            .task(task_id)
+            .cloned()
+            .ok_or_else(|| anyhow!("задание не найдено: {task_id}"))?;
+        if !self.is_unlocked(&task) {
+            bail!("задание ещё закрыто: сначала выполните предыдущее");
+        }
         let date = self.today();
         self.record(EventKind::TaskStarted(TaskStarted {
             task_id: task_id.to_string(),
@@ -204,6 +236,10 @@ impl Engine {
     }
 
     pub fn is_due(&self, task: &Task, date: NaiveDate) -> bool {
+        // Закрытая задача цепочки не появляется и не считается оставшейся.
+        if !self.is_unlocked(task) {
+            return false;
+        }
         let Some(state) = self.store.state.task_ref(&task.id) else {
             return true;
         };
@@ -239,6 +275,9 @@ impl Engine {
             .task(task_id)
             .cloned()
             .ok_or_else(|| anyhow!("задание не найдено: {task_id}"))?;
+        if !self.is_unlocked(&task) {
+            bail!("задание ещё закрыто: сначала выполните предыдущее");
+        }
         let date = self.today();
         if self.is_done_today(task_id, date) {
             return Err(anyhow!("уже выполнено сегодня"));

@@ -434,6 +434,13 @@ impl PackSet {
                     task.category = task.category.map(|id| qualify(&pack_id, &id));
                     task.tags = task.tags.iter().map(|id| qualify(&pack_id, id)).collect();
                     task.combos = task.combos.iter().map(|id| qualify(&pack_id, id)).collect();
+                    task.after = task.after.map(|id| {
+                        if id.trim().is_empty() {
+                            id
+                        } else {
+                            qualify(&pack_id, &id)
+                        }
+                    });
                     task.icon = task.icon.map(|id| qualify(&pack_id, &id));
                     task.former_ids = task
                         .former_ids

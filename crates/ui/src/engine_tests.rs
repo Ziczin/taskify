@@ -108,6 +108,39 @@ fn completed_one_shot_never_becomes_due_again() {
 }
 
 #[test]
+fn chained_task_opens_only_after_previous_completion() {
+    let mut fixture = Fixture::new();
+    let mut chained = fixture
+        .engine
+        .packs
+        .task("starter/water")
+        .cloned()
+        .expect("задача из стартового пака должна существовать");
+    chained.id = "starter/chained".into();
+    chained.after = Some("starter/trip".into());
+    fixture
+        .engine
+        .packs
+        .packs
+        .get_mut("starter")
+        .unwrap()
+        .tasks
+        .insert(chained.id.clone(), chained.clone());
+    let today = fixture.engine.today();
+
+    assert!(!fixture.engine.is_unlocked(&chained));
+    assert!(!fixture.engine.is_due(&chained, today));
+    assert!(fixture.engine.complete("starter/chained").is_err());
+    assert!(fixture.engine.start_task("starter/chained").is_err());
+
+    fixture.engine.complete("starter/trip").unwrap();
+
+    assert!(fixture.engine.is_unlocked(&chained));
+    assert!(fixture.engine.is_due(&chained, today));
+    assert!(fixture.engine.complete("starter/chained").is_ok());
+}
+
+#[test]
 fn three_morning_tasks_award_the_combo() {
     let mut fixture = Fixture::new();
     let mut combos = Vec::new();

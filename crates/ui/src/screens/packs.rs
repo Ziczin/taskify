@@ -502,6 +502,15 @@ impl TaskifyApp {
                     if let Some(schedule) = schedule_text(task, locale) {
                         stats.push_str(&format!(" · {schedule}"));
                     }
+                    if let Some(after) = task.after.as_deref() {
+                        let previous = self
+                            .engine
+                            .packs
+                            .task(after)
+                            .map(|item| item.title(locale))
+                            .unwrap_or_else(|| after.to_string());
+                        stats.push_str(&format!(" · {} {previous}", self.t("packs.after")));
+                    }
                     if let Some(gate) = pack.task_levels.get(&task.id) {
                         if let Some(from) = gate.from {
                             stats.push_str(&format!(

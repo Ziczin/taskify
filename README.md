@@ -1,4 +1,4 @@
-﻿# Taskify
+# Taskify
 
 [English](README.en.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [Українська](README.uk.md) · [Polski](README.pl.md) · [Español](README.es.md) · [中文](README.zh.md) · [Deutsch](README.de.md)
 
@@ -8,7 +8,8 @@ Taskify is a local-first life gamification app for Windows. Keep habits, repeati
 
 ## Features
 
-- Four task kinds: habits, repeating tasks, one-off tasks, and checklists with subtasks.
+- Four task kinds: habits, repeating tasks, one-shot tasks, and checklists with subtasks.
+- Task chains: a task opens only after its predecessor has been completed at least once.
 - Unlimited levels, daily and weekly progress, streaks, combos, and achievements.
 - Coins, a cosmetic shop, themes, accents, backgrounds, fonts, sounds, and draggable stickers.
 - Content packs in TOML: tasks, categories, tags, icons, palettes, combos, achievements, cosmetics, and bundles.

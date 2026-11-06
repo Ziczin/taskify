@@ -340,6 +340,7 @@ mod tests {
             reward: Reward::new(10, 2),
             milestones: vec![],
             schedule: Schedule::Daily,
+            after: None,
             combos: vec![],
             hints: Hints::default(),
             subtasks: vec![],

@@ -191,6 +191,7 @@ folder = "Folder"
 license = "License"
 appears_from = "appears from Lv."
 disappears_at = "disappears at Lv."
+after = "after"
 [ach]
 sticker = "sticker"
 search = "Search"

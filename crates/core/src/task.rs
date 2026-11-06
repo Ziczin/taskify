@@ -125,6 +125,9 @@ pub struct Task {
     pub milestones: Vec<Milestone>,
     #[serde(default)]
     pub schedule: Schedule,
+    /// Id задания, которое нужно выполнить хотя бы раз, чтобы открыть это.
+    #[serde(default, alias = "previous", alias = "prev")]
+    pub after: Option<String>,
     #[serde(default)]
     pub combos: Vec<String>,
     #[serde(default)]
@@ -164,6 +167,8 @@ pub enum TaskError {
     MilestoneMultiplierBelowOne { index: usize },
     DuplicateFormerId { id: String },
     FormerIdMatchesSelf { id: String },
+    EmptyPrerequisite,
+    PrerequisiteMatchesSelf { id: String },
     InvalidCurrency { currency: String },
 }
 
@@ -178,6 +183,7 @@ impl TaskError {
             TaskError::MilestoneEveryZero { .. }
             | TaskError::MilestoneMultiplierBelowOne { .. } => "T006",
             TaskError::DuplicateFormerId { .. } | TaskError::FormerIdMatchesSelf { .. } => "T007",
+            TaskError::EmptyPrerequisite | TaskError::PrerequisiteMatchesSelf { .. } => "T009",
             TaskError::InvalidCurrency { .. } => "T008",
         }
     }
@@ -270,6 +276,14 @@ impl Task {
             }
         }
 
+        if let Some(after) = &self.after {
+            if after.trim().is_empty() {
+                errors.push(TaskError::EmptyPrerequisite);
+            } else if after == &self.id {
+                errors.push(TaskError::PrerequisiteMatchesSelf { id: after.clone() });
+            }
+        }
+
         for (index, milestone) in self.milestones.iter().enumerate() {
             if milestone.every == 0 {
                 errors.push(TaskError::MilestoneEveryZero { index });
@@ -338,6 +352,7 @@ mod tests {
                 coins_mult: 2.0,
             }],
             schedule: Schedule::Daily,
+            after: None,
             combos: vec![],
             hints: Hints::default(),
             subtasks: vec![],
@@ -379,6 +394,22 @@ mod tests {
         task.kind = Kind::Repeat;
         task.schedule = Schedule::Once;
         assert!(task.is_one_shot());
+    }
+
+    #[test]
+    fn prerequisite_must_be_filled_and_not_self() {
+        let mut task = sample();
+        task.after = Some(String::new());
+        assert!(task
+            .validate()
+            .iter()
+            .any(|error| matches!(error, TaskError::EmptyPrerequisite)));
+
+        task.after = Some(task.id.clone());
+        assert!(task
+            .validate()
+            .iter()
+            .any(|error| matches!(error, TaskError::PrerequisiteMatchesSelf { .. })));
     }
 
     #[test]

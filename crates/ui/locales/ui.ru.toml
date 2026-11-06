@@ -191,6 +191,7 @@ folder = "Папка"
 license = "Лицензия"
 appears_from = "появляется с ур."
 disappears_at = "пропадает на ур."
+after = "после"
 [ach]
 sticker = "стикер"
 search = "Поиск"
