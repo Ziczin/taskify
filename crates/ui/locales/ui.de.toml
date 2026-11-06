@@ -24,6 +24,9 @@ about = "Über"
 title = "Über"
 text = "Lokale Gamifizierung von Aufgaben. Alle Daten bleiben auf deinem Computer."
 
+[set]
+livespace_name = "Livespace-Name"
+
 [section]
 soon = "Dieser Abschnitt ist in Arbeit."
 

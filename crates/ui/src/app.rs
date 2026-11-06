@@ -430,6 +430,8 @@ pub struct TaskifyApp {
     pub tab_anim_start: Option<f32>,
     /// Имя нового лайвспейса в поле настройки.
     pub livespace_name: String,
+    /// Текущее имя лайвспейса в поле настроек.
+    pub livespace_rename: String,
     /// Фильтр списка паков: все, включённые или отключённые.
     pub packs_filter: PacksFilter,
     /// Поиск по пакам: имя, id и описание.
@@ -448,7 +450,7 @@ pub struct TaskifyApp {
     pub ach_state: AchState,
     /// Сортировка ачивок.
     pub ach_sort: AchSort,
-    /// Аватар игрока этого лайвспейса.
+    /// Аватар этого лайвспейса.
     pub avatar: Option<egui::TextureHandle>,
     /// Фильтр витрины по типу товара.
     pub market_kind: MarketKind,
@@ -918,6 +920,7 @@ impl TaskifyApp {
             section_anim_start: None,
             tab_anim_start: None,
             livespace_name: String::new(),
+            livespace_rename: String::new(),
             packs_filter: match std::env::var("TASKIFY_PACKS_FILTER").as_deref() {
                 Ok("enabled") => PacksFilter::Enabled,
                 Ok("disabled") => PacksFilter::Disabled,
@@ -1013,6 +1016,7 @@ impl TaskifyApp {
         };
         app.apply_look(ctx);
         app.reload_avatar(ctx);
+        app.livespace_rename = app.livespace_display_name();
         app
     }
 
@@ -1069,7 +1073,7 @@ impl TaskifyApp {
             .exact_height(100.0)
             .show(ctx, |ui| {
                 ui.add_space(6.0);
-                // Первая строка: аватар аккаунта и его имя слева, часы справа.
+                // Первая строка: аватар лайвспейса и его имя слева, часы справа.
                 ui.horizontal(|ui| {
                     let livespace = self.livespace_display_name();
                     // Аватар — это и есть отображение лайвспейса: по клику
@@ -1119,15 +1123,7 @@ impl TaskifyApp {
                         )
                         .on_hover_text(self.t("livespace.tip"));
                     self.livespace_menu(&name, true);
-                    ui.label(
-                        egui::RichText::new(format!(
-                            "{} · {}",
-                            self.player_name(),
-                            self.rank_title()
-                        ))
-                        .small()
-                        .weak(),
-                    );
+                    ui.label(egui::RichText::new(self.rank_title()).small().weak());
                     ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                         let now = chrono::Local::now();
                         ui.label(
@@ -1893,24 +1889,24 @@ impl TaskifyApp {
 
     /// Название текущего лайвспейса для интерфейса.
     pub fn livespace_display_name(&self) -> String {
-        let path = self.engine.store.livespace.root().join("livespace.toml");
-        std::fs::read_to_string(path)
-            .ok()
-            .and_then(|text| toml::from_str::<toml::Value>(&text).ok())
-            .and_then(|value| {
-                value
-                    .get("name")
-                    .and_then(|name| name.as_str())
-                    .map(str::to_string)
-            })
-            .unwrap_or_else(|| self.settings.livespace.clone())
+        self.engine.store.livespace.name()
     }
 
-    pub fn player_name(&self) -> String {
-        if self.settings.player.trim().is_empty() {
-            self.t("header.player")
-        } else {
-            self.settings.player.clone()
+    /// Сохраняет новое имя текущего лайвспейса.
+    pub fn rename_livespace(&mut self, name: &str, ctx: &egui::Context) {
+        let name = name.trim();
+        if name.is_empty() {
+            return;
+        }
+        if name == self.livespace_display_name() {
+            return;
+        }
+        match self.engine.store.livespace.rename(name) {
+            Ok(()) => ctx.request_repaint(),
+            Err(error) => {
+                self.set_status(format!("не удалось переименовать лайвспейс: {error}"));
+                self.livespace_rename = self.livespace_display_name();
+            }
         }
     }
 
@@ -2293,6 +2289,7 @@ impl TaskifyApp {
         self.settings.livespace = slug.to_string();
         self.settings.livespace_path = personal.map(|path| path.display().to_string());
         self.settings.save();
+        self.livespace_rename = self.livespace_display_name();
         self.card_heights.clear();
         self.card_anim.clear();
         self.subtasks_open.clear();
@@ -3017,6 +3014,26 @@ mod tests {
         assert_eq!(content.right(), rect.right() - 8.0);
         assert_eq!(content.top(), rect.top());
         assert_eq!(content.bottom(), rect.bottom());
+    }
+
+    #[test]
+    fn livespace_name_can_be_changed_from_settings() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../target/rename-flow-test")
+            .join(std::process::id().to_string());
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(root.join("livespaces")).unwrap();
+        let mut settings = Settings::default();
+        settings.paths.livespaces_dir = Some(root.join("livespaces"));
+        let slug = crate::bootstrap::create_livespace(&settings, "Старое имя").unwrap();
+        settings.livespace = slug;
+        let ctx = egui::Context::default();
+        let mut app = TaskifyApp::build(&ctx, settings);
+        app.rename_livespace("Новое имя", &ctx);
+        assert_eq!(app.livespace_display_name(), "Новое имя");
+        app.rename_livespace("   ", &ctx);
+        assert_eq!(app.livespace_display_name(), "Новое имя");
+        let _ = std::fs::remove_dir_all(&root);
     }
 
     #[test]

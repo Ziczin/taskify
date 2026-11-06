@@ -24,6 +24,9 @@ about = "O programie"
 title = "O programie"
 text = "Lokalna grywalizacja zadań. Wszystkie dane zostają na Twoim komputerze."
 
+[set]
+livespace_name = "Nazwa przestrzeni"
+
 [section]
 soon = "Ta sekcja jest w budowie."
 

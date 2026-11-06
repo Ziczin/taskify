@@ -236,6 +236,7 @@ count = "Events"
 
 [set]
 title = "Settings"
+livespace_name = "Livespace name"
 language = "Language"
 theme = "Theme"
 columns = "Grid columns"
@@ -320,7 +321,6 @@ combo = "Combo"
 6 = "The next one is easier than the first."
 
 [header]
-player = "Player"
 left = "left"
 tip_xp = "Earned XP"
 tip_done = "Tasks completed"

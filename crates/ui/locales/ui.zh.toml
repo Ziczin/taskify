@@ -24,6 +24,9 @@ about = "关于"
 title = "关于"
 text = "本地任务游戏化应用。所有数据都保存在你的电脑上。"
 
+[set]
+livespace_name = "空间名称"
+
 [section]
 soon = "此部分正在建设中。"
 

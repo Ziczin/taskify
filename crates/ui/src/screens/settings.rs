@@ -119,12 +119,17 @@ impl TaskifyApp {
             .num_columns(2)
             .spacing([16.0, 10.0])
             .show(ui, |ui| {
-                ui.label(self.t("header.player"));
-                if ui
-                    .add(egui::TextEdit::singleline(&mut self.settings.player).desired_width(220.0))
-                    .changed()
-                {
-                    interface_changed = true;
+                ui.label(self.t("set.livespace_name"));
+                let name_edit = ui.add(
+                    egui::TextEdit::singleline(&mut self.livespace_rename).desired_width(220.0),
+                );
+                if name_edit.changed() && !self.livespace_rename.trim().is_empty() {
+                    let name = self.livespace_rename.clone();
+                    self.rename_livespace(&name, ui.ctx());
+                }
+                if name_edit.lost_focus() {
+                    // Пустое имя не сохраняем: возвращаем последнее рабочее.
+                    self.livespace_rename = self.livespace_display_name();
                 }
                 ui.end_row();
 

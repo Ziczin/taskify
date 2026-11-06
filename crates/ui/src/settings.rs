@@ -242,9 +242,6 @@ pub struct Settings {
     pub paths: Paths,
     #[serde(default)]
     pub extra: BTreeMap<String, String>,
-    /// Имя игрока в шапке.
-    #[serde(default = "default_player")]
-    pub player: String,
     /// Слаг последнего открытого лайвспейса.
     #[serde(default = "default_livespace")]
     pub livespace: String,
@@ -283,7 +280,6 @@ impl Default for Settings {
             ui: UiSettings::default(),
             paths: Paths::default(),
             extra: BTreeMap::new(),
-            player: default_player(),
             livespace: default_livespace(),
             livespace_path: None,
             look_profiles: BTreeMap::new(),
@@ -297,10 +293,6 @@ impl Default for Settings {
 
 pub fn default_livespace() -> String {
     "default".to_string()
-}
-
-fn default_player() -> String {
-    "Игрок".to_string()
 }
 
 /// Роль оформления: хвост id без пака (`color.accent`, `background.image`).

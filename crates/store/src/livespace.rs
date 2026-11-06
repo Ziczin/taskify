@@ -124,6 +124,48 @@ impl Livespace {
         &self.slug
     }
 
+    /// Отображаемое имя из манифеста; у старых записей — имя папки.
+    pub fn name(&self) -> String {
+        let path = self.root.join("livespace.toml");
+        std::fs::read_to_string(path)
+            .ok()
+            .and_then(|text| toml::from_str::<LivespaceManifest>(&text).ok())
+            .map(|manifest| manifest.name)
+            .filter(|name| !name.trim().is_empty())
+            .unwrap_or_else(|| self.slug.clone())
+    }
+
+    /// Меняет имя в манифесте, не переименовывая папку.
+    pub fn rename(&self, name: impl AsRef<str>) -> std::io::Result<()> {
+        let name = name.as_ref().trim();
+        if name.is_empty() {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "имя лайвспейса не может быть пустым",
+            ));
+        }
+        let path = self.root.join("livespace.toml");
+        let mut manifest: LivespaceManifest = std::fs::read_to_string(&path)
+            .ok()
+            .and_then(|text| toml::from_str(&text).ok())
+            .unwrap_or_default();
+        manifest.name = name.to_string();
+        if manifest.schema == 0 {
+            manifest.schema = LIVESPACE_SCHEMA;
+        }
+        if manifest.id.is_empty() {
+            manifest.id = uuid::Uuid::new_v4().to_string();
+        }
+        if manifest.created_at.is_empty() {
+            manifest.created_at = chrono::Local::now().to_rfc3339();
+        }
+        let text = toml::to_string_pretty(&manifest)
+            .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
+        let tmp = path.with_extension("toml.tmp");
+        std::fs::write(&tmp, text)?;
+        std::fs::rename(&tmp, &path)
+    }
+
     pub fn root(&self) -> &Path {
         &self.root
     }
@@ -207,24 +249,7 @@ impl LivespaceBuilder {
     pub fn build(self) -> std::io::Result<Livespace> {
         let livespace = Livespace::open(&self.root)?;
         if let Some(name) = self.name {
-            let path = self.root.join("livespace.toml");
-            let mut manifest: LivespaceManifest = std::fs::read_to_string(&path)
-                .ok()
-                .and_then(|text| toml::from_str(&text).ok())
-                .unwrap_or_default();
-            manifest.name = name;
-            if manifest.schema == 0 {
-                manifest.schema = LIVESPACE_SCHEMA;
-            }
-            if manifest.id.is_empty() {
-                manifest.id = uuid::Uuid::new_v4().to_string();
-            }
-            if manifest.created_at.is_empty() {
-                manifest.created_at = chrono::Local::now().to_rfc3339();
-            }
-            if let Ok(text) = toml::to_string_pretty(&manifest) {
-                std::fs::write(&path, text)?;
-            }
+            livespace.rename(name)?;
         }
         Ok(livespace)
     }
@@ -249,6 +274,18 @@ mod tests {
         let livespace = Livespace::open(&dir).unwrap();
         assert!(dir.join("livespace.toml").exists());
         assert_eq!(livespace.log_dir(), dir.join("data").join("log"));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn manifest_name_can_be_changed_without_renaming_the_folder() {
+        let dir = crate::test_support::temp_root("ls-rename");
+        let livespace = Livespace::open(&dir).unwrap();
+        livespace.rename("  Новый мир  ").unwrap();
+        assert_eq!(livespace.name(), "Новый мир");
+        assert!(dir.join("livespace.toml").exists());
+        assert!(livespace.rename("   ").is_err());
+        assert_eq!(livespace.name(), "Новый мир");
         let _ = std::fs::remove_dir_all(&dir);
     }
 

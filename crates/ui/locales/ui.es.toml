@@ -24,6 +24,9 @@ about = "Acerca de"
 title = "Acerca de"
 text = "Gamificación local de tareas. Todos los datos se quedan en tu ordenador."
 
+[set]
+livespace_name = "Nombre del espacio"
+
 [section]
 soon = "Esta sección está en construcción."
 
