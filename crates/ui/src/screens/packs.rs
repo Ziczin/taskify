@@ -95,7 +95,9 @@ impl TaskifyApp {
             let hint = self.t("packs.search_hint");
             ui.add_sized(
                 [260.0, 26.0],
-                egui::TextEdit::singleline(&mut self.packs_query).hint_text(hint),
+                egui::TextEdit::singleline(&mut self.packs_query)
+                    .hint_text(hint)
+                    .margin(crate::search::SEARCH_FIELD_MARGIN),
             );
             ui.add_space(8.0);
             for value in PacksFilter::ALL {

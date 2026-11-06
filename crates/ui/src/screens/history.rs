@@ -158,7 +158,7 @@ impl TaskifyApp {
                 egui::TextEdit::singleline(&mut self.history.query)
                     .desired_width(220.0)
                     .hint_text(search_hint)
-                    .margin(egui::Margin::symmetric(4, 3)),
+                    .margin(crate::search::SEARCH_FIELD_MARGIN),
             );
             if response.changed() {
                 self.history.suggest = 0;
@@ -194,13 +194,13 @@ impl TaskifyApp {
             ui.add(
                 egui::TextEdit::singleline(&mut self.history.from)
                     .desired_width(90.0)
-                    .margin(egui::Margin::symmetric(4, 3)),
+                    .margin(crate::search::SEARCH_FIELD_MARGIN),
             );
             ui.label(self.t("hist.to"));
             ui.add(
                 egui::TextEdit::singleline(&mut self.history.to)
                     .desired_width(90.0)
-                    .margin(egui::Margin::symmetric(4, 3)),
+                    .margin(crate::search::SEARCH_FIELD_MARGIN),
             );
         });
         if let Some(response) = query_response.as_ref() {

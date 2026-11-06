@@ -296,7 +296,9 @@ impl TaskifyApp {
             ui.label(self.t("today.search"));
             ui.add_sized(
                 [200.0, 26.0],
-                egui::TextEdit::singleline(&mut self.filters.query).hint_text("…"),
+                egui::TextEdit::singleline(&mut self.filters.query)
+                    .hint_text("…")
+                    .margin(crate::search::SEARCH_FIELD_MARGIN),
             );
 
             let mut category_label = self

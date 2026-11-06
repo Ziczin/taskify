@@ -7,6 +7,15 @@
 use eframe::egui;
 use std::collections::BTreeSet;
 
+/// Отступ текста внутри поисковой строки. Сверху чуть больше, чем снизу:
+/// так строка и плейсхолдер сидят по центру поля, а не липнут к верхнему краю.
+pub(crate) const SEARCH_FIELD_MARGIN: egui::Margin = egui::Margin {
+    left: 10,
+    right: 10,
+    top: 5,
+    bottom: 3,
+};
+
 /// Вариант подсказки.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct Suggestion {

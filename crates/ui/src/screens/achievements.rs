@@ -105,7 +105,7 @@ impl TaskifyApp {
                 egui::TextEdit::singleline(&mut self.ach_query)
                     .desired_width(280.0)
                     .hint_text(hint)
-                    .margin(egui::Margin::symmetric(4, 3)),
+                    .margin(crate::search::SEARCH_FIELD_MARGIN),
             );
             if response.changed() {
                 self.ach_suggest = 0;
