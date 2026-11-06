@@ -409,7 +409,7 @@ impl TaskifyApp {
                 } else {
                     self.t(value.key())
                 };
-                if ui.selectable_label(tab == value, label).clicked() {
+                if crate::app::tab_label(ui, tab == value, label).clicked() {
                     tab = value;
                 }
             }
