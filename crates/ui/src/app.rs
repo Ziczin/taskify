@@ -599,6 +599,26 @@ fn rail_columns(available: f32, preferred_rail: f32, gap: f32) -> (f32, f32, f32
     (rail, center, rail)
 }
 
+/// Абсолютные прямоугольники реек и центра. Рейки всегда прижаты к краям
+/// окна, поэтому ширина содержимого в центре не может сдвинуть правую панель.
+fn shell_columns(
+    area: egui::Rect,
+    preferred_rail: f32,
+    gap: f32,
+) -> (egui::Rect, egui::Rect, egui::Rect) {
+    let (rail, _, _) = rail_columns(area.width(), preferred_rail, gap);
+    let left = egui::Rect::from_min_size(area.min, egui::vec2(rail, area.height()));
+    let right = egui::Rect::from_min_size(
+        egui::pos2(area.right() - rail, area.top()),
+        egui::vec2(rail, area.height()),
+    );
+    let center = egui::Rect::from_min_max(
+        egui::pos2(left.right() + gap, area.top()),
+        egui::pos2(right.left() - gap, area.bottom()),
+    );
+    (left, center, right)
+}
+
 /// Альфа канала, умноженная на проценты: 0 — прозрачно, 100 — как было.
 fn scale_alpha(alpha: u8, percent: u8) -> u8 {
     ((alpha as u16 * percent.min(100) as u16 + 50) / 100) as u8
@@ -1533,58 +1553,65 @@ impl TaskifyApp {
                 );
                 ui.separator();
             }
-            let full = ui.available_size();
             let gap = 10.0;
-            // Панели прибиты к краям, центральная колонка забирает ровно
-            // остаток и растягивается вместе с окном.
-            let (rail_width, center_width, _) = rail_columns(full.x, 190.0, gap);
-            let content_height = (full.y - 8.0).max(120.0);
+            // Панели прибиты к краям окна, центральная колонка забирает ровно
+            // остаток и растягивается вместе с окном. Рейки рисуем первыми и
+            // в абсолютных прямоугольниках: ширина контента в центре больше
+            // не может сдвинуть правую панель.
+            let area = ui.available_rect_before_wrap();
+            let (left_rect, center_rect, right_rect) = shell_columns(area, 190.0, gap);
+            let content_height = (center_rect.height() - 8.0).max(120.0);
 
-            ui.horizontal_top(|ui| {
-                ui.spacing_mut().item_spacing.x = gap;
-                ui.allocate_ui(egui::vec2(rail_width, full.y), |ui| {
-                    self.sticker_rail(ui, true);
-                });
-                ui.allocate_ui_with_layout(
-                    egui::vec2(center_width, full.y),
-                    egui::Layout::top_down(egui::Align::LEFT),
-                    |ui| {
-                        ui.allocate_ui_with_layout(
-                            egui::vec2(center_width, content_height),
-                            egui::Layout::top_down(egui::Align::LEFT),
-                            |ui| {
-                                let progress = self.section_progress(ui.ctx());
-                                if let Section::Today = self.section {
-                                    Self::transition(ui, progress);
-                                    self.screen_today(ui);
-                                    return;
+            ui.scope_builder(
+                egui::UiBuilder::new()
+                    .max_rect(left_rect)
+                    .layout(egui::Layout::top_down(egui::Align::LEFT)),
+                |ui| self.sticker_rail(ui, true),
+            );
+            ui.scope_builder(
+                egui::UiBuilder::new()
+                    .max_rect(right_rect)
+                    .layout(egui::Layout::top_down(egui::Align::LEFT)),
+                |ui| self.sticker_rail(ui, false),
+            );
+            ui.scope_builder(
+                egui::UiBuilder::new()
+                    .max_rect(center_rect)
+                    .layout(egui::Layout::top_down(egui::Align::LEFT)),
+                |ui| {
+                    ui.set_clip_rect(center_rect.intersect(ui.clip_rect()));
+                    ui.allocate_ui_with_layout(
+                        egui::vec2(center_rect.width(), content_height),
+                        egui::Layout::top_down(egui::Align::LEFT),
+                        |ui| {
+                            let progress = self.section_progress(ui.ctx());
+                            if let Section::Today = self.section {
+                                Self::transition(ui, progress);
+                                self.screen_today(ui);
+                                return;
+                            }
+                            egui::ScrollArea::vertical().show(ui, |ui| {
+                                // Полоса прокрутки живёт в отступе справа: карточки
+                                // до неё не доходят, поэтому она ничего не перекрывает
+                                // и не сдвигает при появлении.
+                                let gutter = 14.0;
+                                let content_width = (ui.available_width() - gutter).max(160.0);
+                                ui.set_max_width(content_width);
+                                Self::transition(ui, progress);
+                                match self.section {
+                                    Section::Today => {}
+                                    Section::Statistics => self.screen_stats(ui),
+                                    Section::Packs => self.screen_packs(ui),
+                                    Section::Achievements => self.screen_achievements(ui),
+                                    Section::Market => self.screen_market(ui),
+                                    Section::Stock => self.screen_stock(ui),
+                                    Section::Settings => self.screen_settings(ui),
                                 }
-                                egui::ScrollArea::vertical().show(ui, |ui| {
-                                    // Полоса прокрутки живёт в отступе справа: карточки
-                                    // до неё не доходят, поэтому она ничего не перекрывает
-                                    // и не сдвигает при появлении.
-                                    let gutter = 14.0;
-                                    let content_width = (ui.available_width() - gutter).max(160.0);
-                                    ui.set_max_width(content_width);
-                                    Self::transition(ui, progress);
-                                    match self.section {
-                                        Section::Today => {}
-                                        Section::Statistics => self.screen_stats(ui),
-                                        Section::Packs => self.screen_packs(ui),
-                                        Section::Achievements => self.screen_achievements(ui),
-                                        Section::Market => self.screen_market(ui),
-                                        Section::Stock => self.screen_stock(ui),
-                                        Section::Settings => self.screen_settings(ui),
-                                    }
-                                });
-                            },
-                        );
-                    },
-                );
-                ui.allocate_ui(egui::vec2(rail_width, full.y), |ui| {
-                    self.sticker_rail(ui, false);
-                });
-            });
+                            });
+                        },
+                    );
+                },
+            );
         });
     }
 
@@ -2681,6 +2708,23 @@ mod tests {
         let (left, center, right) = rail_columns(300.0, 190.0, 10.0);
         assert!((left + center + right + 20.0 - 300.0).abs() < 0.01);
         assert!(center >= 0.0);
+    }
+
+    #[test]
+    fn sticker_rails_are_pinned_to_window_edges() {
+        let area = egui::Rect::from_min_size(egui::pos2(0.0, 0.0), egui::vec2(1280.0, 800.0));
+        let (left, center, right) = shell_columns(area, 190.0, 10.0);
+        assert_eq!(left.left(), area.left());
+        assert_eq!(left.width(), 190.0);
+        assert_eq!(right.right(), area.right());
+        assert_eq!(right.width(), 190.0);
+        assert_eq!(right.top(), area.top());
+        assert_eq!(center.left(), left.right() + 10.0);
+        assert_eq!(center.right(), right.left() - 10.0);
+
+        let narrow = egui::Rect::from_min_size(egui::pos2(0.0, 0.0), egui::vec2(700.0, 800.0));
+        let (_, _, narrow_right) = shell_columns(narrow, 190.0, 10.0);
+        assert_eq!(narrow_right.right(), narrow.right());
     }
 
     #[test]

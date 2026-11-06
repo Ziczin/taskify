@@ -8,8 +8,8 @@ members = [
 ]
 
 [workspace.package]
-# Release.Feature.Patch: 0 публичных релизов, 121 фича и 38 патчей в v0.1–v0.159.
-version = "0.121.38"
+# Release.Feature.Patch: 0 публичных релизов, 121 фича и 39 патчей.
+version = "0.121.39"
 edition = "2021"
 rust-version = "1.85"
 license = "MIT"
