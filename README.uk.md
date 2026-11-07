@@ -90,7 +90,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-Зараз у наборі **155 тестів**.
+Зараз у наборі **183 тести**.
 
 ## Участь
 

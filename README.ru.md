@@ -1,4 +1,6 @@
-﻿# Taskify
+# Taskify
+
+[![Windows build](https://github.com/Ziczin/taskify/actions/workflows/windows.yml/badge.svg)](https://github.com/Ziczin/taskify/actions/workflows/windows.yml)
 
 [English](README.en.md) · **Русский** · [日本語](README.ja.md) · [Українська](README.uk.md) · [Polski](README.pl.md) · [Español](README.es.md) · [中文](README.zh.md) · [Deutsch](README.de.md)
 
@@ -9,6 +11,7 @@ Taskify — локальное приложение для геймификац�
 ## Возможности
 
 - Четыре вида заданий: привычки, повторы, разовые задания и чек-листы с подпунктами.
+- Пять мягких паков: «Приветствие», «Уборка», «Полезные привычки», «Вдохновение» и «Социализация» — по одному действию на шаг и сюжетные цепочки.
 - Уровни без потолка, дневной и недельный прогресс, серии, комбо и достижения.
 - Монеты, магазин косметики, темы, акценты, фоны, шрифты, звуки и перетаскиваемые стикеры.
 - Паки контента в TOML: задания, категории, теги, иконки, палитры, комбо, достижения, косметика и наборы.
@@ -25,12 +28,15 @@ Taskify — локальное приложение для геймификац�
 
 ## Сборка и запуск
 
+GitHub Actions собирает и проверяет каждый push в `main`. Портативный ZIP можно скачать из артефакта последней сборки или из [Releases](https://github.com/Ziczin/taskify/releases) для тегов `v*`.
+
 ```powershell
 cargo build --release
+.\tools\package.ps1          # dist\taskify-<сборка>-windows-x64.zip
 .\target\release\taskify.exe
 ```
 
-Тот же файл предоставляет консольные команды:
+В портативном ZIP `taskify.exe` и папка `assets` должны лежать рядом. Тот же файл предоставляет консольные команды:
 
 ```powershell
 .\target\release\taskify.exe version
@@ -39,7 +45,7 @@ cargo build --release
 .\target\release\taskify.exe validate history default
 ```
 
-При первом запуске создаётся лайвспейс `default` и устанавливаются встроенные паки.
+При первом запуске открывается экран настройки, создаётся лайвспейс и устанавливаются пять встроенных паков. Включён только «Приветствие»; остальные можно включать по одному.
 
 ## Данные
 
@@ -90,7 +96,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-Сейчас в наборе **155 тестов**.
+Сейчас в наборе **183 теста**.
 
 ## Участие
 

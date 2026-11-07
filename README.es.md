@@ -90,7 +90,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-El conjunto actual tiene **155 pruebas**.
+El conjunto actual tiene **183 pruebas**.
 
 ## Contribuir
 

@@ -2807,12 +2807,10 @@ pub fn parse_hex(value: &str) -> Option<egui::Color32> {
 
 pub fn install_fonts(ctx: &egui::Context) {
     let mut fonts = egui::FontDefinitions::default();
+    let assets = crate::bootstrap::assets_root().join("fonts");
     let candidates = [
-        concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../assets/fonts/NotoSans-Regular.ttf"
-        ),
-        r"C:\Windows\Fonts\segoeui.ttf",
+        assets.join("NotoSans-Regular.ttf"),
+        std::path::PathBuf::from(r"C:\Windows\Fonts\segoeui.ttf"),
     ];
     for path in candidates {
         if let Ok(bytes) = std::fs::read(path) {
@@ -2830,11 +2828,8 @@ pub fn install_fonts(ctx: &egui::Context) {
     }
     // CJK-шрифты подключаем отдельно: они тяжёлые.
     let cjk = [
-        concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../assets/fonts/NotoSansJP-Regular.otf"
-        ),
-        r"C:\Windows\Fonts\msgothic.ttc",
+        assets.join("NotoSansJP-Regular.otf"),
+        std::path::PathBuf::from(r"C:\Windows\Fonts\msgothic.ttc"),
     ];
     for path in cjk {
         if let Ok(bytes) = std::fs::read(path) {

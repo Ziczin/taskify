@@ -90,7 +90,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-当前共有 **155 个测试**。
+当前共有 **183 个测试**。
 
 ## 贡献
 

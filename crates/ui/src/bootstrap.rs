@@ -17,13 +17,35 @@ pub fn data_root(settings: &Settings) -> PathBuf {
         .unwrap_or_else(Settings::dir)
 }
 
-/// Где лежат встроенные паки в исходниках (путь зашит при сборке).
+/// Папка с ресурсами: сначала рядом с exe, затем текущая папка, затем исходники.
+/// Нужна для портативной сборки: GitHub-артефакт кладёт `assets` рядом с exe.
+pub fn assets_root() -> PathBuf {
+    if let Some(path) = std::env::var_os("TASKIFY_ASSETS") {
+        return PathBuf::from(path);
+    }
+    let mut candidates: Vec<PathBuf> = Vec::new();
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            candidates.push(dir.join("assets"));
+        }
+    }
+    if let Ok(cwd) = std::env::current_dir() {
+        candidates.push(cwd.join("assets"));
+    }
+    let source = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..")
+        .join("assets");
+    candidates.push(source.clone());
+    candidates
+        .iter()
+        .find(|candidate| candidate.join("packs/greeting/pack.toml").exists())
+        .cloned()
+        .unwrap_or(source)
+}
+
 pub fn packs_source() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("..")
-        .join("assets")
-        .join("packs")
+    assets_root().join("packs")
 }
 
 pub fn packs_dir(settings: &Settings) -> PathBuf {
@@ -529,6 +551,11 @@ mod tests {
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../assets/packs/greeting/pack.toml");
         assert_eq!(pack_version(&path), Some((1, 1, 0)));
+    }
+
+    #[test]
+    fn assets_root_finds_the_greeting_pack() {
+        assert!(assets_root().join("packs/greeting/pack.toml").exists());
     }
 
     #[test]

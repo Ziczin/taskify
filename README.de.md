@@ -90,7 +90,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-Der aktuelle Testsatz umfasst **155 Tests**.
+Der aktuelle Testsatz umfasst **183 Tests**.
 
 ## Mitwirken
 

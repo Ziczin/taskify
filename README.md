@@ -1,5 +1,7 @@
 # Taskify
 
+[![Windows build](https://github.com/Ziczin/taskify/actions/workflows/windows.yml/badge.svg)](https://github.com/Ziczin/taskify/actions/workflows/windows.yml)
+
 [English](README.en.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [Українська](README.uk.md) · [Polski](README.pl.md) · [Español](README.es.md) · [中文](README.zh.md) · [Deutsch](README.de.md)
 
 Taskify is a local-first life gamification app for Windows. Keep habits, repeating tasks, one-off tasks, and checklists; earn XP and coins; unlock achievements, themes, cosmetics, and stickers. Everything is stored on your computer as an append-only JSONL journal — no account and no network required.
@@ -28,12 +30,15 @@ Taskify is a local-first life gamification app for Windows. Keep habits, repeati
 
 ## Build and run
 
+GitHub Actions builds and tests every push to `main`. Download the portable ZIP from the latest workflow artifact or from [Releases](https://github.com/Ziczin/taskify/releases) for `v*` tags.
+
 ```powershell
 cargo build --release
+.\tools\package.ps1          # dist\taskify-<build>-windows-x64.zip
 .\target\release\taskify.exe
 ```
 
-The same executable also provides command-line commands:
+The portable ZIP must keep `taskify.exe` and the `assets` folder together. The same executable also provides command-line commands:
 
 ```powershell
 .\target\release\taskify.exe version
@@ -42,7 +47,7 @@ The same executable also provides command-line commands:
 .\target\release\taskify.exe validate history default
 ```
 
-The first launch creates the `default` livespace and installs the built-in packs.
+The first launch opens the setup screen, creates a livespace, and installs the five built-in packs. Only Greeting is enabled initially; the other packs can be enabled one at a time.
 
 ## Data
 
@@ -93,7 +98,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-The current test suite has **155 tests**.
+The current test suite has **183 tests**.
 
 ## Contributing
 
