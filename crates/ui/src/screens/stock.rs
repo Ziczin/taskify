@@ -717,7 +717,7 @@ impl TaskifyApp {
                             0.08
                         }),
                 )
-                .stroke(egui::Stroke::new(1.0, self.accent.gamma_multiply(0.45)))
+                .stroke(egui::Stroke::new(1.0_f32, self.accent.gamma_multiply(0.45)))
                 .inner_margin(egui::Margin::symmetric(12, 10))
                 .show(ui, |ui| {
                     ui.label(egui::RichText::new(draft_title).strong().color(self.accent));

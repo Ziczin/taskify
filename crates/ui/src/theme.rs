@@ -199,9 +199,9 @@ impl Palette {
         visuals.override_text_color = Some(self.text);
         visuals.hyperlink_color = self.accent;
         visuals.selection.bg_fill = self.accent.gamma_multiply(0.35);
-        visuals.selection.stroke = egui::Stroke::new(1.0, self.text);
+        visuals.selection.stroke = egui::Stroke::new(1.0_f32, self.text);
         visuals.window_corner_radius = egui::CornerRadius::same(16);
-        visuals.window_stroke = egui::Stroke::new(1.0, self.border);
+        visuals.window_stroke = egui::Stroke::new(1.0_f32, self.border);
         visuals.error_fg_color = self.danger;
         visuals.warn_fg_color = self.warning;
         let shadow_alpha = if self.dark { 140 } else { 55 };
@@ -214,25 +214,25 @@ impl Palette {
         visuals.window_shadow.color = shadow;
         visuals.popup_shadow.color = shadow;
 
-        let control = egui::Stroke::new(1.0, self.accent.gamma_multiply(0.55));
+        let control = egui::Stroke::new(1.0_f32, self.accent.gamma_multiply(0.55));
         let widgets = &mut visuals.widgets;
         widgets.noninteractive.bg_fill = self.panel;
         widgets.noninteractive.weak_bg_fill = self.panel;
-        widgets.noninteractive.bg_stroke = egui::Stroke::new(1.0, self.border);
+        widgets.noninteractive.bg_stroke = egui::Stroke::new(1.0_f32, self.border);
         // Неактивные элементы читаются как отключённые, а не как обычный текст.
-        widgets.noninteractive.fg_stroke = egui::Stroke::new(1.0, self.muted);
+        widgets.noninteractive.fg_stroke = egui::Stroke::new(1.0_f32, self.muted);
         widgets.noninteractive.corner_radius = egui::CornerRadius::same(14);
 
         widgets.inactive.bg_fill = mix(self.card, self.accent, 0.10);
         widgets.inactive.weak_bg_fill = mix(self.card, self.accent, 0.08);
         widgets.inactive.bg_stroke = control;
-        widgets.inactive.fg_stroke = egui::Stroke::new(1.0, self.text);
+        widgets.inactive.fg_stroke = egui::Stroke::new(1.0_f32, self.text);
         widgets.inactive.corner_radius = egui::CornerRadius::same(12);
 
         widgets.hovered.bg_fill = mix(self.card, self.accent, 0.20);
         widgets.hovered.weak_bg_fill = mix(self.card, self.accent, 0.17);
-        widgets.hovered.bg_stroke = egui::Stroke::new(1.0, self.accent);
-        widgets.hovered.fg_stroke = egui::Stroke::new(1.5, self.text);
+        widgets.hovered.bg_stroke = egui::Stroke::new(1.0_f32, self.accent);
+        widgets.hovered.fg_stroke = egui::Stroke::new(1.5_f32, self.text);
         widgets.hovered.corner_radius = egui::CornerRadius::same(12);
         // Кнопка не должна вылезать за своё место при наведении: у края
         // центральной панели этот лишний пиксель обрезался клипом.
@@ -240,15 +240,15 @@ impl Palette {
 
         widgets.active.bg_fill = mix(self.card, self.accent, 0.34);
         widgets.active.weak_bg_fill = mix(self.card, self.accent, 0.30);
-        widgets.active.bg_stroke = egui::Stroke::new(1.0, self.accent);
-        widgets.active.fg_stroke = egui::Stroke::new(1.5, self.text);
+        widgets.active.bg_stroke = egui::Stroke::new(1.0_f32, self.accent);
+        widgets.active.fg_stroke = egui::Stroke::new(1.5_f32, self.text);
         widgets.active.corner_radius = egui::CornerRadius::same(12);
         widgets.active.expansion = 0.0;
 
         widgets.open.bg_fill = mix(self.card, self.accent, 0.24);
         widgets.open.weak_bg_fill = mix(self.card, self.accent, 0.20);
-        widgets.open.bg_stroke = egui::Stroke::new(1.0, self.accent);
-        widgets.open.fg_stroke = egui::Stroke::new(1.0, self.text);
+        widgets.open.bg_stroke = egui::Stroke::new(1.0_f32, self.accent);
+        widgets.open.fg_stroke = egui::Stroke::new(1.0_f32, self.text);
         widgets.open.corner_radius = egui::CornerRadius::same(12);
         widgets.open.expansion = 0.0;
 

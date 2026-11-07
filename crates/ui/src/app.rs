@@ -1281,7 +1281,7 @@ impl TaskifyApp {
             let color = egui::Color32::from_rgba_unmultiplied(weak.r(), weak.g(), weak.b(), 45);
             let node_color =
                 egui::Color32::from_rgba_unmultiplied(weak.r(), weak.g(), weak.b(), 90);
-            let stroke = egui::Stroke::new(1.0, color);
+            let stroke = egui::Stroke::new(1.0_f32, color);
             let painter = ui.painter().with_clip_rect(panel.shrink(1.0));
             let mut x = panel.left() + grid_step;
             while x < panel.right() {
@@ -1504,7 +1504,7 @@ impl TaskifyApp {
                 let (resize_pos, rotate_pos) =
                     sticker_handle_positions(panel, center, rect.size(), live_rotation);
                 let top = rotate_around(center, rect.center_top(), live_rotation);
-                let stroke = egui::Stroke::new(1.5, accent);
+                let stroke = egui::Stroke::new(1.5_f32, accent);
                 let corners = [
                     rect.left_top(),
                     rect.right_top(),
@@ -1664,9 +1664,9 @@ impl TaskifyApp {
                 let (rect, response) = ui
                     .allocate_exact_size(egui::vec2(cell_width, cell_height), egui::Sense::hover());
                 let stroke = if is_today {
-                    egui::Stroke::new(1.5, accent)
+                    egui::Stroke::new(1.5_f32, accent)
                 } else {
-                    egui::Stroke::new(1.0, border)
+                    egui::Stroke::new(1.0_f32, border)
                 };
                 ui.painter().rect(
                     rect,

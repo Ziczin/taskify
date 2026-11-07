@@ -521,10 +521,10 @@ impl TaskifyApp {
         let frame = egui::Frame::group(ui.style())
             .fill(background)
             .stroke(if started {
-                egui::Stroke::new(2.0, accent)
+                egui::Stroke::new(2.0_f32, accent)
             } else {
                 egui::Stroke::new(
-                    1.0,
+                    1.0_f32,
                     if done {
                         ui.visuals().weak_text_color().gamma_multiply(0.6)
                     } else {
