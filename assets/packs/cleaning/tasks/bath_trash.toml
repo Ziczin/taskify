@@ -8,8 +8,8 @@ ru = "Выбросить мусор"
 en = "Throw away the trash"
 
 [reward]
-xp = 3
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

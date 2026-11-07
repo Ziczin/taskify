@@ -11,8 +11,8 @@ ru = "Три шага, чтобы мягко закончить день."
 en = "Three steps to end the day gently."
 
 [reward]
-xp = 5
-coins = 2
+xp = 10
+coins = 10
 
 [schedule]
 type = "daily"

@@ -4,6 +4,7 @@ use std::path::Path;
 use std::time::Duration;
 
 use chrono::{DateTime, FixedOffset, Local};
+use taskify_core::level::level_for;
 
 use crate::aggregates::{Aggregates, AGGREGATES_SCHEMA};
 use crate::apply::{apply, Rules};
@@ -34,7 +35,7 @@ impl Store {
         let cached_state: Option<State> = cache::read_json(&livespace.state_file());
         let cached_aggregates: Option<Aggregates> = cache::read_json(&livespace.aggregates_file());
 
-        let (state, aggregates, warnings, last_seq) = match (cached_state, cached_aggregates) {
+        let (mut state, aggregates, warnings, last_seq) = match (cached_state, cached_aggregates) {
             (Some(state), Some(aggregates))
                 if state.schema == STATE_SCHEMA && aggregates.schema == AGGREGATES_SCHEMA =>
             {
@@ -60,6 +61,9 @@ impl Store {
         };
 
         let log = LogWriter::open(livespace.log_dir(), last_seq.max(state.last_seq))?;
+        // Уровень — производное от опыта, а не отдельное достижение. Пересчёт
+        // при открытии важен после смены кривой: в кеше мог остаться старый.
+        state.level = level_for(state.xp_total);
 
         let store = Self {
             livespace,
@@ -282,6 +286,36 @@ mod tests {
         assert_eq!(store.state.xp_total, 10);
         assert_eq!(store.state.coins, 2);
         assert_eq!(store.aggregates.totals.tasks_completed, 1);
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn level_is_recomputed_from_xp_on_open() {
+        let root = temp();
+        let date = chrono::NaiveDate::from_ymd_opt(2024, 3, 10).unwrap();
+        {
+            let mut store = Store::open(&root).unwrap();
+            store
+                .record(EventKind::TaskCompleted(TaskCompleted {
+                    task: task(),
+                    base: Reward::new(100, 10),
+                    milestones: vec![],
+                    awarded: Reward::new(100, 10),
+                    completions_total: 1,
+                    streak: 1,
+                    local_date: date,
+                    over_norm: false,
+                    combos: vec![],
+                }))
+                .unwrap();
+        }
+        let livespace = Livespace::open(&root).unwrap();
+        let mut cached: State = cache::read_json(&livespace.state_file()).unwrap();
+        cached.level = 99;
+        cache::write_json(&livespace.state_file(), &cached).unwrap();
+
+        let store = Store::open(&root).unwrap();
+        assert_eq!(store.state.level, 2);
         let _ = std::fs::remove_dir_all(&root);
     }
 

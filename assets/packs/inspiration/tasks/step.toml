@@ -12,8 +12,8 @@ ru = "Один шаг по этой идее. Не весь путь."
 en = "One step toward that idea. Not the whole path."
 
 [reward]
-xp = 4
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

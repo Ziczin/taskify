@@ -8,8 +8,8 @@ ru = "Пройтись 10 минут"
 en = "Walk for 10 minutes"
 
 [reward]
-xp = 2
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "interval"

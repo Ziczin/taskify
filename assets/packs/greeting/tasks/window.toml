@@ -9,8 +9,8 @@ ru = "Открыть окно"
 en = "Open a window"
 
 [reward]
-xp = 2
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

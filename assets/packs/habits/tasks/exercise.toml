@@ -11,8 +11,8 @@ ru = "Шесть коротких упражнений. Не спеши и ды�
 en = "Six short exercises. Take your time and breathe."
 
 [reward]
-xp = 6
-coins = 2
+xp = 10
+coins = 10
 
 [schedule]
 type = "interval"

@@ -6,8 +6,8 @@ ru = "Поблагодарить одного человека"
 en = "Thank one person"
 
 [reward]
-xp = 2
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "daily"

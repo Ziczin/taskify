@@ -8,8 +8,8 @@ ru = "Спросить «как дела?»"
 en = "Ask “how are you?”"
 
 [reward]
-xp = 2
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

@@ -12,8 +12,8 @@ ru = "На «Складе» лежит купленное: примени тем
 en = "“Stock” holds what you own: apply a theme or background. Stickers can be dragged onto the side panels; they are part of the look too."
 
 [reward]
-xp = 3
-coins = 3
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

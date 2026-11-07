@@ -8,8 +8,8 @@ ru = "Протереть полку"
 en = "Wipe the shelf"
 
 [reward]
-xp = 2
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

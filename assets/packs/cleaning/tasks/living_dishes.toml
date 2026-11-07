@@ -8,8 +8,8 @@ ru = "Убрать посуду"
 en = "Take out the dishes"
 
 [reward]
-xp = 3
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

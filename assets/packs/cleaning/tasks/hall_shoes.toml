@@ -8,8 +8,8 @@ ru = "Убрать обувь"
 en = "Put the shoes away"
 
 [reward]
-xp = 3
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

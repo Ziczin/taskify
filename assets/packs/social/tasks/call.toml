@@ -8,8 +8,8 @@ ru = "Позвонить близкому"
 en = "Call someone close"
 
 [reward]
-xp = 4
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

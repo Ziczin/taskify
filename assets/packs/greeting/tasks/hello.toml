@@ -12,8 +12,8 @@ ru = "Посмотреть в зеркало и сказать вслух: «П�
 en = "Look in the mirror and say out loud: “Hi”."
 
 [reward]
-xp = 2
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

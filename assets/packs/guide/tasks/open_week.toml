@@ -12,8 +12,8 @@ ru = "Открой раздел «Неделя»: там видно, сколь�
 en = "Open “Week”: it shows what you’ve done this week and how your streak is growing. Come back to “Today” and tick this step off."
 
 [reward]
-xp = 2
-coins = 2
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

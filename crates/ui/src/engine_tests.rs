@@ -57,8 +57,8 @@ fn legacy_bundle_stickers_are_not_granted_or_priced() {
 fn completing_a_task_gives_reward_and_unlocks_first_achievement() {
     let mut fixture = Fixture::new();
     let outcome = fixture.engine.complete("greeting/hello").unwrap();
-    assert_eq!(outcome.awarded.xp, 2);
-    assert_eq!(outcome.awarded.coins, 1);
+    assert_eq!(outcome.awarded.xp, 10);
+    assert_eq!(outcome.awarded.coins, 10);
     assert!(outcome
         .achievements
         .contains(&"greeting/first_step".to_string()));

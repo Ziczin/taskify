@@ -11,8 +11,8 @@ ru = "План чистого дома: сегодня одна комната. 
 en = "The clean-home plan: one room today. The others can wait."
 
 [reward]
-xp = 3
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

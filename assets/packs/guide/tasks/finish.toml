@@ -12,8 +12,8 @@ ru = "В «Настройках» выбери язык, тему и разме�
 en = "In “Settings”, choose your language, theme, and font size. Then open “Packs”: every set is listed there, and you can switch “Getting Started” off once you no longer need it."
 
 [reward]
-xp = 5
-coins = 5
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

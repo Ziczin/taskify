@@ -7,8 +7,8 @@ ru = "Лечь спать до полуночи"
 en = "Go to bed before midnight"
 
 [reward]
-xp = 2
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "daily"

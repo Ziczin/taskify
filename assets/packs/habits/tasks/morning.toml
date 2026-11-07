@@ -11,8 +11,8 @@ ru = "Три маленьких шага. Можно по одному."
 en = "Three tiny steps. One at a time is fine."
 
 [reward]
-xp = 5
-coins = 2
+xp = 10
+coins = 10
 
 [schedule]
 type = "daily"

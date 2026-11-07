@@ -254,13 +254,13 @@ mod tests {
     #[test]
     fn level_follows_xp() {
         let mut state = State::default();
-        state.add_xp(9);
+        state.add_xp(49);
         assert_eq!(state.level, 1);
         state.add_xp(1);
         assert_eq!(state.level, 2);
-        state.add_xp(90);
-        assert_eq!(state.level, 11);
-        state.add_xp(4_900);
-        assert_eq!(state.level, 101);
+        state.add_xp(60);
+        assert_eq!(state.level, 3);
+        state.add_xp(70);
+        assert_eq!(state.level, 4);
     }
 }

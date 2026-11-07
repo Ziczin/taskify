@@ -12,8 +12,8 @@ ru = "В «Маркете» за монеты покупают темы, фон�
 en = "In the “Market” you spend coins on themes, backgrounds, fonts, and stickers. Every task now pays coins. Pick something small or just browse the shelves."
 
 [reward]
-xp = 3
-coins = 3
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

@@ -8,8 +8,8 @@ ru = "Протереть стол"
 en = "Wipe the table"
 
 [reward]
-xp = 2
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

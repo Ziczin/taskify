@@ -9,8 +9,8 @@ ru = "Предложить встречу"
 en = "Suggest meeting up"
 
 [reward]
-xp = 4
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

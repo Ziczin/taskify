@@ -11,8 +11,8 @@ ru = "Та же рутина, но чуть длиннее. Подключай �
 en = "The same routine, a little longer. Add steps gradually."
 
 [reward]
-xp = 6
-coins = 2
+xp = 10
+coins = 10
 
 [schedule]
 type = "daily"

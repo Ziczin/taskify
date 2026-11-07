@@ -560,7 +560,7 @@ mod tests {
     fn bundled_pack_version_is_parsed() {
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../assets/packs/greeting/pack.toml");
-        assert_eq!(pack_version(&path), Some((1, 2, 0)));
+        assert_eq!(pack_version(&path), Some((1, 3, 0)));
     }
 
     #[test]

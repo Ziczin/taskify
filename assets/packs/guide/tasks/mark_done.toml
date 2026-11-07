@@ -12,8 +12,8 @@ ru = "Нажми «Сделать» на карточке. За задание �
 en = "Press “Done” on the card. The task pays XP and coins, and your streak and weekly progress update by themselves. No manual bookkeeping."
 
 [reward]
-xp = 3
-coins = 2
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

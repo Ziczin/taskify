@@ -8,8 +8,8 @@ ru = "Проветрить комнату"
 en = "Air out the room"
 
 [reward]
-xp = 4
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

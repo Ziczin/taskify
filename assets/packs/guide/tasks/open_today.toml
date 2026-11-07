@@ -11,8 +11,8 @@ ru = "Это стартовый экран: на нём карточки зад�
 en = "This is the start screen: today’s task cards live here. Look around, but don’t take everything at once. Press “Done” when you’re ready for the next step."
 
 [reward]
-xp = 2
-coins = 2
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"

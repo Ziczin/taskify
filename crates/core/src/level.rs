@@ -1,34 +1,23 @@
 //! Кривая уровней без потолка.
 //!
-//! Порог суммарного опыта задан четырьмя участками ускорения; `x` — номер
-//! порога, то есть `level - 1`, поэтому первый уровень начинается с нуля:
+//! Первый переход стоит 50 опыта, и каждый следующий — на 10 больше:
 //!
 //! ```text
-//! x <= 10          10x
-//! 10 < x <= 100    ceil(x^2 / 2 + max(0, 60 - x))
-//! 100 < x <= 1000  floor(9x^3 / (8x + 1000))
-//! x > 1000         floor((x/10)^log10(x) * (x/1000)^-p)
+//! уровень 2   50
+//! уровень 3   50 + 60 = 110
+//! уровень 4   50 + 60 + 70 = 180
+//! ...
 //! ```
 //!
-//! Четвёртый участок домножен на плавную поправку `(x/1000)^-p`: при `x = 1000`
-//! она равна единице и не рвёт стык, а к эталонному уровню 77 777 гасит значение
-//! до 7 777 777 777 777 777 777 опыта. Показатель `p` посчитан из этого условия
-//! и зафиксирован константой.
+//! Суммарный опыт для уровня `L` (`n = L - 1`):
 //!
-//! Потолка уровней нет: кривая считается в `f64` и насыщается на `u64::MAX`.
-//! Максимальный достижимый уровень — около 85 843, дальше опыт уже не помещается
-//! в `u64`.
-
-/// Уровень, до которого кривая откалибрована.
-pub const REFERENCE_LEVEL: u32 = 77_777;
-
-/// Целевой опыт эталонного уровня.
-pub const REFERENCE_XP: u64 = 7_777_777_777_777_777_777;
-
-/// Показатель поправки четвёртого участка.
-///
-/// `p = ln(base(REFERENCE_LEVEL - 1) / REFERENCE_XP) / ln((REFERENCE_LEVEL - 1) / 1000)`.
-const CORRECTION: f64 = 0.073_337_339_098_789_88;
+//! ```text
+//! 50n + 10 * n(n - 1) / 2 = 5n² + 45n
+//! ```
+//!
+//! Кривая считается в `u128` и насыщается на `u64::MAX`, поэтому потолка
+//! уровней нет: максимальный уровень — около 1,9 млрд, дальше опыт уже не
+//! помещается в `u64`.
 
 /// Суммарный опыт, необходимый для уровня.
 pub fn xp_to_reach(level: u32) -> u64 {
@@ -36,28 +25,12 @@ pub fn xp_to_reach(level: u32) -> u64 {
         return 0;
     }
     let n = (level - 1) as u128;
-
-    if n <= 10 {
-        return (10 * n) as u64;
+    let value = 5 * n * n + 45 * n;
+    if value >= u64::MAX as u128 {
+        u64::MAX
+    } else {
+        value as u64
     }
-    if n <= 100 {
-        let square = (n * n).div_ceil(2);
-        let tail = 60u128.saturating_sub(n);
-        return (square + tail) as u64;
-    }
-    if n <= 1000 {
-        let numerator = 9 * n * n * n;
-        let denominator = 8 * n + 1000;
-        return (numerator / denominator) as u64;
-    }
-
-    let x = n as f64;
-    let base = (x / 10.0).powf(x.log10());
-    let value = base * (x / 1000.0).powf(-CORRECTION);
-    if !value.is_finite() || value >= u64::MAX as f64 {
-        return u64::MAX;
-    }
-    value as u64
 }
 
 /// Наибольший уровень, порог которого ещё помещается в `u64`.
@@ -109,19 +82,31 @@ mod tests {
     use super::*;
 
     #[test]
-    fn first_ten_levels_are_linear() {
+    fn levels_start_at_fifty_and_grow_by_ten() {
         assert_eq!(xp_to_reach(1), 0);
-        assert_eq!(xp_to_reach(2), 10);
-        assert_eq!(xp_to_reach(10), 90);
-        assert_eq!(xp_to_reach(11), 100);
+        assert_eq!(xp_to_reach(2), 50);
+        assert_eq!(xp_to_reach(3), 110);
+        assert_eq!(xp_to_reach(4), 180);
+        assert_eq!(xp_to_reach(5), 260);
+        assert_eq!(xp_to_reach(10), 810);
     }
 
     #[test]
-    fn segments_join_without_jumps() {
-        assert_eq!(xp_to_reach(101), 5000);
-        assert_eq!(xp_to_reach(1001), 1_000_000);
-        assert!(xp_to_reach(100) < xp_to_reach(101));
-        assert!(xp_to_reach(1000) < xp_to_reach(1001));
+    fn every_level_costs_ten_more_than_the_previous() {
+        let mut previous = xp_to_reach(2);
+        let mut span = previous;
+        for level in 3..10_000 {
+            let current = xp_to_reach(level);
+            let next_span = current - previous;
+            assert_eq!(
+                next_span,
+                span + 10,
+                "уровень {level} требует {next_span} вместо {}",
+                span + 10
+            );
+            span = next_span;
+            previous = current;
+        }
     }
 
     #[test]
@@ -135,40 +120,37 @@ mod tests {
     }
 
     #[test]
-    fn reference_level_costs_about_seven_point_seven_quintillion() {
-        let value = xp_to_reach(REFERENCE_LEVEL) as f64;
-        let target = REFERENCE_XP as f64;
-        let error = (value - target).abs() / target;
-        assert!(error < 0.000_001, "ошибка калибровки {error}");
-    }
-
-    #[test]
     fn level_lookup_matches_thresholds() {
         assert_eq!(level_for(-5), 1);
         assert_eq!(level_for(0), 1);
-        assert_eq!(level_for(10), 2);
-        assert_eq!(level_for(99), 10);
-        assert_eq!(level_for(100), 11);
-        assert_eq!(level_for(5000), 101);
-        assert_eq!(level_for(1_000_000), 1001);
-        assert_eq!(level_for(REFERENCE_XP as i64), REFERENCE_LEVEL - 1);
+        assert_eq!(level_for(49), 1);
+        assert_eq!(level_for(50), 2);
+        assert_eq!(level_for(109), 2);
+        assert_eq!(level_for(110), 3);
+        assert_eq!(level_for(5000), 28);
+        assert_eq!(level_for(1_000_000), 443);
     }
 
     #[test]
     fn no_level_cap_and_saturation() {
-        assert!(max_level() > 70_000);
+        assert!(max_level() > 1_000_000);
         assert_eq!(xp_to_reach(u32::MAX), u64::MAX);
         let top = level_for(i64::MAX);
-        assert!(top > 60_000, "уровень по максимуму i64 слишком мал: {top}");
+        assert!(
+            top > 1_000_000,
+            "уровень по максимуму i64 слишком мал: {top}"
+        );
         assert!(top < max_level());
     }
 
     #[test]
     fn progress_stays_inside_level() {
         let (inside, span) = level_progress(10);
-        assert_eq!(inside, 0);
-        assert_eq!(span, 10);
+        assert_eq!(inside, 10);
+        assert_eq!(span, 50);
         let (inside, span) = level_progress(105);
+        assert_eq!(inside, 55);
+        assert_eq!(span, 60);
         assert!(inside < span);
     }
 }

@@ -57,8 +57,14 @@ fn builtin_packs_are_valid() {
         assert!(!pack.categories.is_empty(), "пак {} без категорий", pack.id);
         for task in pack.tasks.values() {
             assert!(
-                task.reward.coins > 0,
-                "у {}/{} нет монет за выполнение",
+                task.reward.xp >= 10,
+                "у {}/{} меньше 10 опыта",
+                pack.id,
+                task.id
+            );
+            assert!(
+                task.reward.coins >= 10,
+                "у {}/{} меньше 10 монет",
                 pack.id,
                 task.id
             );
@@ -139,7 +145,10 @@ fn guide_is_a_seven_step_chain() {
             previous.map(|prev| format!("guide/{prev}")).as_deref(),
             "у {task_id} неверная связь"
         );
-        assert!(task.reward.coins > 0, "у {task_id} нет монет");
+        assert!(
+            task.reward.xp >= 10 && task.reward.coins >= 10,
+            "у {task_id} меньше 10 опыта или монет"
+        );
         previous = Some(id);
     }
 }

@@ -8,8 +8,8 @@ ru = "Протереть зеркало"
 en = "Wipe the mirror"
 
 [reward]
-xp = 2
-coins = 1
+xp = 10
+coins = 10
 
 [schedule]
 type = "once"
