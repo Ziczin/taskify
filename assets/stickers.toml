@@ -73,46 +73,46 @@ icon = "glyph_1F369"
 price = 360
 name = { ru = "Пончик", en = "Donut" }
 
-# ---- награды пака «Подарки»: не продаются, только за ачивки ----
+# ---- базовые наградные стикеры: не продаются, остаются у владельцев ----
 
 [[sticker]]
 id = "moon"
-pack = "gifts"
+pack = "greeting"
 icon = "glyph_1F319"
 price = 0
 name = { ru = "Луна", en = "Moon" }
 
 [[sticker]]
 id = "heart"
-pack = "gifts"
+pack = "greeting"
 icon = "glyph_1F496"
 price = 0
 name = { ru = "Сердце", en = "Heart" }
 
 [[sticker]]
 id = "spark"
-pack = "gifts"
+pack = "greeting"
 icon = "glyph_2728"
 price = 0
 name = { ru = "Искра", en = "Spark" }
 
 [[sticker]]
 id = "crown"
-pack = "gifts"
+pack = "greeting"
 icon = "glyph_1F451"
 price = 0
 name = { ru = "Корона", en = "Crown" }
 
 [[sticker]]
 id = "gift"
-pack = "gifts"
+pack = "greeting"
 icon = "glyph_1F381"
 price = 0
 name = { ru = "Подарок", en = "Gift" }
 
 [[sticker]]
 id = "comet"
-pack = "gifts"
+pack = "greeting"
 icon = "glyph_2604"
 price = 0
 name = { ru = "Комета", en = "Comet" }

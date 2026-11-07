@@ -26,7 +26,7 @@ struct Entry {
 }
 
 fn default_pack() -> String {
-    "starter".to_string()
+    "greeting".to_string()
 }
 
 /// Один стикер из каталога.
@@ -145,15 +145,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn reward_stickers_belong_to_gifts() {
+    fn reward_stickers_belong_to_greeting() {
         for id in ["moon", "heart", "spark", "crown", "gift", "comet"] {
             let sticker =
                 find(&PackSet::default(), id).unwrap_or_else(|| panic!("нет стикера {id}"));
-            assert_eq!(sticker.pack, "gifts", "стикер {id}");
+            assert_eq!(sticker.pack, "greeting", "стикер {id}");
             assert_eq!(sticker.price, 0, "наградной стикер {id} не продаётся");
         }
         let star = find(&PackSet::default(), "star").expect("звезда");
-        assert_eq!(star.pack, "starter");
+        assert_eq!(star.pack, "greeting");
     }
 
     #[test]
