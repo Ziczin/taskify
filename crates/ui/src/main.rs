@@ -176,18 +176,19 @@ mod console {
 mod console {
     pub fn attach_parent_console() {}
 
-    pub fn message_box(_text: &str) {}
+    pub fn message_box(text: &str) {
+        eprintln!("{text}");
+        let _ = rfd::MessageDialog::new()
+            .set_title("Taskify")
+            .set_description(text)
+            .set_level(rfd::MessageLevel::Error)
+            .show();
+    }
 }
 
 /// Куда писать отчёт о падении: рядом с данными, чтобы файл было легко найти.
 fn crash_path() -> std::path::PathBuf {
-    let root = std::env::var_os("TASKIFY_HOME")
-        .map(std::path::PathBuf::from)
-        .or_else(|| {
-            std::env::var_os("APPDATA").map(|base| std::path::PathBuf::from(base).join("taskify"))
-        })
-        .unwrap_or_else(std::env::temp_dir);
-    root.join("crash.log")
+    crate::settings::Settings::dir().join("crash.log")
 }
 
 /// Окно приложения не имеет консоли, поэтому панику показываем и пишем в файл.

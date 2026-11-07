@@ -1,8 +1,8 @@
-﻿# Taskify
+# Taskify
 
 [English](README.en.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [Українська](README.uk.md) · [Polski](README.pl.md) · [Español](README.es.md) · **中文** · [Deutsch](README.de.md)
 
-Taskify 是一款面向 Windows 的本地个人事务游戏化应用。管理习惯、重复任务、一次性任务和清单；获得 XP 和金币；解锁成就、主题、外观和贴纸。所有数据都以 JSONL 事件日志的形式保存在你的电脑上，无需账号，也无需联网。
+Taskify 是一款面向桌面的本地个人事务游戏化应用。管理习惯、重复任务、一次性任务和清单；获得 XP 和金币；解锁成就、主题、外观和贴纸。所有数据都以 JSONL 事件日志的形式保存在你的电脑上，无需账号，也无需联网。
 
 ![“今天”界面](docs/presentation/today.png)
 
@@ -19,7 +19,7 @@ Taskify 是一款面向 Windows 的本地个人事务游戏化应用。管理习
 
 ## 要求
 
-- Windows 10 或更高版本。
+- Windows 10 或更高版本、macOS 11 或更高版本，或带 GTK3、X11/Wayland 和 OpenGL 的 Linux。
 - Rust 1.85 或更高版本。
 - 如果 Rust 环境尚未包含 C++ 构建工具，请另行安装。
 
@@ -27,17 +27,26 @@ Taskify 是一款面向 Windows 的本地个人事务游戏化应用。管理习
 
 ```powershell
 cargo build --release
+.\tools\package.ps1          # Windows
 .\target\release\taskify.exe
+```
+
+```bash
+cargo build --release
+./tools/package.sh           # Linux: tar.gz；macOS: Taskify.app 压缩包
+./target/release/taskify
 ```
 
 同一个可执行文件也提供命令行工具：
 
-```powershell
-.\target\release\taskify.exe version
-.\target\release\taskify.exe packs
-.\target\release\taskify.exe stats default
-.\target\release\taskify.exe validate history default
+```bash
+target/release/taskify version
+target/release/taskify packs
+target/release/taskify stats default
+target/release/taskify validate history default
 ```
+
+macOS 版本仅做 ad-hoc 签名，未经公证：首次启动若被 Gatekeeper 拦截，请右键 →“打开”。
 
 首次启动时会创建 `default` 生活空间并安装内置内容包。
 

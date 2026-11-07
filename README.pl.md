@@ -1,8 +1,8 @@
-﻿# Taskify
+# Taskify
 
 [English](README.en.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [Українська](README.uk.md) · **Polski** · [Español](README.es.md) · [中文](README.zh.md) · [Deutsch](README.de.md)
 
-Taskify to lokalna aplikacja do grywalizacji osobistych zadań na Windows. Prowadź nawyki, zadania powtarzalne i jednorazowe oraz listy kontrolne; zdobywaj XP i monety; odblokowuj osiągnięcia, motywy, kosmetyki i naklejki. Wszystko jest przechowywane na komputerze w dzienniku zdarzeń JSONL — bez konta i bez sieci.
+Taskify to lokalna aplikacja do grywalizacji osobistych zadań na komputer. Prowadź nawyki, zadania powtarzalne i jednorazowe oraz listy kontrolne; zdobywaj XP i monety; odblokowuj osiągnięcia, motywy, kosmetyki i naklejki. Wszystko jest przechowywane na komputerze w dzienniku zdarzeń JSONL — bez konta i bez sieci.
 
 ![Ekran „Dzisiaj”](docs/presentation/today.png)
 
@@ -19,7 +19,7 @@ Taskify to lokalna aplikacja do grywalizacji osobistych zadań na Windows. Prowa
 
 ## Wymagania
 
-- Windows 10 lub nowszy.
+- Windows 10 lub nowszy, macOS 11 lub nowszy albo Linux z GTK3, X11/Wayland i OpenGL.
 - Rust 1.85 lub nowszy.
 - Narzędzia kompilacji C++, jeśli nie ma ich w zainstalowanym Rust.
 
@@ -27,17 +27,26 @@ Taskify to lokalna aplikacja do grywalizacji osobistych zadań na Windows. Prowa
 
 ```powershell
 cargo build --release
+.\tools\package.ps1          # Windows
 .\target\release\taskify.exe
+```
+
+```bash
+cargo build --release
+./tools/package.sh           # Linux: tar.gz; macOS: Taskify.app w ZIP
+./target/release/taskify
 ```
 
 Ten sam plik udostępnia polecenia wiersza poleceń:
 
-```powershell
-.\target\release\taskify.exe version
-.\target\release\taskify.exe packs
-.\target\release\taskify.exe stats default
-.\target\release\taskify.exe validate history default
+```bash
+target/release/taskify version
+target/release/taskify packs
+target/release/taskify stats default
+target/release/taskify validate history default
 ```
+
+Wersja macOS jest podpisana ad-hoc, ale nie notaryzowana: przy pierwszym uruchomieniu może być potrzebne kliknięcie prawym przyciskiem → Otwórz.
 
 Przy pierwszym uruchomieniu tworzona jest przestrzeń `default` i instalowane są wbudowane pakiety.
 

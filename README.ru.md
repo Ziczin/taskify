@@ -1,10 +1,10 @@
 # Taskify
 
-[![Windows build](https://github.com/Ziczin/taskify/actions/workflows/windows.yml/badge.svg)](https://github.com/Ziczin/taskify/actions/workflows/windows.yml)
+[![Build](https://github.com/Ziczin/taskify/actions/workflows/build.yml/badge.svg)](https://github.com/Ziczin/taskify/actions/workflows/build.yml)
 
 [English](README.en.md) · **Русский** · [日本語](README.ja.md) · [Українська](README.uk.md) · [Polski](README.pl.md) · [Español](README.es.md) · [中文](README.zh.md) · [Deutsch](README.de.md)
 
-Taskify — локальное приложение для геймификации личных дел на Windows. Веди привычки, повторяющиеся и разовые задания, чек-листы; получай опыт и монеты; открывай достижения, темы, косметику и стикеры. Всё хранится на компьютере в журнале событий JSONL: без аккаунта и без сети.
+Taskify — локальное приложение для геймификации личных дел на компьютере. Веди привычки, повторяющиеся и разовые задания, чек-листы; получай опыт и монеты; открывай достижения, темы, косметику и стикеры. Всё хранится на компьютере в журнале событий JSONL: без аккаунта и без сети.
 
 ![Экран «Сегодня»](docs/presentation/today.png)
 
@@ -22,28 +22,36 @@ Taskify — локальное приложение для геймификац�
 
 ## Требования
 
-- Windows 10 или новее.
+- Windows 10 или новее, macOS 11 или новее либо Linux с GTK3, X11/Wayland и OpenGL.
 - Rust 1.85 или новее.
 - Инструменты сборки C++, если их ещё нет в установленном Rust.
 
 ## Сборка и запуск
 
-GitHub Actions собирает и проверяет каждый push в `main`. Портативный ZIP можно скачать из артефакта последней сборки или из [Releases](https://github.com/Ziczin/taskify/releases) для тегов `v*`.
+GitHub Actions собирает и проверяет каждый push в `main` на Windows, Linux и macOS. Готовую сборку можно скачать из артефакта последней сборки или из [Releases](https://github.com/Ziczin/taskify/releases) для тегов `v*`.
 
 ```powershell
 cargo build --release
-.\tools\package.ps1          # dist\taskify-<сборка>-windows-x64.zip
+.\tools\package.ps1          # Windows: dist\taskify-<сборка>-windows-x64.zip
 .\target\release\taskify.exe
 ```
 
-В портативном ZIP `taskify.exe` и папка `assets` должны лежать рядом. Тот же файл предоставляет консольные команды:
-
-```powershell
-.\target\release\taskify.exe version
-.\target\release\taskify.exe packs
-.\target\release\taskify.exe stats default
-.\target\release\taskify.exe validate history default
+```bash
+cargo build --release
+./tools/package.sh           # Linux: tar.gz; macOS: Taskify.app в ZIP
+./target/release/taskify
 ```
+
+В Windows-ZIP и Linux-архиве исполняемый файл и папка `assets` должны лежать рядом. В macOS-приложении `assets` уже лежит в `Contents/Resources`. Тот же файл предоставляет консольные команды:
+
+```bash
+target/release/taskify version
+target/release/taskify packs
+target/release/taskify stats default
+target/release/taskify validate history default
+```
+
+macOS-сборка подписана ad-hoc, но не нотаризована: при первом запуске может понадобиться правый клик → «Открыть».
 
 При первом запуске открывается экран настройки, создаётся лайвспейс и устанавливаются пять встроенных паков. Включён только «Приветствие»; остальные можно включать по одному.
 

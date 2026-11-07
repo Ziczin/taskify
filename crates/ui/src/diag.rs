@@ -33,6 +33,8 @@ pub fn init() {
         "TEMP",
         "TMP",
         "USERPROFILE",
+        "HOME",
+        "XDG_DATA_HOME",
         "TASKIFY_HOME",
     ] {
         if let Ok(value) = std::env::var(key) {
@@ -49,10 +51,8 @@ fn candidates() -> Vec<PathBuf> {
             paths.push(dir.join(LOG_NAME));
         }
     }
-    if let Some(home) = std::env::var_os("USERPROFILE") {
-        paths.push(PathBuf::from(home).join(LOG_NAME));
-    }
-    if let Some(home) = std::env::var_os("TASKIFY_HOME") {
+    paths.push(crate::settings::Settings::dir().join(LOG_NAME));
+    if let Some(home) = std::env::var_os("HOME") {
         paths.push(PathBuf::from(home).join(LOG_NAME));
     }
     paths
@@ -83,7 +83,14 @@ pub fn open_log() -> Result<PathBuf, String> {
     let path = log_path()
         .ok_or_else(|| "журнал запуска не создан".to_string())?
         .to_path_buf();
-    std::process::Command::new("notepad.exe")
+    let opener = if cfg!(windows) {
+        "notepad.exe"
+    } else if cfg!(target_os = "macos") {
+        "open"
+    } else {
+        "xdg-open"
+    };
+    std::process::Command::new(opener)
         .arg(&path)
         .spawn()
         .map_err(|error| format!("не удалось открыть журнал: {error}"))?;
@@ -108,6 +115,7 @@ pub fn probe(dir: &Path) -> Result<(), String> {
 }
 
 /// Выгружает права на каталог в журнал: там видно и запрещающие записи.
+#[cfg(windows)]
 pub fn dump_acl(dir: &Path) {
     let output = std::process::Command::new("icacls").arg(dir).output();
     match output {
@@ -117,6 +125,12 @@ pub fn dump_acl(dir: &Path) {
         }
         Err(error) => write(&format!("icacls {} не запустился: {error}", dir.display())),
     }
+}
+
+#[cfg(not(windows))]
+pub fn dump_acl(dir: &Path) {
+    // На Unix права проверяет `probe`; отдельная утилита не нужна.
+    let _ = dir;
 }
 
 fn describe(step: &str, error: std::io::Error) -> String {

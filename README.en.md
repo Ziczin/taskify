@@ -1,8 +1,8 @@
-﻿# Taskify
+# Taskify
 
 **English** · [Русский](README.ru.md) · [日本語](README.ja.md) · [Українська](README.uk.md) · [Polski](README.pl.md) · [Español](README.es.md) · [中文](README.zh.md) · [Deutsch](README.de.md)
 
-Taskify is a local-first life gamification app for Windows. Keep habits, repeating tasks, one-off tasks, and checklists; earn XP and coins; unlock achievements, themes, cosmetics, and stickers. Everything is stored on your computer as an append-only JSONL journal — no account and no network required.
+Taskify is a local-first life gamification app for desktop. Keep habits, repeating tasks, one-off tasks, and checklists; earn XP and coins; unlock achievements, themes, cosmetics, and stickers. Everything is stored on your computer as an append-only JSONL journal — no account and no network required.
 
 ![Taskify today screen](docs/presentation/today.png)
 
@@ -19,7 +19,7 @@ Taskify is a local-first life gamification app for Windows. Keep habits, repeati
 
 ## Requirements
 
-- Windows 10 or newer.
+- Windows 10 or newer, macOS 11 or newer, or a Linux desktop with GTK3 and X11/Wayland/OpenGL libraries.
 - Rust 1.85 or newer.
 - A C++ build toolchain if your Rust installation does not already have one.
 
@@ -27,17 +27,26 @@ Taskify is a local-first life gamification app for Windows. Keep habits, repeati
 
 ```powershell
 cargo build --release
+.\tools\package.ps1          # Windows
 .\target\release\taskify.exe
+```
+
+```bash
+cargo build --release
+./tools/package.sh           # Linux: tar.gz; macOS: zipped Taskify.app
+./target/release/taskify
 ```
 
 The same executable also provides command-line commands:
 
-```powershell
-.\target\release\taskify.exe version
-.\target\release\taskify.exe packs
-.\target\release\taskify.exe stats default
-.\target\release\taskify.exe validate history default
+```bash
+target/release/taskify version
+target/release/taskify packs
+target/release/taskify stats default
+target/release/taskify validate history default
 ```
+
+The macOS build is ad-hoc signed, not notarized: on first launch use right-click → Open if Gatekeeper blocks it.
 
 The first launch creates the `default` livespace and installs the built-in packs.
 

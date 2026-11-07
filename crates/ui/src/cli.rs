@@ -25,7 +25,7 @@ fn help() {
   taskify export <лайвспейс> <архив.zip>
 
 Профиль можно указать именем (livespaces/<имя>) или полным путём.
-Корень данных по умолчанию: TASKIFY_HOME или %APPDATA%\taskify.
+Корень данных по умолчанию: TASKIFY_HOME или каталог данных платформы.
 "#
     );
 }
@@ -34,12 +34,7 @@ fn data_root(args: Option<&String>) -> PathBuf {
     if let Some(arg) = args {
         return PathBuf::from(arg);
     }
-    if let Some(home) = std::env::var_os("TASKIFY_HOME") {
-        return PathBuf::from(home);
-    }
-    std::env::var_os("APPDATA")
-        .map(|base| PathBuf::from(base).join("taskify"))
-        .unwrap_or_else(std::env::temp_dir)
+    crate::settings::Settings::dir()
 }
 
 fn resolve_livespace(root: &Path, value: &str) -> PathBuf {

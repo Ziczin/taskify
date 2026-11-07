@@ -22,6 +22,27 @@ pub fn play(path: &std::path::Path) {
             PlaySoundW(wide.as_ptr(), 0, SND_FILENAME | SND_ASYNC);
         }
     }
+    #[cfg(not(windows))]
+    {
+        // На Linux и macOS пользуемся системным плеером: звуки короткие,
+        // а тянуть отдельный аудиодвижок ради кликов не хочется.
+        let players: &[&str] = if cfg!(target_os = "macos") {
+            &["afplay"]
+        } else {
+            &["paplay", "aplay"]
+        };
+        for player in players {
+            if std::process::Command::new(player)
+                .arg(path)
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .spawn()
+                .is_ok()
+            {
+                return;
+            }
+        }
+    }
 }
 
 #[cfg(windows)]

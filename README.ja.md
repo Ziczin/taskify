@@ -1,8 +1,8 @@
-﻿# Taskify
+# Taskify
 
 [English](README.en.md) · [Русский](README.ru.md) · **日本語** · [Українська](README.uk.md) · [Polski](README.pl.md) · [Español](README.es.md) · [中文](README.zh.md) · [Deutsch](README.de.md)
 
-Taskify は Windows 向けのローカルな生活ゲーミフィケーションアプリです。習慣、繰り返しタスク、単発タスク、チェックリストを管理し、XP とコインを獲得できます。実績、テーマ、コスメ、ステッカーを解放しましょう。データはすべて JSONL のイベントジャーナルとして PC 内に保存され、アカウントもネットワークも不要です。
+Taskify はデスクトップ向けのローカルな生活ゲーミフィケーションアプリです。習慣、繰り返しタスク、単発タスク、チェックリストを管理し、XP とコインを獲得できます。実績、テーマ、コスメ、ステッカーを解放しましょう。データはすべて JSONL のイベントジャーナルとして PC 内に保存され、アカウントもネットワークも不要です。
 
 ![「今日」画面](docs/presentation/today.png)
 
@@ -19,7 +19,7 @@ Taskify は Windows 向けのローカルな生活ゲーミフィケーション
 
 ## 必要な環境
 
-- Windows 10 以降。
+- Windows 10 以降、macOS 11 以降、または GTK3・X11/Wayland・OpenGL が使える Linux。
 - Rust 1.85 以降。
 - Rust の環境に C++ ビルドツールがない場合は別途インストールしてください。
 
@@ -27,17 +27,26 @@ Taskify は Windows 向けのローカルな生活ゲーミフィケーション
 
 ```powershell
 cargo build --release
+.\tools\package.ps1          # Windows
 .\target\release\taskify.exe
+```
+
+```bash
+cargo build --release
+./tools/package.sh           # Linux: tar.gz、macOS: Taskify.app の ZIP
+./target/release/taskify
 ```
 
 同じ実行ファイルでコマンドラインも使えます。
 
-```powershell
-.\target\release\taskify.exe version
-.\target\release\taskify.exe packs
-.\target\release\taskify.exe stats default
-.\target\release\taskify.exe validate history default
+```bash
+target/release/taskify version
+target/release/taskify packs
+target/release/taskify stats default
+target/release/taskify validate history default
 ```
+
+macOS 版は ad-hoc 署名のみで公証されていません。初回起動時に Gatekeeper に止められたら、右クリック →「開く」を選んでください。
 
 初回起動時に `default` ライブスペースが作成され、組み込みパックがインストールされます。
 

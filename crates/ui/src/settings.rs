@@ -1,6 +1,8 @@
 //! Настройки приложения: окно, язык, тема.
 //!
-//! Живут в `%APPDATA%\taskify\settings.toml`, читаются до создания окна.
+//! Живут в каталоге данных платформы (`%APPDATA%\taskify` на Windows,
+//! `~/Library/Application Support/taskify` на macOS,
+//! `$XDG_DATA_HOME/taskify` на Linux), читаются до создания окна.
 
 use std::collections::BTreeMap;
 use std::path::PathBuf;
@@ -346,6 +348,39 @@ fn migrate_retired_extra(
     changed
 }
 
+/// Каталог данных по правилам платформы. `TASKIFY_HOME` проверяется выше.
+#[cfg(windows)]
+fn platform_data_dir() -> Option<PathBuf> {
+    std::env::var_os("APPDATA")
+        .map(PathBuf::from)
+        .map(|base| base.join("taskify"))
+}
+
+#[cfg(target_os = "macos")]
+fn platform_data_dir() -> Option<PathBuf> {
+    std::env::var_os("HOME")
+        .map(PathBuf::from)
+        .map(|home| home.join("Library/Application Support/taskify"))
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+fn platform_data_dir() -> Option<PathBuf> {
+    let base = std::env::var_os("XDG_DATA_HOME")
+        .map(PathBuf::from)
+        .filter(|path| path.is_absolute())
+        .or_else(|| {
+            std::env::var_os("HOME")
+                .map(PathBuf::from)
+                .map(|home| home.join(".local/share"))
+        })?;
+    Some(base.join("taskify"))
+}
+
+#[cfg(not(any(windows, unix)))]
+fn platform_data_dir() -> Option<PathBuf> {
+    None
+}
+
 impl Settings {
     /// Включает вариант косметики, выключая другие варианты той же роли.
     ///
@@ -414,10 +449,7 @@ impl Settings {
         if let Some(home) = std::env::var_os("TASKIFY_HOME") {
             return PathBuf::from(home);
         }
-        let base = std::env::var_os("APPDATA")
-            .map(PathBuf::from)
-            .unwrap_or_else(std::env::temp_dir);
-        base.join("taskify")
+        platform_data_dir().unwrap_or_else(std::env::temp_dir)
     }
 
     pub fn path() -> PathBuf {

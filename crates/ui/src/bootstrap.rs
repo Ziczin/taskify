@@ -27,6 +27,11 @@ pub fn assets_root() -> PathBuf {
     if let Ok(exe) = std::env::current_exe() {
         if let Some(dir) = exe.parent() {
             candidates.push(dir.join("assets"));
+            // В macOS-бандле exe лежит в Contents/MacOS, а ресурсы — в
+            // Contents/Resources. Поддерживаем оба расположения.
+            if let Some(contents) = dir.parent() {
+                candidates.push(contents.join("Resources").join("assets"));
+            }
         }
     }
     if let Ok(cwd) = std::env::current_dir() {

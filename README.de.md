@@ -1,8 +1,8 @@
-﻿# Taskify
+# Taskify
 
 [English](README.en.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [Українська](README.uk.md) · [Polski](README.pl.md) · [Español](README.es.md) · [中文](README.zh.md) · **Deutsch**
 
-Taskify ist eine lokale App zur Gamifizierung persönlicher Aufgaben für Windows. Führe Gewohnheiten, wiederkehrende und einmalige Aufgaben sowie Checklisten; sammle XP und Münzen; schalte Erfolge, Themen, Kosmetik und Sticker frei. Alles liegt auf deinem Rechner in einem JSONL-Event-Journal — ohne Konto und ohne Netzwerk.
+Taskify ist eine lokale App zur Gamifizierung persönlicher Aufgaben für den Desktop. Führe Gewohnheiten, wiederkehrende und einmalige Aufgaben sowie Checklisten; sammle XP und Münzen; schalte Erfolge, Themen, Kosmetik und Sticker frei. Alles liegt auf deinem Rechner in einem JSONL-Event-Journal — ohne Konto und ohne Netzwerk.
 
 ![Taskify-Startbildschirm](docs/presentation/today.png)
 
@@ -19,7 +19,7 @@ Taskify ist eine lokale App zur Gamifizierung persönlicher Aufgaben für Window
 
 ## Voraussetzungen
 
-- Windows 10 oder neuer.
+- Windows 10 oder neuer, macOS 11 oder neuer oder Linux mit GTK3, X11/Wayland und OpenGL.
 - Rust 1.85 oder neuer.
 - C++-Build-Tools, falls die Rust-Installation sie noch nicht enthält.
 
@@ -27,17 +27,26 @@ Taskify ist eine lokale App zur Gamifizierung persönlicher Aufgaben für Window
 
 ```powershell
 cargo build --release
+.\tools\package.ps1          # Windows
 .\target\release\taskify.exe
+```
+
+```bash
+cargo build --release
+./tools/package.sh           # Linux: tar.gz; macOS: Taskify.app im ZIP
+./target/release/taskify
 ```
 
 Dieselbe Datei bietet auch Kommandozeilenbefehle:
 
-```powershell
-.\target\release\taskify.exe version
-.\target\release\taskify.exe packs
-.\target\release\taskify.exe stats default
-.\target\release\taskify.exe validate history default
+```bash
+target/release/taskify version
+target/release/taskify packs
+target/release/taskify stats default
+target/release/taskify validate history default
 ```
+
+Der macOS-Build ist ad-hoc signiert, aber nicht notarisiert: Beim ersten Start eventuell Rechtsklick → Öffnen wählen.
 
 Beim ersten Start wird der Livespace `default` angelegt und die eingebauten Pakete werden installiert.
 

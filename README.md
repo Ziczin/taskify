@@ -1,10 +1,10 @@
 # Taskify
 
-[![Windows build](https://github.com/Ziczin/taskify/actions/workflows/windows.yml/badge.svg)](https://github.com/Ziczin/taskify/actions/workflows/windows.yml)
+[![Build](https://github.com/Ziczin/taskify/actions/workflows/build.yml/badge.svg)](https://github.com/Ziczin/taskify/actions/workflows/build.yml)
 
 [English](README.en.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [Українська](README.uk.md) · [Polski](README.pl.md) · [Español](README.es.md) · [中文](README.zh.md) · [Deutsch](README.de.md)
 
-Taskify is a local-first life gamification app for Windows. Keep habits, repeating tasks, one-off tasks, and checklists; earn XP and coins; unlock achievements, themes, cosmetics, and stickers. Everything is stored on your computer as an append-only JSONL journal — no account and no network required.
+Taskify is a local-first life gamification app for desktop. Keep habits, repeating tasks, one-off tasks, and checklists; earn XP and coins; unlock achievements, themes, cosmetics, and stickers. Everything is stored on your computer as an append-only JSONL journal — no account and no network required.
 
 ![Taskify today screen](docs/presentation/today.png)
 
@@ -24,28 +24,36 @@ Taskify is a local-first life gamification app for Windows. Keep habits, repeati
 
 ## Requirements
 
-- Windows 10 or newer.
+- Windows 10 or newer, macOS 11 or newer, or a Linux desktop with GTK3 and X11/Wayland/OpenGL libraries.
 - Rust 1.85 or newer.
 - A C++ build toolchain if your Rust installation does not already have one.
 
 ## Build and run
 
-GitHub Actions builds and tests every push to `main`. Download the portable ZIP from the latest workflow artifact or from [Releases](https://github.com/Ziczin/taskify/releases) for `v*` tags.
+GitHub Actions builds and tests every push to `main` on Windows, Linux, and macOS. Download a portable build from the latest workflow artifact or from [Releases](https://github.com/Ziczin/taskify/releases) for `v*` tags.
 
 ```powershell
 cargo build --release
-.\tools\package.ps1          # dist\taskify-<build>-windows-x64.zip
+.\tools\package.ps1          # Windows: dist\taskify-<build>-windows-x64.zip
 .\target\release\taskify.exe
 ```
 
-The portable ZIP must keep `taskify.exe` and the `assets` folder together. The same executable also provides command-line commands:
-
-```powershell
-.\target\release\taskify.exe version
-.\target\release\taskify.exe packs
-.\target\release\taskify.exe stats default
-.\target\release\taskify.exe validate history default
+```bash
+cargo build --release
+./tools/package.sh           # Linux: tar.gz; macOS: zipped Taskify.app
+./target/release/taskify
 ```
+
+The Windows ZIP and Linux archive must keep the executable and the `assets` folder together. The macOS app already contains `assets` in `Contents/Resources`. The same executable also provides command-line commands:
+
+```bash
+target/release/taskify version
+target/release/taskify packs
+target/release/taskify stats default
+target/release/taskify validate history default
+```
+
+The macOS build is ad-hoc signed, not notarized: on first launch use right-click → Open if Gatekeeper blocks it.
 
 The first launch opens the setup screen, creates a livespace, and installs the five built-in packs. Only Greeting is enabled initially; the other packs can be enabled one at a time.
 

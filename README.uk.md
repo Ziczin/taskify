@@ -1,8 +1,8 @@
-﻿# Taskify
+# Taskify
 
 [English](README.en.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · **Українська** · [Polski](README.pl.md) · [Español](README.es.md) · [中文](README.zh.md) · [Deutsch](README.de.md)
 
-Taskify — локальний застосунок для гейміфікації особистих справ на Windows. Веде звички, повторювані й одноразові завдання, чек-листи; дає досвід і монети; відкриває досягнення, теми, косметику та стікери. Усе зберігається на комп'ютері в журналі подій JSONL: без акаунта й без мережі.
+Taskify — локальний застосунок для гейміфікації особистих справ на комп'ютері. Веде звички, повторювані й одноразові завдання, чек-листи; дає досвід і монети; відкриває досягнення, теми, косметику та стікери. Усе зберігається на комп'ютері в журналі подій JSONL: без акаунта й без мережі.
 
 ![Екран «Сьогодні»](docs/presentation/today.png)
 
@@ -19,7 +19,7 @@ Taskify — локальний застосунок для гейміфікац�
 
 ## Вимоги
 
-- Windows 10 або новіша.
+- Windows 10 або новіша, macOS 11 або новіший чи Linux з GTK3, X11/Wayland і OpenGL.
 - Rust 1.85 або новіший.
 - Інструменти збирання C++, якщо їх ще немає в установленому Rust.
 
@@ -27,17 +27,26 @@ Taskify — локальний застосунок для гейміфікац�
 
 ```powershell
 cargo build --release
+.\tools\package.ps1          # Windows
 .\target\release\taskify.exe
+```
+
+```bash
+cargo build --release
+./tools/package.sh           # Linux: tar.gz; macOS: Taskify.app у ZIP
+./target/release/taskify
 ```
 
 Той самий файл надає команди термінала:
 
-```powershell
-.\target\release\taskify.exe version
-.\target\release\taskify.exe packs
-.\target\release\taskify.exe stats default
-.\target\release\taskify.exe validate history default
+```bash
+target/release/taskify version
+target/release/taskify packs
+target/release/taskify stats default
+target/release/taskify validate history default
 ```
+
+macOS-збірка підписана ad-hoc, але не нотаризована: під час першого запуску може знадобитися правий клік → «Відкрити».
 
 Під час першого запуску створюється лайвспейс `default` і встановлюються вбудовані паки.
 

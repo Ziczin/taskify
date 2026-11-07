@@ -1,8 +1,8 @@
-﻿# Taskify
+# Taskify
 
 [English](README.en.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [Українська](README.uk.md) · [Polski](README.pl.md) · **Español** · [中文](README.zh.md) · [Deutsch](README.de.md)
 
-Taskify es una aplicación local de gamificación de tareas personales para Windows. Gestiona hábitos, tareas repetitivas y puntuales, y listas de comprobación; gana XP y monedas; desbloquea logros, temas, cosméticos y pegatinas. Todo se guarda en tu equipo en un diario de eventos JSONL: sin cuenta y sin red.
+Taskify es una aplicación local de gamificación de tareas personales para escritorio. Gestiona hábitos, tareas repetitivas y puntuales, y listas de comprobación; gana XP y monedas; desbloquea logros, temas, cosméticos y pegatinas. Todo se guarda en tu equipo en un diario de eventos JSONL: sin cuenta y sin red.
 
 ![Pantalla «Hoy»](docs/presentation/today.png)
 
@@ -19,7 +19,7 @@ Taskify es una aplicación local de gamificación de tareas personales para Wind
 
 ## Requisitos
 
-- Windows 10 o posterior.
+- Windows 10 o posterior, macOS 11 o posterior, o Linux con GTK3, X11/Wayland y OpenGL.
 - Rust 1.85 o posterior.
 - Herramientas de compilación de C++ si tu instalación de Rust aún no las tiene.
 
@@ -27,17 +27,26 @@ Taskify es una aplicación local de gamificación de tareas personales para Wind
 
 ```powershell
 cargo build --release
+.\tools\package.ps1          # Windows
 .\target\release\taskify.exe
+```
+
+```bash
+cargo build --release
+./tools/package.sh           # Linux: tar.gz; macOS: Taskify.app en ZIP
+./target/release/taskify
 ```
 
 El mismo ejecutable ofrece comandos de línea de comandos:
 
-```powershell
-.\target\release\taskify.exe version
-.\target\release\taskify.exe packs
-.\target\release\taskify.exe stats default
-.\target\release\taskify.exe validate history default
+```bash
+target/release/taskify version
+target/release/taskify packs
+target/release/taskify stats default
+target/release/taskify validate history default
 ```
+
+La compilación de macOS está firmada ad-hoc, no notarizada: si Gatekeeper la bloquea, usa clic derecho → Abrir la primera vez.
 
 El primer inicio crea el livespace `default` e instala los paquetes integrados.
 

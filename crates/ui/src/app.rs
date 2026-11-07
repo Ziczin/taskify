@@ -536,11 +536,13 @@ fn open_profile(settings: &Settings) -> anyhow::Result<Engine> {
 
 /// Куда откатываться, если основной профиль недоступен.
 ///
-/// Первым идёт постоянный каталог в `%LOCALAPPDATA%`: у него обычные права и
+/// Первым идёт постоянный каталог данных платформы: у него обычные права и
 /// его не чистит система. Затем — уникальная папка в `%TEMP%`, чтобы два
 /// запущенных экземпляра не мешали друг другу, и последняя — общая.
 fn fallback_dirs() -> Vec<PathBuf> {
     let mut dirs = Vec::new();
+    dirs.push(crate::settings::Settings::dir().join("fallback"));
+    #[cfg(windows)]
     if let Some(local) = std::env::var_os("LOCALAPPDATA") {
         dirs.push(PathBuf::from(local).join("taskify").join("fallback"));
     }
