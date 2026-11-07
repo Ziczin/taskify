@@ -1,0 +1,19 @@
+id = "open_week"
+category = "main"
+kind = "once"
+after = "mark_done"
+
+[title]
+ru = "Посмотреть неделю"
+en = "See the week"
+
+[description]
+ru = "Открой раздел «Неделя»: там видно, сколько сделано за неделю и как растёт серия. Вернись в «Сегодня» и отметь этот шаг."
+en = "Open “Week”: it shows what you’ve done this week and how your streak is growing. Come back to “Today” and tick this step off."
+
+[reward]
+xp = 2
+coins = 2
+
+[schedule]
+type = "once"

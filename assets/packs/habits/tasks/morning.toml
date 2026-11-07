@@ -12,7 +12,7 @@ en = "Three tiny steps. One at a time is fine."
 
 [reward]
 xp = 5
-coins = 1
+coins = 2
 
 [schedule]
 type = "daily"

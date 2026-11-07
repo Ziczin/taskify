@@ -9,7 +9,7 @@ en = "Throw away the trash"
 
 [reward]
 xp = 3
-coins = 0
+coins = 1
 
 [schedule]
 type = "once"

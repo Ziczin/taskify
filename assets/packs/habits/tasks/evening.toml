@@ -12,7 +12,7 @@ en = "Three steps to end the day gently."
 
 [reward]
 xp = 5
-coins = 1
+coins = 2
 
 [schedule]
 type = "daily"

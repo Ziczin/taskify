@@ -1,0 +1,19 @@
+id = "open_market"
+category = "main"
+kind = "once"
+after = "open_week"
+
+[title]
+ru = "Заглянуть в маркет"
+en = "Visit the market"
+
+[description]
+ru = "В «Маркете» за монеты покупают темы, фоны, шрифты и стикеры. Монеты теперь дают за каждое задание. Выбери что-нибудь небольшое или просто посмотри витрину."
+en = "In the “Market” you spend coins on themes, backgrounds, fonts, and stickers. Every task now pays coins. Pick something small or just browse the shelves."
+
+[reward]
+xp = 3
+coins = 3
+
+[schedule]
+type = "once"

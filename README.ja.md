@@ -99,7 +99,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-現在のテストは **183 件**です。
+現在のテストは **185 件**です。
 
 ## コントリビュート
 

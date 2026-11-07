@@ -356,6 +356,48 @@ impl Engine {
         Ok(self.store.record(kind)?)
     }
 
+    /// Один раз добивает монеты за старые задания, которые выдавали 0.
+    ///
+    /// Раньше часть паков была почти без монет. Считаем минимум одну монету
+    /// за каждое выполненное задание и выдаём разницу отдельным бонусом.
+    /// Маркер в профиле не даёт начислить его повторно.
+    pub fn credit_legacy_task_coins(&mut self) -> Result<i64> {
+        let marker = self
+            .store
+            .livespace
+            .root()
+            .join("data")
+            .join("legacy-task-coins-v1");
+        if marker.exists() {
+            return Ok(0);
+        }
+        let completed = self.store.aggregates.totals.tasks_completed as i64;
+        let earned = self.store.aggregates.totals.coins_earned;
+        let missing = (completed - earned).max(0);
+        if missing > 0 {
+            let title = [
+                ("ru", "Бонус за прошлые задания"),
+                ("en", "Bonus for past tasks"),
+            ]
+            .into_iter()
+            .map(|(locale, text)| (locale.to_string(), text.to_string()))
+            .collect();
+            self.record(EventKind::ComboAwarded(ComboAwarded {
+                combo: "legacy-task-coins".to_string(),
+                title,
+                awarded: Reward::new(0, missing),
+                members: Vec::new(),
+                window_key: "once".to_string(),
+                local_date: self.today(),
+            }))?;
+        }
+        if let Some(parent) = marker.parent() {
+            let _ = std::fs::create_dir_all(parent);
+        }
+        let _ = std::fs::write(marker, format!("{missing}\n"));
+        Ok(missing)
+    }
+
     pub fn complete(&mut self, task_id: &str) -> Result<Outcome> {
         let task = self
             .packs

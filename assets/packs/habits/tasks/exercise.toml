@@ -12,7 +12,7 @@ en = "Six short exercises. Take your time and breathe."
 
 [reward]
 xp = 6
-coins = 1
+coins = 2
 
 [schedule]
 type = "interval"

@@ -417,17 +417,22 @@ pub fn copy_dir(from: &Path, to: &Path) -> Result<()> {
 
 pub fn prepare(settings: &Settings) -> Result<Engine> {
     ensure_dirs(settings)?;
-    install_builtin_packs(settings)?;
+    let updated = install_builtin_packs(settings)?;
     let root = data_root(settings);
     let packs = packs_dir(settings);
-    if let Some(path) = livespace_path(settings) {
-        return Engine::open_at_with_packs(&path, &root, &packs);
+    let mut engine = if let Some(path) = livespace_path(settings) {
+        Engine::open_at_with_packs(&path, &root, &packs)?
+    } else {
+        Engine::open_at_with_packs(
+            &settings.livespaces_dir().join(&settings.livespace),
+            &root,
+            &packs,
+        )?
+    };
+    if updated > 0 {
+        let _ = engine.credit_legacy_task_coins();
     }
-    Engine::open_at_with_packs(
-        &settings.livespaces_dir().join(&settings.livespace),
-        &root,
-        &packs,
-    )
+    Ok(engine)
 }
 
 #[cfg(test)]
@@ -555,7 +560,7 @@ mod tests {
     fn bundled_pack_version_is_parsed() {
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../assets/packs/greeting/pack.toml");
-        assert_eq!(pack_version(&path), Some((1, 1, 0)));
+        assert_eq!(pack_version(&path), Some((1, 2, 0)));
     }
 
     #[test]

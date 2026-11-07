@@ -99,7 +99,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-Obecny zestaw ma **183 testy**.
+Obecny zestaw ma **185 testy**.
 
 ## Współpraca
 

@@ -1,0 +1,19 @@
+id = "finish"
+category = "main"
+kind = "once"
+after = "apply_style"
+
+[title]
+ru = "Настроить под себя"
+en = "Make it yours"
+
+[description]
+ru = "В «Настройках» выбери язык, тему и размер шрифта. Потом открой «Паки»: там видно все наборы, а «Знакомство» можно выключить, когда оно больше не нужно."
+en = "In “Settings”, choose your language, theme, and font size. Then open “Packs”: every set is listed there, and you can switch “Getting Started” off once you no longer need it."
+
+[reward]
+xp = 5
+coins = 5
+
+[schedule]
+type = "once"

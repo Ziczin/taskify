@@ -3030,6 +3030,7 @@ mod tests {
         std::fs::create_dir_all(root.join("livespaces")).unwrap();
         let mut settings = Settings::default();
         settings.paths.livespaces_dir = Some(root.join("livespaces"));
+        settings.save_path = Some(root.join("settings.toml"));
         let first = crate::bootstrap::create_livespace(&settings, "Первый").unwrap();
         let second = crate::bootstrap::create_livespace(&settings, "Второй").unwrap();
         settings.livespace = first.clone();

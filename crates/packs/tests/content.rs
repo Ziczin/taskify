@@ -2,7 +2,14 @@
 
 use taskify_packs::{format_issue, has_errors, validate_set, PackSet};
 
-const PACKS: [&str; 5] = ["greeting", "cleaning", "habits", "inspiration", "social"];
+const PACKS: [&str; 6] = [
+    "greeting",
+    "guide",
+    "cleaning",
+    "habits",
+    "inspiration",
+    "social",
+];
 
 fn packs_root() -> std::path::PathBuf {
     std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -50,6 +57,12 @@ fn builtin_packs_are_valid() {
         assert!(!pack.categories.is_empty(), "пак {} без категорий", pack.id);
         for task in pack.tasks.values() {
             assert!(
+                task.reward.coins > 0,
+                "у {}/{} нет монет за выполнение",
+                pack.id,
+                task.id
+            );
+            assert!(
                 task.title.contains_key("en") && task.title.contains_key("ru"),
                 "у {}/{} нет ru/en названия",
                 pack.id,
@@ -70,14 +83,14 @@ fn builtin_packs_are_valid() {
 }
 
 #[test]
-fn only_greeting_is_enabled_by_default() {
+fn greeting_and_guide_are_enabled_by_default() {
     let set = PackSet::load(packs_root());
     for id in PACKS {
         let manifest = set.packs.get(id).and_then(|pack| pack.manifest.as_ref());
         let enabled = manifest.map(|manifest| manifest.default_enabled);
         assert_eq!(
             enabled,
-            Some(id == "greeting"),
+            Some(id == "greeting" || id == "guide"),
             "у пака {id} неверный default_enabled"
         );
     }
@@ -101,6 +114,34 @@ fn greeting_is_one_chain_with_a_combo_and_achievement() {
     }
     assert!(pack.combos.contains_key("greeting/hello"));
     assert!(pack.achievements.contains_key("greeting/first_step"));
+}
+
+#[test]
+fn guide_is_a_seven_step_chain() {
+    let set = PackSet::load(packs_root());
+    let pack = set.packs.get("guide").expect("пак guide");
+    let chain = [
+        "open_today",
+        "pick_step",
+        "mark_done",
+        "open_week",
+        "open_market",
+        "apply_style",
+        "finish",
+    ];
+    assert_eq!(pack.tasks.len(), chain.len());
+    let mut previous: Option<&str> = None;
+    for id in chain {
+        let task_id = format!("guide/{id}");
+        let task = pack.tasks.get(&task_id).expect("шаг знакомства");
+        assert_eq!(
+            task.after.as_deref(),
+            previous.map(|prev| format!("guide/{prev}")).as_deref(),
+            "у {task_id} неверная связь"
+        );
+        assert!(task.reward.coins > 0, "у {task_id} нет монет");
+        previous = Some(id);
+    }
 }
 
 #[test]

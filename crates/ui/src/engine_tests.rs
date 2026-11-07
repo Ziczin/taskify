@@ -58,7 +58,7 @@ fn completing_a_task_gives_reward_and_unlocks_first_achievement() {
     let mut fixture = Fixture::new();
     let outcome = fixture.engine.complete("greeting/hello").unwrap();
     assert_eq!(outcome.awarded.xp, 2);
-    assert_eq!(outcome.awarded.coins, 0);
+    assert_eq!(outcome.awarded.coins, 1);
     assert!(outcome
         .achievements
         .contains(&"greeting/first_step".to_string()));
@@ -179,6 +179,28 @@ fn pack_reset_clears_tasks_but_keeps_one_shots_and_optional_achievements() {
             .contains_key("greeting/hello"),
         "ваншот остаётся выполненным и после сброса ачивок"
     );
+}
+
+#[test]
+fn old_zero_coin_tasks_get_a_one_time_catchup_bonus() {
+    let mut fixture = Fixture::new();
+    // Профиль до 189: задания уже выполнялись, но монет почти не было.
+    fixture.engine.store.aggregates.totals.tasks_completed = 60;
+    fixture.engine.store.aggregates.totals.coins_earned = 8;
+    let marker = fixture
+        .engine
+        .store
+        .livespace
+        .root()
+        .join("data/legacy-task-coins-v1");
+    let _ = std::fs::remove_file(&marker);
+    let before = fixture.engine.store.state.coins;
+
+    assert_eq!(fixture.engine.credit_legacy_task_coins().unwrap(), 52);
+    assert_eq!(fixture.engine.store.state.coins, before + 52);
+    assert!(marker.exists());
+    assert_eq!(fixture.engine.credit_legacy_task_coins().unwrap(), 0);
+    assert_eq!(fixture.engine.store.state.coins, before + 52);
 }
 
 #[test]
@@ -465,7 +487,7 @@ fn settings_roundtrip_through_engine() {
 }
 
 #[test]
-fn greeting_pack_is_enabled_by_default_while_others_stay_off() {
+fn greeting_and_guide_are_enabled_by_default_while_others_stay_off() {
     let root = crate::test_support::temp_root("greeting_default");
     let mut settings = Settings::default();
     settings.paths.livespaces_dir = Some(root.join("livespaces"));
@@ -477,8 +499,9 @@ fn greeting_pack_is_enabled_by_default_while_others_stay_off() {
         .filter(|pack| pack.enabled)
         .map(|pack| pack.id.as_str())
         .collect();
-    assert_eq!(enabled, vec!["greeting"]);
+    assert_eq!(enabled, vec!["greeting", "guide"]);
     assert_eq!(engine.packs.packs.get("greeting").unwrap().tasks.len(), 6);
+    assert_eq!(engine.packs.packs.get("guide").unwrap().tasks.len(), 7);
     let _ = std::fs::remove_dir_all(&root);
 }
 

@@ -1,0 +1,20 @@
+schema = 1
+id = "guide"
+version = "1.0.0"
+official = true
+default_enabled = true
+license = "CC-BY-4.0"
+locales = ["ru", "en"]
+
+[progression]
+base = 50.0
+exponent = 1.4
+max_level = 10
+
+[name]
+ru = "Знакомство"
+en = "Getting Started"
+
+[description]
+ru = "Семь коротких шагов по интерфейсу: где задания, как отметить выполнение, куда тратить монеты и как настроить вид. Цепочка идёт по одному шагу."
+en = "Seven short steps through the interface: where tasks live, how to complete one, where to spend coins, and how to make Taskify yours. The chain opens one step at a time."

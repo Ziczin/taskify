@@ -1,0 +1,19 @@
+id = "apply_style"
+category = "main"
+kind = "once"
+after = "open_market"
+
+[title]
+ru = "Примерить оформление"
+en = "Try on a look"
+
+[description]
+ru = "На «Складе» лежит купленное: примени тему или фон. Стикеры можно перетаскивать по боковым панелям — они тоже часть вида."
+en = "“Stock” holds what you own: apply a theme or background. Stickers can be dragged onto the side panels; they are part of the look too."
+
+[reward]
+xp = 3
+coins = 3
+
+[schedule]
+type = "once"

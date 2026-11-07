@@ -12,7 +12,7 @@ en = "The same routine, a little longer. Add steps gradually."
 
 [reward]
 xp = 6
-coins = 1
+coins = 2
 
 [schedule]
 type = "daily"

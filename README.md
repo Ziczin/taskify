@@ -13,7 +13,8 @@ Taskify is a local-first life gamification app for desktop. Keep habits, repeati
 - Four task kinds: habits, repeating tasks, one-shot tasks, and checklists with subtasks.
 - Task chains: a task opens only after its predecessor has been completed at least once.
 - Pack progress can be reset without deleting history or purchases; completed one-shots stay completed.
-- Five gentle packs: Greeting, Cleaning, Useful Habits, Inspiration, and Socializing, built from one-action steps and story chains.
+- Six gentle packs: Getting Started, Greeting, Cleaning, Useful Habits, Inspiration, and Socializing, built from one-action steps and story chains.
+- Every completed task pays coins; “Getting Started” is a seven-step tour of the interface that is enabled on first launch.
 - Unlimited levels, daily and weekly progress, streaks, combos, and achievements.
 - Coins, a cosmetic shop, themes, accents, backgrounds, fonts, sounds, and draggable stickers.
 - Content packs in TOML: tasks, categories, tags, icons, palettes, combos, achievements, cosmetics, and bundles.
@@ -55,7 +56,7 @@ target/release/taskify validate history default
 
 The macOS build is ad-hoc signed, not notarized, and targets Apple Silicon (`arm64`): on first launch use right-click → Open if Gatekeeper blocks it.
 
-The first launch opens the setup screen, creates a livespace, and installs the five built-in packs. Only Greeting is enabled initially; the other packs can be enabled one at a time.
+The first launch opens the setup screen, creates a livespace, and installs the six built-in packs. “Getting Started” and “Greeting” are enabled initially; the other packs can be enabled one at a time.
 
 ## Data
 
@@ -112,7 +113,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-The current test suite has **183 tests**.
+The current test suite has **185 tests**.
 
 ## Contributing
 

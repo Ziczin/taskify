@@ -9,7 +9,7 @@ en = "Give a compliment"
 
 [reward]
 xp = 4
-coins = 0
+coins = 1
 
 [schedule]
 type = "once"

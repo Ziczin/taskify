@@ -1,0 +1,19 @@
+id = "pick_step"
+category = "main"
+kind = "once"
+after = "open_today"
+
+[title]
+ru = "Выбрать один шаг"
+en = "Pick one step"
+
+[description]
+ru = "Не пытайся закрыть весь список. Выбери одну карточку, которая сейчас по силам. Один маленький шаг лучше большого плана на завтра."
+en = "Don’t try to clear the whole list. Pick one card you can handle right now. One small step beats a big plan for tomorrow."
+
+[reward]
+xp = 2
+coins = 2
+
+[schedule]
+type = "once"

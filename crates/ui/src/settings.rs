@@ -271,6 +271,12 @@ pub struct Settings {
     /// Переключать профили оформления по времени суток.
     #[serde(default)]
     pub auto_look: bool,
+    /// Откуда настройки прочитаны: туда же их и сохраняем.
+    ///
+    /// Поле не попадает в TOML. Оно нужно тестам и переносимым профилям,
+    /// чтобы `save()` не писал в чужой `%APPDATA%`.
+    #[serde(skip)]
+    pub save_path: Option<PathBuf>,
 }
 
 /// Настройки без файла: лайвспейс по умолчанию — `default`, иначе пустой
@@ -289,6 +295,7 @@ impl Default for Settings {
             look_draft: false,
             look_bundle: None,
             auto_look: false,
+            save_path: None,
         }
     }
 }
@@ -579,6 +586,7 @@ impl Settings {
             Ok(text) => toml::from_str(&text).unwrap_or_default(),
             Err(_) => Self::default(),
         };
+        settings.save_path = Some(path);
         let mut migrated = false;
         if settings.paths.livespace_dirs.is_empty() {
             if let Some(path) = settings.livespace_path.clone() {
@@ -638,7 +646,7 @@ impl Settings {
     }
 
     pub fn save(&self) {
-        let path = Self::path();
+        let path = self.save_path.clone().unwrap_or_else(Self::path);
         if let Some(parent) = path.parent() {
             let _ = std::fs::create_dir_all(parent);
         }

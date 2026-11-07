@@ -9,7 +9,7 @@ en = "Put the dishes in the cupboard"
 
 [reward]
 xp = 2
-coins = 0
+coins = 1
 
 [schedule]
 type = "once"
