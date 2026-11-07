@@ -53,13 +53,19 @@ target/release/taskify stats default
 target/release/taskify validate history default
 ```
 
-The macOS build is ad-hoc signed, not notarized: on first launch use right-click → Open if Gatekeeper blocks it.
+The macOS build is ad-hoc signed, not notarized, and targets Apple Silicon (`arm64`): on first launch use right-click → Open if Gatekeeper blocks it.
 
 The first launch opens the setup screen, creates a livespace, and installs the five built-in packs. Only Greeting is enabled initially; the other packs can be enabled one at a time.
 
 ## Data
 
-By default, everything lives in `%APPDATA%\taskify`:
+By default, data lives in the platform data directory:
+
+- Windows: `%APPDATA%\taskify`
+- macOS: `~/Library/Application Support/taskify`
+- Linux: `$XDG_DATA_HOME/taskify` or `~/.local/share/taskify`
+
+Inside it:
 
 - `livespaces\<name>` — journal `data/log/YYYY-MM.jsonl`, caches `state.json` and `aggregates.json`, backups.
 - `packs\<id>` — installed content packs.

@@ -51,13 +51,19 @@ target/release/taskify stats default
 target/release/taskify validate history default
 ```
 
-macOS-сборка подписана ad-hoc, но не нотаризована: при первом запуске может понадобиться правый клик → «Открыть».
+macOS-сборка подписана ad-hoc, но не нотаризована и собрана для Apple Silicon (`arm64`): при первом запуске может понадобиться правый клик → «Открыть».
 
 При первом запуске открывается экран настройки, создаётся лайвспейс и устанавливаются пять встроенных паков. Включён только «Приветствие»; остальные можно включать по одному.
 
 ## Данные
 
-По умолчанию всё лежит в `%APPDATA%\taskify`:
+По умолчанию данные лежат в каталоге данных платформы:
+
+- Windows: `%APPDATA%\taskify`
+- macOS: `~/Library/Application Support/taskify`
+- Linux: `$XDG_DATA_HOME/taskify` или `~/.local/share/taskify`
+
+Внутри:
 
 - `livespaces\<имя>` — журнал `data/log/YYYY-MM.jsonl`, кеши `state.json` и `aggregates.json`, бэкапы.
 - `packs\<id>` — установленные паки контента.
