@@ -462,17 +462,27 @@ fn subtask_can_be_completed_once() {
     let mut fixture = Fixture::new();
     let reward = fixture
         .engine
-        .complete_subtask("habits/morning", "teeth")
+        .complete_subtask("habits/exercise", "squats")
         .unwrap();
     assert_eq!(reward.xp, 1);
     assert!(fixture
         .engine
         .store
         .state
-        .task_ref("habits/morning")
+        .task_ref("habits/exercise")
         .unwrap()
         .subtasks_done
-        .contains("teeth"));
+        .contains("squats"));
+}
+
+#[test]
+fn availability_window_is_checked_against_local_time() {
+    let fixture = Fixture::new();
+    let task = fixture.engine.task("habits/morning").unwrap();
+    let morning = chrono::NaiveTime::from_hms_opt(6, 0, 0).unwrap();
+    let night = chrono::NaiveTime::from_hms_opt(2, 0, 0).unwrap();
+    assert!(fixture.engine.is_available_at(task, morning));
+    assert!(!fixture.engine.is_available_at(task, night));
 }
 
 #[test]

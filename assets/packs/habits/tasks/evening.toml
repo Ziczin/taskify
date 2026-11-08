@@ -14,6 +14,10 @@ en = "Three steps to end the day gently."
 xp = 10
 coins = 10
 
+[window]
+from = "18:00"
+to = "02:00"
+
 [schedule]
 type = "daily"
 

@@ -3,7 +3,7 @@
 use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, bail, Context, Result};
-use chrono::{Datelike, Local, NaiveDate};
+use chrono::{Datelike, Local, NaiveDate, NaiveTime};
 use taskify_core::reward::{award, MilestoneHit, Reward};
 use taskify_core::task::{Kind, Locales, Schedule, Task};
 use taskify_packs::{CmpOp, Combo, Condition, Pack, PackSet, Repeat, Window};
@@ -279,6 +279,18 @@ impl Engine {
             .unwrap_or(false)
     }
 
+    /// Доступно ли задание в указанное время суток.
+    pub fn is_available_at(&self, task: &Task, time: NaiveTime) -> bool {
+        task.window
+            .map(|window| window.contains(time))
+            .unwrap_or(true)
+    }
+
+    /// Доступно ли задание сейчас по локальным часам.
+    pub fn is_available(&self, task: &Task) -> bool {
+        self.is_available_at(task, Local::now().time())
+    }
+
     /// Задание взято в работу в этот день.
     pub fn is_started(&self, task_id: &str, date: NaiveDate) -> bool {
         self.store
@@ -306,6 +318,10 @@ impl Engine {
             .ok_or_else(|| anyhow!("задание не найдено: {task_id}"))?;
         if !self.is_unlocked(&task) {
             bail!("задание ещё закрыто: сначала выполните предыдущее");
+        }
+        if !self.is_available(&task) {
+            let window = task.window.expect("окно уже проверено");
+            bail!("задание доступно с {} до {}", window.from, window.to);
         }
         let date = self.today();
         self.record(EventKind::TaskStarted(TaskStarted {
@@ -407,6 +423,10 @@ impl Engine {
         if !self.is_unlocked(&task) {
             bail!("задание ещё закрыто: сначала выполните предыдущее");
         }
+        if !self.is_available(&task) {
+            let window = task.window.expect("окно уже проверено");
+            bail!("задание доступно с {} до {}", window.from, window.to);
+        }
         let date = self.today();
         if self.is_done_today(task_id, date) {
             return Err(anyhow!("уже выполнено сегодня"));
@@ -501,6 +521,10 @@ impl Engine {
             .subtask(subtask_id)
             .ok_or_else(|| anyhow!("подзадача не найдена: {subtask_id}"))?
             .clone();
+        if !self.is_available(&task) {
+            let window = task.window.expect("окно уже проверено");
+            bail!("задание доступно с {} до {}", window.from, window.to);
+        }
         let date = self.today();
         if self
             .store

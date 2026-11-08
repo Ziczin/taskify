@@ -10,5 +10,9 @@ en = "Go to bed before midnight"
 xp = 10
 coins = 10
 
+[window]
+from = "21:00"
+to = "03:00"
+
 [schedule]
 type = "daily"

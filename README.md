@@ -12,6 +12,7 @@ Taskify is a local-first life gamification app for desktop. Keep habits, repeati
 
 - Four task kinds: habits, repeating tasks, one-shot tasks, and checklists with subtasks.
 - Task chains: a task opens only after its predecessor has been completed at least once.
+- Availability windows: a task can be limited to a time range such as `09:00–18:00`, including ranges that cross midnight.
 - Pack progress can be reset without deleting history or purchases; completed one-shots stay completed.
 - Six gentle packs: Getting Started, Greeting, Cleaning, Useful Habits, Inspiration, and Socializing, built from one-action steps and story chains.
 - Every completed task pays at least 10 XP and 10 coins; “Getting Started” is a seven-step tour of the interface that is enabled on first launch.
@@ -104,6 +105,16 @@ taskify export <livespace> <archive.zip>
 
 A pack is a folder with `pack.toml` and subfolders for tasks, combos, achievements, cosmetics, bundles, definitions, and media. IDs are namespaced by the pack (`greeting/hello`). Built-in packs live in `assets/packs` and are installed on first launch.
 
+A task can be limited to a time of day with an optional window:
+
+```toml
+[window]
+from = "09:00"
+to = "18:00"
+```
+
+If `from` is later than `to`, the window crosses midnight (`22:00`–`06:00`). Without `[window]`, the task is available all day.
+
 ## Checks
 
 ```powershell
@@ -113,7 +124,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-The current test suite has **185 tests**.
+The current test suite has **188 tests**.
 
 ## Contributing
 

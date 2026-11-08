@@ -1,7 +1,9 @@
 //! Модель задания.
 
 use std::collections::BTreeMap;
+use std::fmt;
 
+use chrono::{NaiveTime, Timelike};
 use serde::{Deserialize, Serialize};
 
 use crate::metrics::MetricEffect;
@@ -60,6 +62,96 @@ pub enum Schedule {
     Once,
     /// Не появляется сама, только вручную.
     Manual,
+}
+
+/// Время суток `ЧЧ:ММ` (секунды допустимы при разборе, но не нужны окну).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ClockTime(NaiveTime);
+
+impl ClockTime {
+    pub fn parse(value: &str) -> Option<Self> {
+        let mut parts = value.trim().split(':');
+        let hour: u32 = parts.next()?.parse().ok()?;
+        let minute: u32 = parts.next()?.parse().ok()?;
+        let second: u32 = match parts.next() {
+            Some(second) => second.parse().ok()?,
+            None => 0,
+        };
+        if parts.next().is_some() {
+            return None;
+        }
+        NaiveTime::from_hms_opt(hour, minute, second).map(Self)
+    }
+
+    pub fn time(self) -> NaiveTime {
+        self.0
+    }
+}
+
+impl fmt::Display for ClockTime {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.0.second() == 0 {
+            write!(f, "{:02}:{:02}", self.0.hour(), self.0.minute())
+        } else {
+            write!(
+                f,
+                "{:02}:{:02}:{:02}",
+                self.0.hour(),
+                self.0.minute(),
+                self.0.second()
+            )
+        }
+    }
+}
+
+impl Serialize for ClockTime {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
+impl<'de> Deserialize<'de> for ClockTime {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let value = String::deserialize(deserializer)?;
+        Self::parse(&value).ok_or_else(|| {
+            serde::de::Error::custom(format!(
+                "неверное время «{value}»: нужно ЧЧ:ММ, например 09:00"
+            ))
+        })
+    }
+}
+
+/// Окно, в которое задание можно выполнять.
+///
+/// `from > to` означает переход через полночь: `22:00–06:00`.
+/// `from == to` — задание доступно весь день.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TimeWindow {
+    pub from: ClockTime,
+    pub to: ClockTime,
+}
+
+impl TimeWindow {
+    pub fn contains(&self, time: NaiveTime) -> bool {
+        if self.from == self.to {
+            return true;
+        }
+        if self.from < self.to {
+            self.from.time() <= time && time <= self.to.time()
+        } else {
+            time >= self.from.time() || time <= self.to.time()
+        }
+    }
+
+    pub fn label(&self) -> String {
+        format!("{}–{}", self.from, self.to)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -125,6 +217,9 @@ pub struct Task {
     pub milestones: Vec<Milestone>,
     #[serde(default)]
     pub schedule: Schedule,
+    /// Время суток, когда задание доступно. `None` — доступно всегда.
+    #[serde(default)]
+    pub window: Option<TimeWindow>,
     /// Id задания, которое нужно выполнить хотя бы раз, чтобы открыть это.
     #[serde(default, alias = "previous", alias = "prev")]
     pub after: Option<String>,
@@ -352,6 +447,7 @@ mod tests {
                 coins_mult: 2.0,
             }],
             schedule: Schedule::Daily,
+            window: None,
             after: None,
             combos: vec![],
             hints: Hints::default(),
@@ -438,6 +534,42 @@ mod tests {
         assert!(task.id_in_use("water"));
         assert!(task.id_in_use("water2"));
         assert!(!task.id_in_use("tea"));
+    }
+
+    #[test]
+    fn availability_window_is_parsed_and_wraps_midnight() {
+        let task: Task = toml::from_str(
+            r#"
+id = "morning"
+kind = "habit"
+title = { ru = "Утро", en = "Morning" }
+
+[reward]
+xp = 10
+coins = 10
+
+[window]
+from = "09:00"
+to = "18:00"
+"#,
+        )
+        .unwrap();
+        let window = task.window.expect("окно");
+        assert!(window.contains(NaiveTime::from_hms_opt(9, 0, 0).unwrap()));
+        assert!(window.contains(NaiveTime::from_hms_opt(18, 0, 0).unwrap()));
+        assert!(!window.contains(NaiveTime::from_hms_opt(18, 1, 0).unwrap()));
+
+        let overnight: TimeWindow = toml::from_str("from = \"22:00\"\nto = \"06:00\"").unwrap();
+        assert!(overnight.contains(NaiveTime::from_hms_opt(23, 30, 0).unwrap()));
+        assert!(overnight.contains(NaiveTime::from_hms_opt(5, 0, 0).unwrap()));
+        assert!(!overnight.contains(NaiveTime::from_hms_opt(12, 0, 0).unwrap()));
+        assert_eq!(overnight.label(), "22:00–06:00");
+    }
+
+    #[test]
+    fn invalid_window_time_is_rejected() {
+        let result: Result<TimeWindow, _> = toml::from_str("from = \"25:00\"\nto = \"06:00\"");
+        assert!(result.is_err());
     }
 
     #[test]

@@ -14,6 +14,10 @@ en = "Three tiny steps. One at a time is fine."
 xp = 10
 coins = 10
 
+[window]
+from = "05:00"
+to = "12:00"
+
 [schedule]
 type = "daily"
 

@@ -7,8 +7,8 @@ ru = "Открыть «Сегодня»"
 en = "Open Today"
 
 [description]
-ru = "Это стартовый экран: на нём карточки заданий на сегодня. Осмотрись, но не бери всё сразу. Нажми «Сделать», когда будешь готов идти дальше."
-en = "This is the start screen: today’s task cards live here. Look around, but don’t take everything at once. Press “Done” when you’re ready for the next step."
+ru = "Это стартовый экран: на нём карточки заданий на сегодня. У некоторых карточек указано окно доступности — вне него выполнить задание нельзя. Осмотрись, но не бери всё сразу. Нажми «Сделать», когда будешь готов идти дальше."
+en = "This is the start screen: today’s task cards live here. Some cards show an availability window — outside it the task cannot be completed. Look around, but don’t take everything at once. Press “Done” when you’re ready for the next step."
 
 [reward]
 xp = 10

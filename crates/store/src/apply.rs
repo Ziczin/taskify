@@ -354,6 +354,7 @@ mod tests {
             reward: Reward::new(10, 2),
             milestones: vec![],
             schedule: Schedule::Daily,
+            window: None,
             after: None,
             combos: vec![],
             hints: Hints::default(),

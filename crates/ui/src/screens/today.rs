@@ -474,6 +474,8 @@ impl TaskifyApp {
             .task_ref(&task.id)
             .cloned()
             .unwrap_or_default();
+        let available = self.engine.is_available(task);
+        let window_label = task.window.map(|window| window.label());
 
         // Иконка задания — только картинка из assets/icons. Если нужной нет,
         // рисуем знак вопроса, но никогда не выводим символ текстом.
@@ -693,11 +695,30 @@ impl TaskifyApp {
                         let checked = state.subtasks_done.contains(&subtask.id);
                         let mut is_checked = checked;
                         let label = subtask.title(&locale);
-                        if body.checkbox(&mut is_checked, label).changed() && !checked {
+                        let response = body
+                            .add_enabled(available, egui::Checkbox::new(&mut is_checked, label));
+                        if response.changed() && !checked {
                             actions.push(Action::Subtask(task.id.clone(), subtask.id.clone()));
                         }
                     }
                 }
+            }
+            if let Some(label) = &window_label {
+                let color = if available {
+                    ui.visuals().weak_text_color()
+                } else {
+                    self.palette().warning
+                };
+                let key = if available {
+                    "today.window"
+                } else {
+                    "today.window_closed"
+                };
+                ui.label(
+                    egui::RichText::new(format!("{}: {label}", self.t(key)))
+                        .small()
+                        .color(color),
+                );
             }
             let reward = format!(
                 "+{} {}  +{} {}",
@@ -774,6 +795,11 @@ impl TaskifyApp {
                     let gap = 6.0;
                     let width = ui.available_width();
                     let cell = ((width - gap * (count - 1.0)) / count).max(20.0);
+                    let blocked_tip = format!(
+                        "{}: {}",
+                        self.t("today.window_closed"),
+                        window_label.as_deref().unwrap_or_default()
+                    );
                     ui.horizontal(|ui| {
                         ui.spacing_mut().item_spacing.x = gap;
                         for (action, icon, tint, tooltip) in buttons {
@@ -786,9 +812,17 @@ impl TaskifyApp {
                                         egui::Button::image(image).frame(false),
                                     )
                                 })
-                                .map(|response| response.on_hover_text(tooltip).clicked())
+                                .map(|response| {
+                                    response
+                                        .on_hover_text(if available {
+                                            tooltip
+                                        } else {
+                                            blocked_tip.clone()
+                                        })
+                                        .clicked()
+                                })
                                 .unwrap_or(false);
-                            if clicked {
+                            if clicked && available {
                                 if let Some(action) = action {
                                     actions.push(action);
                                 }

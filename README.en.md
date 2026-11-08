@@ -99,7 +99,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-The current test suite has **185 tests**.
+The current test suite has **188 tests**.
 
 ## Contributing
 
