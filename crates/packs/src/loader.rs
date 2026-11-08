@@ -216,6 +216,7 @@ impl PackSet {
         self.load_definitions(dir, &mut pack);
         self.load_stickers(dir, &mut pack);
         self.load_tasks(dir, &mut pack);
+        self.index_random_groups(&mut pack);
         self.load_combos(dir, &mut pack);
         self.load_achievements(dir, &mut pack);
         self.load_tokens(dir, &mut pack);
@@ -441,6 +442,13 @@ impl PackSet {
                             qualify(&pack_id, &id)
                         }
                     });
+                    if let Some(group) = &mut task.random_group {
+                        group.members = group
+                            .members
+                            .iter()
+                            .map(|id| qualify(&pack_id, id))
+                            .collect();
+                    }
                     task.icon = task.icon.map(|id| qualify(&pack_id, &id));
                     task.former_ids = task
                         .former_ids
@@ -493,6 +501,61 @@ impl PackSet {
                 )),
             }
         }
+    }
+
+    /// Индексирует участников случайных групп и проверяет ссылки.
+    fn index_random_groups(&mut self, pack: &mut Pack) {
+        let groups: Vec<(String, Vec<String>)> = pack
+            .tasks
+            .values()
+            .filter_map(|task| {
+                task.random_group
+                    .as_ref()
+                    .map(|group| (task.id.clone(), group.members.clone()))
+            })
+            .collect();
+        let mut members = BTreeMap::new();
+        for (group_id, group_members) in groups {
+            for member in group_members {
+                if !pack.tasks.contains_key(&member) {
+                    self.issues.push(Issue::error(
+                        "PK017",
+                        format!(
+                            "tasks/{}.toml",
+                            group_id.split('/').nth(1).unwrap_or(&group_id)
+                        ),
+                        format!("участник случайной группы не найден: {member}"),
+                    ));
+                    continue;
+                }
+                if pack
+                    .tasks
+                    .get(&member)
+                    .map(|task| task.random_group.is_some())
+                    .unwrap_or(false)
+                {
+                    self.issues.push(Issue::error(
+                        "PK017",
+                        format!(
+                            "tasks/{}.toml",
+                            group_id.split('/').nth(1).unwrap_or(&group_id)
+                        ),
+                        format!("случайная группа не может входить в другую группу: {member}"),
+                    ));
+                }
+                if let Some(previous) = members.insert(member.clone(), group_id.clone()) {
+                    self.issues.push(Issue::error(
+                        "PK017",
+                        format!(
+                            "tasks/{}.toml",
+                            group_id.split('/').nth(1).unwrap_or(&group_id)
+                        ),
+                        format!("участник {member} уже входит в группу {previous}"),
+                    ));
+                }
+            }
+        }
+        pack.random_members = members;
     }
 
     fn load_combos(&mut self, dir: &Path, pack: &mut Pack) {
@@ -823,6 +886,48 @@ mod tests {
 
     fn temp_root() -> PathBuf {
         crate::test_support::temp_root("packs")
+    }
+
+    #[test]
+    fn random_group_members_are_indexed_and_checked() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/tasks/group.toml"),
+            r#"
+id = "group"
+[title]
+en = "Random"
+[random_group]
+members = ["a", "b"]
+"#,
+        );
+        write(
+            &root.join("demo/tasks/a.toml"),
+            "id = \"a\"\n[title]\nen = \"A\"\n",
+        );
+        write(
+            &root.join("demo/tasks/b.toml"),
+            "id = \"b\"\n[title]\nen = \"B\"\n",
+        );
+        let set = PackSet::load(&root);
+        let pack = &set.packs["demo"];
+        assert_eq!(
+            pack.random_members.get("demo/a").map(String::as_str),
+            Some("demo/group")
+        );
+        assert_eq!(
+            pack.random_members.get("demo/b").map(String::as_str),
+            Some("demo/group")
+        );
+        assert!(crate::validate::validate_set(&set)
+            .iter()
+            .all(|issue| issue.code != "PK017"));
+
+        std::fs::remove_file(root.join("demo/tasks/b.toml")).unwrap();
+        let set = PackSet::load(&root);
+        assert!(set.issues.iter().any(|issue| issue.code == "PK017"));
+        let _ = std::fs::remove_dir_all(&root);
     }
 
     #[test]

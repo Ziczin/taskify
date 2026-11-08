@@ -2,6 +2,9 @@
 
 use std::path::PathBuf;
 
+use taskify_core::reward::Reward;
+use taskify_core::task::{Kind, RandomGroup, Schedule};
+
 use crate::engine::Engine;
 use crate::settings::Settings;
 
@@ -483,6 +486,55 @@ fn availability_window_is_checked_against_local_time() {
     let night = chrono::NaiveTime::from_hms_opt(2, 0, 0).unwrap();
     assert!(fixture.engine.is_available_at(task, morning));
     assert!(!fixture.engine.is_available_at(task, night));
+}
+
+#[test]
+fn random_group_shows_one_member_and_completes_as_group() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    {
+        let pack = fixture.engine.packs.packs.get_mut("greeting").unwrap();
+        let mut group = pack.tasks.get("greeting/hello").unwrap().clone();
+        group.id = "greeting/random".into();
+        group.kind = Kind::Habit;
+        group.schedule = Schedule::Daily;
+        group.window = None;
+        group.after = None;
+        group.random_group = Some(RandomGroup {
+            members: vec!["greeting/hello".into(), "greeting/breath".into()],
+        });
+        group.reward = Reward::new(10, 10);
+        pack.tasks.insert(group.id.clone(), group);
+        pack.random_members
+            .insert("greeting/hello".into(), "greeting/random".into());
+        pack.random_members
+            .insert("greeting/breath".into(), "greeting/random".into());
+    }
+
+    let visible = fixture.engine.today_tasks(date);
+    let card = visible
+        .iter()
+        .find(|task| task.id == "greeting/random")
+        .expect("группа должна быть в «Сегодня»");
+    assert!(card.random_group.is_some());
+    assert!(!visible.iter().any(|task| task.id == "greeting/hello"));
+    assert!(!visible.iter().any(|task| task.id == "greeting/breath"));
+
+    // Выбор не меняется от кадра к кадру.
+    let again = fixture
+        .engine
+        .today_tasks(date)
+        .into_iter()
+        .find(|task| task.id == "greeting/random")
+        .unwrap();
+    assert_eq!(again.title.clone(), card.title.clone());
+
+    let member_reward = card.reward;
+    let outcome = fixture.engine.complete("greeting/random").unwrap();
+    assert_eq!(outcome.awarded, member_reward);
+    assert!(fixture.engine.is_done_today("greeting/random", date));
+    let group = fixture.engine.task("greeting/random").unwrap();
+    assert!(!fixture.engine.is_due(group, date));
 }
 
 #[test]

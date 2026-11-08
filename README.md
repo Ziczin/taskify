@@ -15,6 +15,7 @@ Taskify is a local-first life gamification app for desktop. Keep habits, repeati
 - Availability windows: a task can be limited to a time range such as `09:00–18:00`, including ranges that cross midnight.
 - New or newly unlocked tasks are highlighted until you mark them as viewed.
 - Optional real desktop notifications when new tasks appear.
+- Random groups: several tasks share one appearance slot and one member is chosen according to the group's schedule, window, chain, and level rules.
 - Pack progress can be reset without deleting history or purchases; completed one-shots stay completed.
 - Six gentle packs: Getting Started, Greeting, Cleaning, Useful Habits, Inspiration, and Socializing, built from one-action steps and story chains.
 - Every completed task pays at least 10 XP and 10 coins; “Getting Started” is a seven-step tour of the interface that is enabled on first launch.
@@ -117,6 +118,26 @@ to = "18:00"
 
 If `from` is later than `to`, the window crosses midnight (`22:00`–`06:00`). Without `[window]`, the task is available all day.
 
+A random group is a task whose card is filled by one of its members:
+
+```toml
+id = "random_evening"
+kind = "habit"
+title = { en = "Random evening task", ru = "Случайное вечернее задание" }
+
+[schedule]
+type = "daily"
+
+[window]
+from = "18:00"
+to = "23:00"
+
+[random_group]
+members = ["read", "walk", "music"]
+```
+
+Members are task ids in the same pack (a same-pack qualified id also works). The group's `schedule`, `window`, `after`, and level range decide when it appears; the chosen member supplies the title, description, icon, subtasks, reward, metrics, and category. Only one member is shown per appearance, the group itself is completed, and the choice is stable for that appearance. Members' own schedule, window, chain, kind, and level range are ignored; they are hidden from «Today» and cannot belong to another group.
+
 ## Checks
 
 ```powershell
@@ -126,7 +147,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-The current test suite has **190 tests**.
+The current test suite has **194 tests**.
 
 ## Contributing
 

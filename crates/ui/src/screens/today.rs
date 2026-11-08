@@ -57,7 +57,7 @@ impl TaskifyApp {
         self.filters_row(ui);
         ui.add_space(10.0);
 
-        let tasks: Vec<Task> = self.engine.packs.tasks().into_iter().cloned().collect();
+        let tasks: Vec<Task> = self.engine.today_tasks(date);
         let candidates: Vec<Task> = tasks
             .into_iter()
             .filter(|task| self.task_matches(task, date))
@@ -602,6 +602,14 @@ impl TaskifyApp {
                     });
                 });
             });
+            if task.random_group.is_some() {
+                ui.label(
+                    egui::RichText::new(self.t("today.random_group"))
+                        .small()
+                        .strong()
+                        .color(accent),
+                );
+            }
             // Метаданные и описание идут от левого края карточки, а не от
             // текста заголовка: иначе они выглядят сдвинутыми вправо на
             // ширину иконки.
@@ -881,7 +889,7 @@ impl TaskifyApp {
                     }
                     let title = self
                         .engine
-                        .task(&outcome.task_id)
+                        .display_task(&outcome.task_id, self.engine.today())
                         .map(|task| task.title(&self.settings.ui.locale))
                         .unwrap_or_else(|| outcome.task_id.clone());
                     let mut text = format!(

@@ -2776,7 +2776,7 @@ impl TaskifyApp {
         let titles: Vec<String> = tasks
             .iter()
             .take(3)
-            .filter_map(|id| self.engine.task(id))
+            .filter_map(|id| self.engine.display_task(id, date))
             .map(|task| task.title(&self.settings.ui.locale))
             .collect();
         let title = self.t("system.new_tasks_title");

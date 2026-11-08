@@ -421,6 +421,8 @@ pub struct Pack {
     pub stickers: std::collections::BTreeMap<String, StickerDef>,
     /// Уровневые рамки заданий: id задания → от/до какого уровня пака.
     pub task_levels: std::collections::BTreeMap<String, LevelGate>,
+    /// Участники случайных групп: id участника → id задания-группы.
+    pub random_members: std::collections::BTreeMap<String, String>,
     /// Объявленные паком метрики.
     pub metrics_declared: Vec<String>,
     pub enabled: bool,
