@@ -118,12 +118,15 @@ to = "18:00"
 
 If `from` is later than `to`, the window crosses midnight (`22:00`–`06:00`). Without `[window]`, the task is available all day.
 
-A random group is a task whose card is filled by one of its members:
+A random group is a separate entity in `groups/`. The group file defines when it appears; the tasks that belong to it point back to the group:
 
 ```toml
+# groups/random_evening.toml
 id = "random_evening"
 kind = "habit"
-title = { en = "Random evening task", ru = "Случайное вечернее задание" }
+title = { en = "Random evening", ru = "Случайный вечер" }
+level_from = 2
+level_to = 8
 
 [schedule]
 type = "daily"
@@ -131,12 +134,18 @@ type = "daily"
 [window]
 from = "18:00"
 to = "23:00"
-
-[random_group]
-members = ["read", "walk", "music"]
 ```
 
-Members are task ids in the same pack (a same-pack qualified id also works). The group's `schedule`, `window`, `after`, and level range decide when it appears; the chosen member supplies the title, description, icon, subtasks, reward, metrics, and category. Only one member is shown per appearance, the group itself is completed, and the choice is stable for that appearance. Members' own schedule, window, chain, kind, and level range are ignored; they are hidden from «Today» and cannot belong to another group.
+```toml
+# tasks/read.toml
+id = "read"
+group = "random_evening"
+[title]
+en = "Read a few pages"
+ru = "Прочитать несколько страниц"
+```
+
+The group does not store a member list: membership lives on the task (`group = "..."`). The group's `schedule`, `window`, `after`, `kind`, and `level_from`/`level_to` decide when it appears; the chosen member supplies the title, description, icon, subtasks, reward, metrics, and category. Only one member is shown per appearance, the group itself is completed, and the choice is stable for that appearance. Members' own schedule, window, chain, kind, and task-level range are ignored; they are hidden from «Today». A group needs at least two members, group ids must not collide with task ids, and members belong to exactly one group.
 
 ## Checks
 
@@ -147,7 +156,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-The current test suite has **194 tests**.
+The current test suite has **195 tests**.
 
 ## Contributing
 

@@ -2,8 +2,8 @@
 
 use std::path::PathBuf;
 
-use taskify_core::reward::Reward;
-use taskify_core::task::{Kind, RandomGroup, Schedule};
+use taskify_core::group::RandomGroup;
+use taskify_core::task::{Kind, Schedule};
 
 use crate::engine::Engine;
 use crate::settings::Settings;
@@ -494,21 +494,19 @@ fn random_group_shows_one_member_and_completes_as_group() {
     let date = fixture.engine.today();
     {
         let pack = fixture.engine.packs.packs.get_mut("greeting").unwrap();
-        let mut group = pack.tasks.get("greeting/hello").unwrap().clone();
-        group.id = "greeting/random".into();
-        group.kind = Kind::Habit;
-        group.schedule = Schedule::Daily;
-        group.window = None;
-        group.after = None;
-        group.random_group = Some(RandomGroup {
-            members: vec!["greeting/hello".into(), "greeting/breath".into()],
-        });
-        group.reward = Reward::new(10, 10);
-        pack.tasks.insert(group.id.clone(), group);
-        pack.random_members
-            .insert("greeting/hello".into(), "greeting/random".into());
-        pack.random_members
-            .insert("greeting/breath".into(), "greeting/random".into());
+        let group = RandomGroup {
+            id: "greeting/random".into(),
+            title: [("en".to_string(), "Random".to_string())].into(),
+            kind: Kind::Habit,
+            schedule: Schedule::Daily,
+            window: None,
+            after: None,
+            level_from: None,
+            level_to: None,
+        };
+        pack.groups.insert(group.id.clone(), group);
+        pack.tasks.get_mut("greeting/hello").unwrap().group = Some("greeting/random".into());
+        pack.tasks.get_mut("greeting/breath").unwrap().group = Some("greeting/random".into());
     }
 
     let visible = fixture.engine.today_tasks(date);
@@ -516,7 +514,7 @@ fn random_group_shows_one_member_and_completes_as_group() {
         .iter()
         .find(|task| task.id == "greeting/random")
         .expect("группа должна быть в «Сегодня»");
-    assert!(card.random_group.is_some());
+    assert!(fixture.engine.is_group_task(&card.id));
     assert!(!visible.iter().any(|task| task.id == "greeting/hello"));
     assert!(!visible.iter().any(|task| task.id == "greeting/breath"));
 
@@ -533,8 +531,54 @@ fn random_group_shows_one_member_and_completes_as_group() {
     let outcome = fixture.engine.complete("greeting/random").unwrap();
     assert_eq!(outcome.awarded, member_reward);
     assert!(fixture.engine.is_done_today("greeting/random", date));
-    let group = fixture.engine.task("greeting/random").unwrap();
-    assert!(!fixture.engine.is_due(group, date));
+    let group = fixture
+        .engine
+        .display_task("greeting/random", date)
+        .unwrap();
+    assert!(!fixture.engine.is_due(&group, date));
+}
+
+#[test]
+fn random_group_conditions_come_from_group_not_members() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    let window = taskify_core::task::TimeWindow {
+        from: taskify_core::task::ClockTime::parse("09:00").unwrap(),
+        to: taskify_core::task::ClockTime::parse("10:00").unwrap(),
+    };
+    {
+        let pack = fixture.engine.packs.packs.get_mut("greeting").unwrap();
+        let group = RandomGroup {
+            id: "greeting/conditions".into(),
+            title: [("en".to_string(), "Conditions".to_string())].into(),
+            kind: Kind::Habit,
+            schedule: Schedule::Daily,
+            window: Some(window),
+            after: Some("greeting/smile".into()),
+            level_from: Some(99),
+            level_to: None,
+        };
+        pack.groups.insert(group.id.clone(), group);
+        pack.tasks.get_mut("greeting/hello").unwrap().group = Some("greeting/conditions".into());
+        pack.tasks.get_mut("greeting/breath").unwrap().group = Some("greeting/conditions".into());
+        // Собственное окно участника не должно влиять на группу.
+        pack.tasks.get_mut("greeting/hello").unwrap().window =
+            Some(taskify_core::task::TimeWindow {
+                from: taskify_core::task::ClockTime::parse("23:00").unwrap(),
+                to: taskify_core::task::ClockTime::parse("23:30").unwrap(),
+            });
+    }
+    let card = fixture
+        .engine
+        .display_task("greeting/conditions", date)
+        .expect("группа");
+    assert_eq!(card.window, Some(window));
+    assert_eq!(card.after.as_deref(), Some("greeting/smile"));
+    assert!(!fixture.engine.task_level_visible(&card));
+    assert!(!fixture.engine.is_unlocked(&card));
+    assert!(!fixture
+        .engine
+        .is_available_at(&card, chrono::NaiveTime::from_hms_opt(11, 0, 0).unwrap()));
 }
 
 #[test]

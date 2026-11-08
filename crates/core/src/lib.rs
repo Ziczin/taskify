@@ -1,11 +1,13 @@
 //! Домен Taskify.
 
+pub mod group;
 pub mod level;
 pub mod metrics;
 pub mod reward;
 pub mod task;
 pub mod time;
 
+pub use group::{GroupError, RandomGroup};
 pub use level::{level_for, level_progress, max_level, xp_to_reach};
 pub use metrics::{MetricEffect, MetricOp};
 pub use reward::{award, Milestone, MilestoneHit, Reward};

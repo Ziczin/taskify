@@ -192,7 +192,7 @@ impl PackTab {
     /// Количество единиц контента этого вида в паке.
     pub fn count(self, pack: &taskify_packs::Pack) -> usize {
         match self {
-            PackTab::Tasks => pack.tasks.len(),
+            PackTab::Tasks => pack.tasks.len() + pack.groups.len(),
             PackTab::Combos => pack.combos.len(),
             PackTab::Achievements => pack.achievements.len(),
             PackTab::Categories => pack.categories.len(),

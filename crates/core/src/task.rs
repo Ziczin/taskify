@@ -196,15 +196,6 @@ impl Subtask {
     }
 }
 
-/// Настройка случайной группы: из `members` при каждом появлении выбирается
-/// одно задание. Само задание-группа задаёт расписание, окно, цепочку и
-/// уровни; содержимое карточки берётся у выбранного участника.
-#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
-pub struct RandomGroup {
-    #[serde(default)]
-    pub members: Vec<String>,
-}
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Task {
     pub id: String,
@@ -232,9 +223,10 @@ pub struct Task {
     /// Id задания, которое нужно выполнить хотя бы раз, чтобы открыть это.
     #[serde(default, alias = "previous", alias = "prev")]
     pub after: Option<String>,
-    /// Случайная группа: участники и правила выбора.
+    /// Id случайной группы, в которую входит задание. У группы свои
+    /// расписание, окно, цепочка и уровни; участник только даёт содержимое.
     #[serde(default)]
-    pub random_group: Option<RandomGroup>,
+    pub group: Option<String>,
     #[serde(default)]
     pub combos: Vec<String>,
     #[serde(default)]
@@ -277,10 +269,8 @@ pub enum TaskError {
     EmptyPrerequisite,
     PrerequisiteMatchesSelf { id: String },
     InvalidCurrency { currency: String },
-    EmptyRandomGroup,
-    RandomGroupTooSmall,
-    RandomGroupSelfMember,
-    DuplicateRandomMember { member: String },
+    EmptyGroup,
+    GroupMatchesSelf { group: String },
 }
 
 impl TaskError {
@@ -295,10 +285,7 @@ impl TaskError {
             | TaskError::MilestoneMultiplierBelowOne { .. } => "T006",
             TaskError::DuplicateFormerId { .. } | TaskError::FormerIdMatchesSelf { .. } => "T007",
             TaskError::EmptyPrerequisite | TaskError::PrerequisiteMatchesSelf { .. } => "T009",
-            TaskError::EmptyRandomGroup
-            | TaskError::RandomGroupTooSmall
-            | TaskError::RandomGroupSelfMember
-            | TaskError::DuplicateRandomMember { .. } => "T010",
+            TaskError::EmptyGroup | TaskError::GroupMatchesSelf { .. } => "T010",
             TaskError::InvalidCurrency { .. } => "T008",
         }
     }
@@ -399,22 +386,13 @@ impl Task {
             }
         }
 
-        if let Some(group) = &self.random_group {
-            if group.members.is_empty() {
-                errors.push(TaskError::EmptyRandomGroup);
-            } else if group.members.len() < 2 {
-                errors.push(TaskError::RandomGroupTooSmall);
-            }
-            let mut members = std::collections::BTreeSet::new();
-            for member in &group.members {
-                if member == &self.id {
-                    errors.push(TaskError::RandomGroupSelfMember);
-                }
-                if !members.insert(member) {
-                    errors.push(TaskError::DuplicateRandomMember {
-                        member: member.clone(),
-                    });
-                }
+        if let Some(group) = &self.group {
+            if group.trim().is_empty() {
+                errors.push(TaskError::EmptyGroup);
+            } else if group == &self.id {
+                errors.push(TaskError::GroupMatchesSelf {
+                    group: group.clone(),
+                });
             }
         }
 
@@ -488,7 +466,7 @@ mod tests {
             schedule: Schedule::Daily,
             window: None,
             after: None,
-            random_group: None,
+            group: None,
             combos: vec![],
             hints: Hints::default(),
             subtasks: vec![],
@@ -574,57 +552,6 @@ mod tests {
         assert!(task.id_in_use("water"));
         assert!(task.id_in_use("water2"));
         assert!(!task.id_in_use("tea"));
-    }
-
-    #[test]
-    fn random_group_needs_two_distinct_members() {
-        let mut task = sample();
-        task.random_group = Some(RandomGroup { members: vec![] });
-        assert!(task
-            .validate()
-            .iter()
-            .any(|error| matches!(error, TaskError::EmptyRandomGroup)));
-
-        task.random_group = Some(RandomGroup {
-            members: vec!["one".into()],
-        });
-        assert!(task
-            .validate()
-            .iter()
-            .any(|error| matches!(error, TaskError::RandomGroupTooSmall)));
-
-        task.random_group = Some(RandomGroup {
-            members: vec!["one".into(), "one".into()],
-        });
-        assert!(task
-            .validate()
-            .iter()
-            .any(|error| matches!(error, TaskError::DuplicateRandomMember { .. })));
-
-        task.random_group = Some(RandomGroup {
-            members: vec!["one".into(), task.id.clone()],
-        });
-        assert!(task
-            .validate()
-            .iter()
-            .any(|error| matches!(error, TaskError::RandomGroupSelfMember)));
-    }
-
-    #[test]
-    fn random_group_is_parsed_from_toml() {
-        let task: Task = toml::from_str(
-            r#"
-id = "random"
-kind = "habit"
-title = { en = "Random" }
-
-[random_group]
-members = ["a", "b"]
-"#,
-        )
-        .unwrap();
-        let group = task.random_group.expect("группа");
-        assert_eq!(group.members, vec!["a", "b"]);
     }
 
     #[test]

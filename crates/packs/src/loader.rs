@@ -215,8 +215,9 @@ impl PackSet {
 
         self.load_definitions(dir, &mut pack);
         self.load_stickers(dir, &mut pack);
+        self.load_groups(dir, &mut pack);
         self.load_tasks(dir, &mut pack);
-        self.index_random_groups(&mut pack);
+        self.check_groups(&mut pack);
         self.load_combos(dir, &mut pack);
         self.load_achievements(dir, &mut pack);
         self.load_tokens(dir, &mut pack);
@@ -388,6 +389,50 @@ impl PackSet {
         }
     }
 
+    fn load_groups(&mut self, dir: &Path, pack: &mut Pack) {
+        let pack_id = pack.id.clone();
+        let mut files = Vec::new();
+        collect_toml(&dir.join("groups"), &mut files);
+        for file in files {
+            let file_name = file.display().to_string();
+            let text = match std::fs::read_to_string(&file) {
+                Ok(text) => text,
+                Err(error) => {
+                    self.issues
+                        .push(Issue::error("PK000", &file_name, error.to_string()));
+                    continue;
+                }
+            };
+            match toml::from_str::<taskify_core::group::RandomGroup>(&text) {
+                Ok(mut group) => {
+                    for error in group.validate() {
+                        self.issues.push(Issue::error(
+                            error.code(),
+                            &file_name,
+                            format!("{error:?}"),
+                        ));
+                    }
+                    group.id = qualify(&pack_id, &group.id);
+                    group.after = group.after.map(|id| {
+                        if id.trim().is_empty() {
+                            id
+                        } else {
+                            qualify(&pack_id, &id)
+                        }
+                    });
+                    Self::insert_unique(
+                        &mut pack.groups,
+                        group.id.clone(),
+                        group,
+                        &mut self.issues,
+                        &file_name,
+                    );
+                }
+                Err(error) => self.parse_issue(&file_name, "случайная группа", &error),
+            }
+        }
+    }
+
     fn load_tasks(&mut self, dir: &Path, pack: &mut Pack) {
         /// Уровневые рамки задания читаются из того же файла: `level_from`
         /// и `level_to` не входят в `Task`, чтобы не менять его структуру.
@@ -442,12 +487,8 @@ impl PackSet {
                             qualify(&pack_id, &id)
                         }
                     });
-                    if let Some(group) = &mut task.random_group {
-                        group.members = group
-                            .members
-                            .iter()
-                            .map(|id| qualify(&pack_id, id))
-                            .collect();
+                    if let Some(group) = &mut task.group {
+                        *group = qualify(&pack_id, group);
                     }
                     task.icon = task.icon.map(|id| qualify(&pack_id, &id));
                     task.former_ids = task
@@ -503,59 +544,66 @@ impl PackSet {
         }
     }
 
-    /// Индексирует участников случайных групп и проверяет ссылки.
-    fn index_random_groups(&mut self, pack: &mut Pack) {
-        let groups: Vec<(String, Vec<String>)> = pack
-            .tasks
-            .values()
-            .filter_map(|task| {
-                task.random_group
-                    .as_ref()
-                    .map(|group| (task.id.clone(), group.members.clone()))
-            })
-            .collect();
-        let mut members = BTreeMap::new();
-        for (group_id, group_members) in groups {
-            for member in group_members {
-                if !pack.tasks.contains_key(&member) {
+    /// Проверяет ссылки участников на группы и минимальный состав.
+    fn check_groups(&mut self, pack: &mut Pack) {
+        let mut counts: BTreeMap<String, usize> = BTreeMap::new();
+        for task in pack.tasks.values() {
+            let Some(group_id) = &task.group else {
+                continue;
+            };
+            if !pack.groups.contains_key(group_id) {
+                self.issues.push(Issue::error(
+                    "PK017",
+                    format!(
+                        "tasks/{}.toml",
+                        task.id.split('/').nth(1).unwrap_or(&task.id)
+                    ),
+                    format!("случайная группа не найдена: {group_id}"),
+                ));
+                continue;
+            }
+            *counts.entry(group_id.clone()).or_default() += 1;
+        }
+        for (group_id, group) in &pack.groups {
+            if let Some(after) = &group.after {
+                if !pack.tasks.contains_key(after) && !pack.groups.contains_key(after) {
                     self.issues.push(Issue::error(
                         "PK017",
                         format!(
-                            "tasks/{}.toml",
-                            group_id.split('/').nth(1).unwrap_or(&group_id)
+                            "groups/{}.toml",
+                            group_id.split('/').nth(1).unwrap_or(group_id)
                         ),
-                        format!("участник случайной группы не найден: {member}"),
-                    ));
-                    continue;
-                }
-                if pack
-                    .tasks
-                    .get(&member)
-                    .map(|task| task.random_group.is_some())
-                    .unwrap_or(false)
-                {
-                    self.issues.push(Issue::error(
-                        "PK017",
-                        format!(
-                            "tasks/{}.toml",
-                            group_id.split('/').nth(1).unwrap_or(&group_id)
-                        ),
-                        format!("случайная группа не может входить в другую группу: {member}"),
-                    ));
-                }
-                if let Some(previous) = members.insert(member.clone(), group_id.clone()) {
-                    self.issues.push(Issue::error(
-                        "PK017",
-                        format!(
-                            "tasks/{}.toml",
-                            group_id.split('/').nth(1).unwrap_or(&group_id)
-                        ),
-                        format!("участник {member} уже входит в группу {previous}"),
+                        format!("предыдущее задание группы не найдено: {after}"),
                     ));
                 }
             }
+            let count = counts.get(group_id).copied().unwrap_or(0);
+            if count < 2 {
+                self.issues.push(Issue::error(
+                    "PK017",
+                    format!(
+                        "groups/{}.toml",
+                        group_id.split('/').nth(1).unwrap_or(group_id)
+                    ),
+                    format!(
+                        "в случайной группе {} меньше двух участников",
+                        group.title.values().next().cloned().unwrap_or_default()
+                    ),
+                ));
+            }
         }
-        pack.random_members = members;
+        for group_id in pack.groups.keys() {
+            if pack.tasks.contains_key(group_id) {
+                self.issues.push(Issue::error(
+                    "PK018",
+                    format!(
+                        "groups/{}.toml",
+                        group_id.split('/').nth(1).unwrap_or(group_id)
+                    ),
+                    format!("id группы совпадает с id задания: {group_id}"),
+                ));
+            }
+        }
     }
 
     fn load_combos(&mut self, dir: &Path, pack: &mut Pack) {
@@ -735,6 +783,21 @@ impl PackSet {
             .find_map(|pack| pack.tasks.get(id))
     }
 
+    pub fn group(&self, id: &str) -> Option<&taskify_core::group::RandomGroup> {
+        self.packs
+            .values()
+            .filter(|pack| pack.enabled)
+            .find_map(|pack| pack.groups.get(id))
+    }
+
+    pub fn groups(&self) -> Vec<&taskify_core::group::RandomGroup> {
+        self.packs
+            .values()
+            .filter(|pack| pack.enabled)
+            .flat_map(|pack| pack.groups.values())
+            .collect()
+    }
+
     pub fn tasks(&self) -> Vec<&Task> {
         self.packs
             .values()
@@ -893,36 +956,27 @@ mod tests {
         let root = temp_root();
         write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
         write(
-            &root.join("demo/tasks/group.toml"),
+            &root.join("demo/groups/group.toml"),
             r#"
 id = "group"
 [title]
 en = "Random"
-[random_group]
-members = ["a", "b"]
 "#,
         );
         write(
             &root.join("demo/tasks/a.toml"),
-            "id = \"a\"\n[title]\nen = \"A\"\n",
+            "id = \"a\"\ngroup = \"group\"\n[title]\nen = \"A\"\n",
         );
         write(
             &root.join("demo/tasks/b.toml"),
-            "id = \"b\"\n[title]\nen = \"B\"\n",
+            "id = \"b\"\ngroup = \"group\"\n[title]\nen = \"B\"\n",
         );
         let set = PackSet::load(&root);
         let pack = &set.packs["demo"];
-        assert_eq!(
-            pack.random_members.get("demo/a").map(String::as_str),
-            Some("demo/group")
-        );
-        assert_eq!(
-            pack.random_members.get("demo/b").map(String::as_str),
-            Some("demo/group")
-        );
-        assert!(crate::validate::validate_set(&set)
-            .iter()
-            .all(|issue| issue.code != "PK017"));
+        assert!(pack.groups.contains_key("demo/group"));
+        assert_eq!(pack.tasks["demo/a"].group.as_deref(), Some("demo/group"));
+        assert_eq!(pack.tasks["demo/b"].group.as_deref(), Some("demo/group"));
+        assert!(set.issues.iter().all(|issue| issue.code != "PK017"));
 
         std::fs::remove_file(root.join("demo/tasks/b.toml")).unwrap();
         let set = PackSet::load(&root);

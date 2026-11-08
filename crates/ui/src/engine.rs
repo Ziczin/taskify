@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, bail, Context, Result};
 use chrono::{Datelike, Local, NaiveDate, NaiveTime};
+use taskify_core::group::RandomGroup;
 use taskify_core::reward::{award, MilestoneHit, Reward};
 use taskify_core::task::{Kind, Locales, Schedule, Task};
 use taskify_packs::{CmpOp, Combo, Condition, Pack, PackSet, Repeat, Window};
@@ -95,9 +96,12 @@ impl Engine {
         }
     }
 
-    /// Опыт пака: сумма опыта за все выполнения его заданий.
+    /// Опыт пака: сумма опыта за все выполнения его заданий и случайных
+    /// групп. Группа платит по среднему участнику, чтобы уровень не зависел
+    /// от случайного выбора.
     pub fn pack_xp(&self, pack: &Pack) -> i64 {
-        pack.tasks
+        let mut xp: i64 = pack
+            .tasks
             .values()
             .map(|task| {
                 let done = self
@@ -107,29 +111,31 @@ impl Engine {
                     .get(&task.id)
                     .map(|state| state.completions_total)
                     .unwrap_or(0);
-                (done as i64).saturating_mul(self.pack_task_xp(task))
+                (done as i64).saturating_mul(task.reward.xp)
             })
-            .sum()
-    }
-
-    /// Для случайной группы опыт пака считаем по среднему участнику: само
-    /// выполнение оплачивается по выбранному заданию, но уровень пака не
-    /// должен зависеть от того, кто выпал.
-    fn pack_task_xp(&self, task: &Task) -> i64 {
-        let Some(group) = &task.random_group else {
-            return task.reward.xp;
-        };
-        let rewards: Vec<i64> = group
-            .members
-            .iter()
-            .filter_map(|id| self.packs.task(id))
-            .map(|member| member.reward.xp)
-            .collect();
-        if rewards.is_empty() {
-            task.reward.xp
-        } else {
-            rewards.iter().sum::<i64>() / rewards.len() as i64
+            .sum();
+        for group in pack.groups.values() {
+            let done = self
+                .store
+                .state
+                .tasks
+                .get(&group.id)
+                .map(|state| state.completions_total)
+                .unwrap_or(0);
+            let rewards: Vec<i64> = pack
+                .tasks
+                .values()
+                .filter(|task| task.group.as_deref() == Some(group.id.as_str()))
+                .map(|member| member.reward.xp)
+                .collect();
+            if !rewards.is_empty() {
+                xp = xp.saturating_add(
+                    (done as i64)
+                        .saturating_mul(rewards.iter().sum::<i64>() / rewards.len() as i64),
+                );
+            }
         }
+        xp
     }
 
     pub fn pack_level(&self, pack: &Pack) -> u32 {
@@ -145,6 +151,9 @@ impl Engine {
         let Some(pack) = self.packs.packs.get(pack_id) else {
             return true;
         };
+        if let Some(group) = pack.groups.get(&task.id) {
+            return group.visible(self.pack_level(pack));
+        }
         let Some(gate) = pack.task_levels.get(&task.id) else {
             return true;
         };
@@ -265,8 +274,9 @@ impl Engine {
             .get(id)
             .cloned()
             .ok_or_else(|| anyhow!("пак не найден: {id}"))?;
-        let tasks: Vec<String> = pack.tasks.keys().cloned().collect();
-        let keep_tasks: Vec<String> = pack
+        let mut tasks: Vec<String> = pack.tasks.keys().cloned().collect();
+        tasks.extend(pack.groups.keys().cloned());
+        let mut keep_tasks: Vec<String> = pack
             .tasks
             .values()
             .filter(|task| {
@@ -280,6 +290,20 @@ impl Engine {
             })
             .map(|task| task.id.clone())
             .collect();
+        keep_tasks.extend(
+            pack.groups
+                .values()
+                .filter(|group| {
+                    group.is_one_shot()
+                        && self
+                            .store
+                            .state
+                            .task_ref(&group.id)
+                            .map(|state| state.completions_total > 0)
+                            .unwrap_or(false)
+                })
+                .map(|group| group.id.clone()),
+        );
         let combos: Vec<String> = pack.combos.keys().cloned().collect();
         let achievements = if clear_achievements {
             pack.achievements.keys().cloned().collect()
@@ -319,53 +343,42 @@ impl Engine {
         self.packs.task(id)
     }
 
-    /// Задание входит в случайную группу и само по себе не показывается.
+    pub fn group(&self, id: &str) -> Option<&RandomGroup> {
+        self.packs.group(id)
+    }
+
+    /// Задание-участник случайной группы: само по себе не показывается.
     pub fn is_random_member(&self, id: &str) -> bool {
         self.packs
-            .packs
-            .values()
-            .any(|pack| pack.random_members.contains_key(id))
+            .task(id)
+            .map(|task| task.group.is_some())
+            .unwrap_or(false)
     }
 
-    /// Задание-группа с выбранным на эту дату участником. У обычного задания
-    /// возвращается копия без изменений.
-    pub fn resolve_task(&self, task: &Task, date: NaiveDate) -> Task {
-        let Some(member) = self.random_member(task, date) else {
-            return task.clone();
-        };
-        let mut resolved = member.clone();
-        resolved.id = task.id.clone();
-        resolved.kind = task.kind;
-        resolved.schedule = task.schedule.clone();
-        resolved.window = task.window;
-        resolved.after = task.after.clone();
-        resolved.random_group = task.random_group.clone();
-        resolved.combos = task.combos.clone();
-        resolved.former_ids = task.former_ids.clone();
-        resolved.rev = task.rev;
-        // У разных участников могут совпадать локальные id подпунктов.
-        // Префикс участника не даёт отметкам перепутаться между выпадениями.
-        for subtask in &mut resolved.subtasks {
-            subtask.id = format!("{}::{}", member.id, subtask.id);
-        }
-        resolved
+    /// Задание-группа, а не обычное задание.
+    pub fn is_group_task(&self, id: &str) -> bool {
+        self.packs.group(id).is_some()
     }
 
-    fn random_member(&self, task: &Task, date: NaiveDate) -> Option<&Task> {
-        let group = task.random_group.as_ref()?;
-        let members: Vec<&Task> = group
-            .members
-            .iter()
-            .filter_map(|id| self.packs.task(id))
+    fn group_members(&self, group_id: &str) -> Vec<&Task> {
+        self.packs
+            .tasks()
+            .into_iter()
+            .filter(|task| task.group.as_deref() == Some(group_id))
             .filter(|member| !member.is_one_shot() || !self.is_spent_one_shot(member))
-            .collect();
+            .collect()
+    }
+
+    /// Карточка группы: выбранный участник плюс условия самой группы.
+    pub fn group_task(&self, group: &RandomGroup, date: NaiveDate) -> Option<Task> {
+        let members = self.group_members(&group.id);
         if members.is_empty() {
             return None;
         }
         let done = self
             .store
             .state
-            .task_ref(&task.id)
+            .task_ref(&group.id)
             .map(|state| {
                 // После выполнения вкладка «Сделано» должна показывать того
                 // же участника, а не следующего по счёту.
@@ -378,31 +391,62 @@ impl Engine {
             .unwrap_or(0);
         // Дневная группа выбирает заново каждый день. Группа с интервалом
         // или ваншотом держит выбор до выполнения, а после него — новый.
-        let seed = if task.is_one_shot()
-            || matches!(task.schedule, Schedule::Interval { .. } | Schedule::Once)
+        let seed = if group.is_one_shot()
+            || matches!(group.schedule, Schedule::Interval { .. } | Schedule::Once)
         {
-            format!("{}:{}", task.id, done)
+            format!("{}:{}", group.id, done)
         } else {
-            format!("{}:{}", task.id, date)
+            format!("{}:{}", group.id, date)
         };
         let index = (stable_hash(&seed) % members.len() as u64) as usize;
-        Some(members[index])
+        let member = members[index];
+        let mut resolved = member.clone();
+        resolved.id = group.id.clone();
+        resolved.kind = group.kind;
+        resolved.schedule = group.schedule.clone();
+        resolved.window = group.window;
+        resolved.after = group.after.clone();
+        resolved.group = None;
+        resolved.combos = Vec::new();
+        resolved.former_ids = Vec::new();
+        // У разных участников могут совпадать локальные id подпунктов.
+        // Префикс участника не даёт отметкам перепутаться между выпадениями.
+        for subtask in &mut resolved.subtasks {
+            subtask.id = format!("{}::{}", member.id, subtask.id);
+        }
+        Some(resolved)
     }
 
     /// Задания, которые видны в «Сегодня»: без участников случайных групп,
     /// с уже выбранным участником вместо карточки группы.
     pub fn today_tasks(&self, date: NaiveDate) -> Vec<Task> {
-        self.packs
+        let mut tasks: Vec<Task> = self
+            .packs
             .tasks()
             .into_iter()
             .filter(|task| !self.is_random_member(&task.id))
-            .filter(|task| task.random_group.is_none() || self.random_member(task, date).is_some())
-            .map(|task| self.resolve_task(task, date))
-            .collect()
+            .cloned()
+            .collect();
+        tasks.extend(
+            self.packs
+                .groups()
+                .into_iter()
+                .filter_map(|group| self.group_task(group, date)),
+        );
+        tasks
     }
 
     pub fn display_task(&self, id: &str, date: NaiveDate) -> Option<Task> {
-        self.task(id).map(|task| self.resolve_task(task, date))
+        if let Some(task) = self.task(id) {
+            return Some(task.clone());
+        }
+        self.group(id)
+            .and_then(|group| self.group_task(group, date))
+    }
+
+    fn action_task(&self, id: &str, date: NaiveDate) -> Result<Task> {
+        self.display_task(id, date)
+            .ok_or_else(|| anyhow!("задание не найдено: {id}"))
     }
 
     pub fn is_done_today(&self, task_id: &str, date: NaiveDate) -> bool {
@@ -439,18 +483,19 @@ impl Engine {
                 .into_iter()
                 .find(|item| item.id_in_use(after))
         });
-        let Some(previous) = previous else {
+        let state_id = if let Some(previous) = previous {
+            previous
+                .group
+                .clone()
+                .unwrap_or_else(|| previous.id.clone())
+        } else if self.group(after).is_some() {
+            after.to_string()
+        } else {
             return false;
         };
-        let state_id = self
-            .packs
-            .packs
-            .values()
-            .find_map(|pack| pack.random_members.get(&previous.id))
-            .unwrap_or(&previous.id);
         self.store
             .state
-            .task_ref(state_id)
+            .task_ref(&state_id)
             .map(|state| state.completions_total > 0)
             .unwrap_or(false)
     }
@@ -487,11 +532,7 @@ impl Engine {
     }
 
     pub fn start_task(&mut self, task_id: &str) -> Result<()> {
-        let task = self
-            .packs
-            .task(task_id)
-            .cloned()
-            .ok_or_else(|| anyhow!("задание не найдено: {task_id}"))?;
+        let task = self.action_task(task_id, self.today())?;
         if !self.is_unlocked(&task) {
             bail!("задание ещё закрыто: сначала выполните предыдущее");
         }
@@ -592,13 +633,8 @@ impl Engine {
     }
 
     pub fn complete(&mut self, task_id: &str) -> Result<Outcome> {
-        let raw = self
-            .packs
-            .task(task_id)
-            .cloned()
-            .ok_or_else(|| anyhow!("задание не найдено: {task_id}"))?;
         let date = self.today();
-        let task = self.resolve_task(&raw, date);
+        let task = self.action_task(task_id, date)?;
         if !self.is_unlocked(&task) {
             bail!("задание ещё закрыто: сначала выполните предыдущее");
         }
@@ -666,13 +702,8 @@ impl Engine {
     }
 
     pub fn reject(&mut self, task_id: &str, reason: Option<String>) -> Result<()> {
-        let raw = self
-            .packs
-            .task(task_id)
-            .cloned()
-            .ok_or_else(|| anyhow!("задание не найдено: {task_id}"))?;
         let date = self.today();
-        let task = self.resolve_task(&raw, date);
+        let task = self.action_task(task_id, date)?;
         self.mark_task_viewed(task_id)?;
         self.record(EventKind::TaskRejected(TaskRejected {
             task,
@@ -694,12 +725,7 @@ impl Engine {
     }
 
     pub fn complete_subtask(&mut self, task_id: &str, subtask_id: &str) -> Result<Reward> {
-        let raw = self
-            .packs
-            .task(task_id)
-            .cloned()
-            .ok_or_else(|| anyhow!("задание не найдено: {task_id}"))?;
-        let task = self.resolve_task(&raw, self.today());
+        let task = self.action_task(task_id, self.today())?;
         let subtask = task
             .subtask(subtask_id)
             .ok_or_else(|| anyhow!("подзадача не найдена: {subtask_id}"))?

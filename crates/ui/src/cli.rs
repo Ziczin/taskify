@@ -68,11 +68,12 @@ pub fn run(args: Vec<String>) -> Result<()> {
                     .map(|manifest| taskify_core::task::tr_or(&manifest.name, "ru", &pack.id))
                     .unwrap_or_else(|| pack.id.clone());
                 println!(
-                    "{} {} — {} (заданий {}, комбо {}, ачивок {})",
+                    "{} {} — {} (заданий {}, групп {}, комбо {}, ачивок {})",
                     pack.id,
                     pack.version,
                     name,
                     pack.tasks.len(),
+                    pack.groups.len(),
                     pack.combos.len(),
                     pack.achievements.len()
                 );

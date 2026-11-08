@@ -413,6 +413,8 @@ pub struct Pack {
     pub icons: std::collections::BTreeMap<String, IconDef>,
     pub palette: std::collections::BTreeMap<String, PaletteColor>,
     pub tasks: std::collections::BTreeMap<String, Task>,
+    /// Случайные группы: отдельные сущности с условиями появления.
+    pub groups: std::collections::BTreeMap<String, taskify_core::group::RandomGroup>,
     pub combos: std::collections::BTreeMap<String, Combo>,
     pub achievements: std::collections::BTreeMap<String, Achievement>,
     pub tokens: std::collections::BTreeMap<String, Token>,
@@ -421,8 +423,6 @@ pub struct Pack {
     pub stickers: std::collections::BTreeMap<String, StickerDef>,
     /// Уровневые рамки заданий: id задания → от/до какого уровня пака.
     pub task_levels: std::collections::BTreeMap<String, LevelGate>,
-    /// Участники случайных групп: id участника → id задания-группы.
-    pub random_members: std::collections::BTreeMap<String, String>,
     /// Объявленные паком метрики.
     pub metrics_declared: Vec<String>,
     pub enabled: bool,

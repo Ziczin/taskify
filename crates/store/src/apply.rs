@@ -368,7 +368,7 @@ mod tests {
             schedule: Schedule::Daily,
             window: None,
             after: None,
-            random_group: None,
+            group: None,
             combos: vec![],
             hints: Hints::default(),
             subtasks: vec![],

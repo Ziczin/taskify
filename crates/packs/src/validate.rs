@@ -134,6 +134,26 @@ pub fn validate_pack(pack: &Pack) -> Vec<Issue> {
         }
     }
 
+    for group in pack.groups.values() {
+        let file = format!("groups/{}.toml", short(&group.id));
+        if !group.title.contains_key("en") {
+            issues.push(Issue::warning(
+                "W002",
+                &file,
+                "нет английского названия группы",
+            ));
+        }
+        for code in group.title.keys() {
+            if !KNOWN_LOCALES.contains(&code.as_str()) {
+                issues.push(Issue::error(
+                    "PK004",
+                    &file,
+                    format!("неизвестный язык: {code}"),
+                ));
+            }
+        }
+    }
+
     for combo in pack.combos.values() {
         let file = format!("combos/{}.toml", short(&combo.id));
         for member in &combo.members {

@@ -602,7 +602,7 @@ impl TaskifyApp {
                     });
                 });
             });
-            if task.random_group.is_some() {
+            if self.engine.is_group_task(&task.id) {
                 ui.label(
                     egui::RichText::new(self.t("today.random_group"))
                         .small()

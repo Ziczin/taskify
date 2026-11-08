@@ -203,7 +203,7 @@ impl TaskifyApp {
                             ui.label(
                                 egui::RichText::new(format!(
                                     "{} {} · {} {} · {} {}",
-                                    pack.tasks.len(),
+                                    pack.tasks.len() + pack.groups.len(),
                                     self.t("packs.tasks"),
                                     pack.combos.len(),
                                     self.t("packs.combos"),
@@ -432,8 +432,57 @@ impl TaskifyApp {
     }
 
     fn pack_tasks_tab(&mut self, ui: &mut egui::Ui, pack: &Pack, locale: &str) {
+        if !pack.groups.is_empty() {
+            ui.label(egui::RichText::new(self.t("packs.random_group")).strong());
+            let mut groups: Vec<_> = pack.groups.values().collect();
+            groups.sort_by_key(|group| taskify_core::task::tr_or(&group.title, locale, &group.id));
+            for group in groups {
+                let title = taskify_core::task::tr_or(&group.title, locale, &group.id);
+                let members = pack
+                    .tasks
+                    .values()
+                    .filter(|task| task.group.as_deref() == Some(group.id.as_str()))
+                    .count();
+                let mut stats = format!(
+                    "{} · {} {}",
+                    self.t(&format!("today.{}", group.kind.key())),
+                    members,
+                    self.t("packs.group_members")
+                );
+                if let Some(after) = group.after.as_deref() {
+                    let previous = pack
+                        .tasks
+                        .get(after)
+                        .map(|task| task.title(locale))
+                        .or_else(|| {
+                            pack.groups
+                                .get(after)
+                                .map(|item| taskify_core::task::tr_or(&item.title, locale, after))
+                        })
+                        .unwrap_or_else(|| after.to_string());
+                    stats.push_str(&format!(" · {} {previous}", self.t("packs.after")));
+                }
+                if let Some(from) = group.level_from {
+                    stats.push_str(&format!(" · {} {}", self.t("packs.appears_from"), from));
+                }
+                if let Some(to) = group.level_to {
+                    stats.push_str(&format!(" · {} {}", self.t("packs.disappears_at"), to));
+                }
+                egui::Frame::group(ui.style())
+                    .inner_margin(egui::Margin::symmetric(12, 8))
+                    .show(ui, |ui| {
+                        ui.set_width(ui.available_width());
+                        ui.label(egui::RichText::new(&title).strong());
+                        ui.label(egui::RichText::new(stats).small().weak());
+                    });
+                ui.add_space(4.0);
+            }
+            ui.separator();
+        }
         if pack.tasks.is_empty() {
-            ui.label(self.t("packs.empty"));
+            if pack.groups.is_empty() {
+                ui.label(self.t("packs.empty"));
+            }
             return;
         }
         let mut tasks: Vec<_> = pack.tasks.values().collect();
@@ -480,6 +529,13 @@ impl TaskifyApp {
                         }
                         if !tags.is_empty() {
                             ui.label(egui::RichText::new(tags.join(" · ")).small().weak());
+                        }
+                        if task.group.is_some() {
+                            ui.label(
+                                egui::RichText::new(self.t("packs.group_member"))
+                                    .small()
+                                    .color(self.accent),
+                            );
                         }
                     });
                     if !description.is_empty() {
@@ -1023,7 +1079,10 @@ impl TaskifyApp {
                 self.t("packs.pack_xp"),
                 format!("{xp} · {} {level} · {inside}/{span}", self.t("packs.level")),
             ),
-            (self.t("packs.tasks"), pack.tasks.len().to_string()),
+            (
+                self.t("packs.tasks"),
+                (pack.tasks.len() + pack.groups.len()).to_string(),
+            ),
             (self.t("packs.combos"), pack.combos.len().to_string()),
             (
                 self.t("packs.achievements"),
