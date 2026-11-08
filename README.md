@@ -145,7 +145,7 @@ en = "Read a few pages"
 ru = "Прочитать несколько страниц"
 ```
 
-The group does not store a member list: membership lives on the task (`group = "..."`). The group's `schedule`, `window`, `after`, `kind`, and `level_from`/`level_to` decide when it appears; the chosen member supplies the title, description, icon, subtasks, reward, metrics, and category. Only one member is shown per appearance, the group itself is completed, and the choice is stable for that appearance. Members' own schedule, window, chain, kind, combos, and task-level range are ignored; they are hidden from «Today». A group needs at least two members, group ids must not collide with task ids, and members belong to exactly one group.
+The group does not store a member list: membership lives on the task (`group = "..."`). The group's `schedule`, `window`, `after`, `kind`, and `level_from`/`level_to` decide when the group itself appears. A member is shown only if its own `after`, availability window, schedule/due state, and task-level range allow it; if the selected member cannot appear, the next eligible member in stable task-id order is used. The chosen member supplies the title, description, icon, subtasks, reward, metrics, and category; the group supplies the card's schedule, window, chain, kind, and levels. Members' own combos are not applied, they are hidden from «Today», a group needs at least two members, group ids must not collide with task ids, and a task belongs to exactly one group.
 
 ## Checks
 
@@ -156,7 +156,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-The current test suite has **195 tests**.
+The current test suite has **196 tests**.
 
 ## Contributing
 

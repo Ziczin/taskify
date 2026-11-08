@@ -3349,7 +3349,7 @@ dependencies = [
 
 [[package]]
 name = "taskify-core"
-version = "195.0.0"
+version = "196.0.0"
 dependencies = [
  "chrono",
  "serde",
@@ -3361,7 +3361,7 @@ dependencies = [
 
 [[package]]
 name = "taskify-packs"
-version = "195.0.0"
+version = "196.0.0"
 dependencies = [
  "anyhow",
  "serde",
@@ -3376,7 +3376,7 @@ dependencies = [
 
 [[package]]
 name = "taskify-store"
-version = "195.0.0"
+version = "196.0.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -3392,7 +3392,7 @@ dependencies = [
 
 [[package]]
 name = "taskify-ui"
-version = "195.0.0"
+version = "196.0.0"
 dependencies = [
  "anyhow",
  "chrono",

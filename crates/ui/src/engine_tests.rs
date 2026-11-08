@@ -515,6 +515,12 @@ fn random_group_shows_one_member_and_completes_as_group() {
         .find(|task| task.id == "greeting/random")
         .expect("группа должна быть в «Сегодня»");
     assert!(fixture.engine.is_group_task(&card.id));
+    // breath закрыт своим after = hello, поэтому группа обязана пропустить
+    // его и показать hello.
+    assert_eq!(
+        card.title,
+        fixture.engine.task("greeting/hello").unwrap().title
+    );
     assert!(!visible.iter().any(|task| task.id == "greeting/hello"));
     assert!(!visible.iter().any(|task| task.id == "greeting/breath"));
 
@@ -536,6 +542,41 @@ fn random_group_shows_one_member_and_completes_as_group() {
         .display_task("greeting/random", date)
         .unwrap();
     assert!(!fixture.engine.is_due(&group, date));
+}
+
+#[test]
+fn random_group_disappears_when_no_member_can_appear() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    {
+        let pack = fixture.engine.packs.packs.get_mut("greeting").unwrap();
+        pack.groups.insert(
+            "greeting/blocked".into(),
+            RandomGroup {
+                id: "greeting/blocked".into(),
+                title: [("en".to_string(), "Blocked".to_string())].into(),
+                kind: Kind::Habit,
+                schedule: Schedule::Daily,
+                window: None,
+                after: None,
+                level_from: None,
+                level_to: None,
+            },
+        );
+        pack.tasks.get_mut("greeting/hello").unwrap().group = Some("greeting/blocked".into());
+        pack.tasks.get_mut("greeting/breath").unwrap().group = Some("greeting/blocked".into());
+        pack.tasks.get_mut("greeting/hello").unwrap().after = Some("greeting/missing".into());
+        pack.tasks.get_mut("greeting/breath").unwrap().after = Some("greeting/hello".into());
+    }
+    assert!(fixture
+        .engine
+        .display_task("greeting/blocked", date)
+        .is_none());
+    assert!(!fixture
+        .engine
+        .today_tasks(date)
+        .iter()
+        .any(|task| task.id == "greeting/blocked"));
 }
 
 #[test]
@@ -561,11 +602,12 @@ fn random_group_conditions_come_from_group_not_members() {
         pack.groups.insert(group.id.clone(), group);
         pack.tasks.get_mut("greeting/hello").unwrap().group = Some("greeting/conditions".into());
         pack.tasks.get_mut("greeting/breath").unwrap().group = Some("greeting/conditions".into());
-        // Собственное окно участника не должно влиять на группу.
+        // Собственное окно участника не должно попадать в карточку группы;
+        // оно только решает, можно ли вообще показать этого участника.
         pack.tasks.get_mut("greeting/hello").unwrap().window =
             Some(taskify_core::task::TimeWindow {
-                from: taskify_core::task::ClockTime::parse("23:00").unwrap(),
-                to: taskify_core::task::ClockTime::parse("23:30").unwrap(),
+                from: taskify_core::task::ClockTime::parse("00:00").unwrap(),
+                to: taskify_core::task::ClockTime::parse("00:00").unwrap(),
             });
     }
     let card = fixture

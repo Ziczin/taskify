@@ -361,12 +361,20 @@ impl Engine {
     }
 
     fn group_members(&self, group_id: &str) -> Vec<&Task> {
-        self.packs
+        let mut members: Vec<&Task> = self
+            .packs
             .tasks()
             .into_iter()
             .filter(|task| task.group.as_deref() == Some(group_id))
-            .filter(|member| !member.is_one_shot() || !self.is_spent_one_shot(member))
-            .collect()
+            .collect();
+        members.sort_by(|left, right| left.id.cmp(&right.id));
+        members
+    }
+
+    /// Может ли участник появиться по своим собственным правилам: цепочка,
+    /// окно, срок/ваншот и уровневые рамки. Правила группы сюда не входят.
+    fn member_can_appear(&self, member: &Task, date: NaiveDate) -> bool {
+        self.task_level_visible(member) && self.is_available(member) && self.is_due(member, date)
     }
 
     /// Карточка группы: выбранный участник плюс условия самой группы.
@@ -375,10 +383,9 @@ impl Engine {
         if members.is_empty() {
             return None;
         }
-        let done = self
-            .store
-            .state
-            .task_ref(&group.id)
+        let state = self.store.state.task_ref(&group.id);
+        let done_today = state.and_then(|state| state.last_done) == Some(date);
+        let done = state
             .map(|state| {
                 // После выполнения вкладка «Сделано» должна показывать того
                 // же участника, а не следующего по счёту.
@@ -398,8 +405,19 @@ impl Engine {
         } else {
             format!("{}:{}", group.id, date)
         };
-        let index = (stable_hash(&seed) % members.len() as u64) as usize;
-        let member = members[index];
+        let start = (stable_hash(&seed) % members.len() as u64) as usize;
+        // Сначала берём случайного участника. Если он по своим правилам не
+        // может появиться, идём по группе дальше до первого подходящего.
+        // Уже выполненная группа остаётся в «Сделано» даже если правила
+        // участника к вечеру изменились.
+        let member = if done_today {
+            members[start]
+        } else {
+            (0..members.len()).find_map(|offset| {
+                let candidate = members[(start + offset) % members.len()];
+                self.member_can_appear(candidate, date).then_some(candidate)
+            })?
+        };
         let mut resolved = member.clone();
         resolved.id = group.id.clone();
         resolved.kind = group.kind;
