@@ -377,6 +377,28 @@ impl Engine {
         self.task_level_visible(member) && self.is_available(member) && self.is_due(member, date)
     }
 
+    /// Взвешенный выбор из уже подходящих участников. Один и тот же seed
+    /// даёт один и тот же выбор; вес по умолчанию — 1.
+    fn weighted_member<'a>(&self, members: &[&'a Task], seed: &str) -> Option<&'a Task> {
+        let total: f64 = members
+            .iter()
+            .map(|member| member.group_weight.unwrap_or(1.0))
+            .sum();
+        if !total.is_finite() || total <= 0.0 {
+            return members.first().copied();
+        }
+        // 53 старших бита хеша дают равномерное число в [0, 1).
+        let unit = (stable_hash(seed) >> 11) as f64 / (1u64 << 53) as f64;
+        let mut ticket = unit * total;
+        for member in members {
+            ticket -= member.group_weight.unwrap_or(1.0);
+            if ticket < 0.0 {
+                return Some(*member);
+            }
+        }
+        members.last().copied()
+    }
+
     /// Карточка группы: выбранный участник плюс условия самой группы.
     pub fn group_task(&self, group: &RandomGroup, date: NaiveDate) -> Option<Task> {
         let members = self.group_members(&group.id);
@@ -405,19 +427,22 @@ impl Engine {
         } else {
             format!("{}:{}", group.id, date)
         };
-        let start = (stable_hash(&seed) % members.len() as u64) as usize;
-        // Сначала берём случайного участника. Если он по своим правилам не
-        // может появиться, идём по группе дальше до первого подходящего.
-        // Уже выполненная группа остаётся в «Сделано» даже если правила
-        // участника к вечеру изменились.
-        let member = if done_today {
-            members[start]
+        // Неподходящие по своим правилам участники не участвуют в розыгрыше:
+        // их вес не тратится. Уже выполненная группа остаётся в «Сделано»,
+        // даже если правила участника к вечеру изменились.
+        let pool: Vec<&Task> = if done_today {
+            members.clone()
         } else {
-            (0..members.len()).find_map(|offset| {
-                let candidate = members[(start + offset) % members.len()];
-                self.member_can_appear(candidate, date).then_some(candidate)
-            })?
+            members
+                .iter()
+                .copied()
+                .filter(|member| self.member_can_appear(member, date))
+                .collect()
         };
+        if pool.is_empty() {
+            return None;
+        }
+        let member = self.weighted_member(&pool, &seed)?;
         let mut resolved = member.clone();
         resolved.id = group.id.clone();
         resolved.kind = group.kind;

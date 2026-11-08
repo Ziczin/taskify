@@ -536,6 +536,14 @@ impl TaskifyApp {
                                     .small()
                                     .color(self.accent),
                             );
+                            ui.label(
+                                egui::RichText::new(format!(
+                                    "×{}",
+                                    task.group_weight.unwrap_or(1.0)
+                                ))
+                                .small()
+                                .weak(),
+                            );
                         }
                     });
                     if !description.is_empty() {

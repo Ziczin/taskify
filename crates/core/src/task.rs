@@ -227,6 +227,14 @@ pub struct Task {
     /// расписание, окно, цепочка и уровни; участник только даёт содержимое.
     #[serde(default)]
     pub group: Option<String>,
+    /// Вес участника при выборе из случайной группы. Больше вес — больше
+    /// шанс. Без поля вес равен 1; целые и дробные значения равнозначны.
+    #[serde(
+        default,
+        alias = "weight",
+        deserialize_with = "deserialize_group_weight"
+    )]
+    pub group_weight: Option<f64>,
     #[serde(default)]
     pub combos: Vec<String>,
     #[serde(default)]
@@ -247,6 +255,26 @@ fn default_kind() -> Kind {
 
 fn default_rev() -> u32 {
     1
+}
+
+/// TOML различает целые и дробные числа, а вес принимает оба вида.
+fn deserialize_group_weight<'de, D>(deserializer: D) -> Result<Option<f64>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum Number {
+        Int(i64),
+        Float(f64),
+    }
+
+    Ok(
+        Option::<Number>::deserialize(deserializer)?.map(|number| match number {
+            Number::Int(value) => value as f64,
+            Number::Float(value) => value,
+        }),
+    )
 }
 
 /// Снимок задания в событии: полная копия, читается без пака.
@@ -271,6 +299,8 @@ pub enum TaskError {
     InvalidCurrency { currency: String },
     EmptyGroup,
     GroupMatchesSelf { group: String },
+    GroupWeightWithoutGroup,
+    InvalidGroupWeight,
 }
 
 impl TaskError {
@@ -286,6 +316,7 @@ impl TaskError {
             TaskError::DuplicateFormerId { .. } | TaskError::FormerIdMatchesSelf { .. } => "T007",
             TaskError::EmptyPrerequisite | TaskError::PrerequisiteMatchesSelf { .. } => "T009",
             TaskError::EmptyGroup | TaskError::GroupMatchesSelf { .. } => "T010",
+            TaskError::GroupWeightWithoutGroup | TaskError::InvalidGroupWeight => "T011",
             TaskError::InvalidCurrency { .. } => "T008",
         }
     }
@@ -395,6 +426,13 @@ impl Task {
                 });
             }
         }
+        match (self.group.as_ref(), self.group_weight) {
+            (None, Some(_)) => errors.push(TaskError::GroupWeightWithoutGroup),
+            (Some(_), Some(weight)) if !weight.is_finite() || weight <= 0.0 => {
+                errors.push(TaskError::InvalidGroupWeight);
+            }
+            _ => {}
+        }
 
         for (index, milestone) in self.milestones.iter().enumerate() {
             if milestone.every == 0 {
@@ -467,6 +505,7 @@ mod tests {
             window: None,
             after: None,
             group: None,
+            group_weight: None,
             combos: vec![],
             hints: Hints::default(),
             subtasks: vec![],
@@ -552,6 +591,67 @@ mod tests {
         assert!(task.id_in_use("water"));
         assert!(task.id_in_use("water2"));
         assert!(!task.id_in_use("tea"));
+    }
+
+    #[test]
+    fn group_weight_accepts_int_float_and_defaults_to_one() {
+        let int: Task = toml::from_str(
+            r#"
+id = "read"
+group = "evening"
+group_weight = 2
+title = { en = "Read" }
+"#,
+        )
+        .unwrap();
+        assert_eq!(int.group_weight, Some(2.0));
+
+        let float: Task = toml::from_str(
+            r#"
+id = "walk"
+group = "evening"
+group_weight = 2.5
+title = { en = "Walk" }
+"#,
+        )
+        .unwrap();
+        assert_eq!(float.group_weight, Some(2.5));
+
+        let aliased: Task = toml::from_str(
+            r#"
+id = "stretch"
+group = "evening"
+weight = 3
+title = { en = "Stretch" }
+"#,
+        )
+        .unwrap();
+        assert_eq!(aliased.group_weight, Some(3.0));
+
+        let default: Task = toml::from_str(
+            r#"
+id = "music"
+group = "evening"
+title = { en = "Music" }
+"#,
+        )
+        .unwrap();
+        assert_eq!(default.group_weight, None);
+        assert!(default.validate().is_empty());
+
+        let mut without_group = int.clone();
+        without_group.group = None;
+        assert!(without_group
+            .validate()
+            .iter()
+            .any(|error| matches!(error, TaskError::GroupWeightWithoutGroup)));
+
+        let mut zero = int.clone();
+        zero.group_weight = Some(0.0);
+        assert!(zero
+            .validate()
+            .iter()
+            .any(|error| matches!(error, TaskError::InvalidGroupWeight)));
     }
 
     #[test]

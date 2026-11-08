@@ -545,6 +545,61 @@ fn random_group_shows_one_member_and_completes_as_group() {
 }
 
 #[test]
+fn random_group_weight_biases_selection() {
+    let mut fixture = Fixture::new();
+    let start = fixture.engine.today();
+    let hello_title = fixture.engine.task("greeting/hello").unwrap().title.clone();
+    {
+        let pack = fixture.engine.packs.packs.get_mut("greeting").unwrap();
+        pack.groups.insert(
+            "greeting/weighted".into(),
+            RandomGroup {
+                id: "greeting/weighted".into(),
+                title: [("en".to_string(), "Weighted".to_string())].into(),
+                kind: Kind::Habit,
+                schedule: Schedule::Daily,
+                window: None,
+                after: None,
+                level_from: None,
+                level_to: None,
+            },
+        );
+        let hello = pack.tasks.get_mut("greeting/hello").unwrap();
+        hello.group = Some("greeting/weighted".into());
+        hello.group_weight = Some(9.0);
+        let breath = pack.tasks.get_mut("greeting/breath").unwrap();
+        breath.group = Some("greeting/weighted".into());
+        breath.group_weight = Some(1.0);
+        // Убираем собственную цепочку, чтобы оба участника были доступны.
+        breath.after = None;
+    }
+    let group = fixture
+        .engine
+        .packs
+        .group("greeting/weighted")
+        .unwrap()
+        .clone();
+    let mut heavy = 0;
+    let mut light = 0;
+    for offset in 0..200 {
+        let date = start + chrono::Duration::days(offset);
+        let card = fixture
+            .engine
+            .group_task(&group, date)
+            .expect("группа должна выбрать участника");
+        if card.title == hello_title {
+            heavy += 1;
+        } else {
+            light += 1;
+        }
+    }
+    assert!(
+        heavy > light,
+        "вес 9 должен выпадать чаще веса 1: {heavy} против {light}"
+    );
+}
+
+#[test]
 fn random_group_disappears_when_no_member_can_appear() {
     let mut fixture = Fixture::new();
     let date = fixture.engine.today();

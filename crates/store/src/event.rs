@@ -400,6 +400,7 @@ mod tests {
             window: None,
             after: None,
             group: None,
+            group_weight: None,
             combos: vec![],
             hints: Hints::default(),
             subtasks: vec![],

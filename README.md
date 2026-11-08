@@ -140,12 +140,13 @@ to = "23:00"
 # tasks/read.toml
 id = "read"
 group = "random_evening"
+group_weight = 2.5
 [title]
 en = "Read a few pages"
 ru = "Прочитать несколько страниц"
 ```
 
-The group does not store a member list: membership lives on the task (`group = "..."`). The group's `schedule`, `window`, `after`, `kind`, and `level_from`/`level_to` decide when the group itself appears. A member is shown only if its own `after`, availability window, schedule/due state, and task-level range allow it; if the selected member cannot appear, the next eligible member in stable task-id order is used. The chosen member supplies the title, description, icon, subtasks, reward, metrics, and category; the group supplies the card's schedule, window, chain, kind, and levels. Members' own combos are not applied, they are hidden from «Today», a group needs at least two members, group ids must not collide with task ids, and a task belongs to exactly one group.
+The group does not store a member list: membership lives on the task (`group = "..."`). `group_weight` is optional (`weight` is accepted as an alias): integers and fractions are accepted, the default is 1, and a larger weight means a larger chance of being chosen. Only members whose own rules allow them to appear take part in the draw. The group's `schedule`, `window`, `after`, `kind`, and `level_from`/`level_to` decide when the group itself appears. A member is shown only if its own `after`, availability window, schedule/due state, and task-level range allow it. The chosen member supplies the title, description, icon, subtasks, reward, metrics, and category; the group supplies the card's schedule, window, chain, kind, and levels. Members' own combos are not applied, they are hidden from «Today», a group needs at least two members, group ids must not collide with task ids, and a task belongs to exactly one group.
 
 ## Checks
 
@@ -156,7 +157,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-The current test suite has **196 tests**.
+The current test suite has **198 tests**.
 
 ## Contributing
 
