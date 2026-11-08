@@ -503,6 +503,7 @@ fn random_group_shows_one_member_and_completes_as_group() {
             after: None,
             level_from: None,
             level_to: None,
+            ..RandomGroup::default()
         };
         pack.groups.insert(group.id.clone(), group);
         pack.tasks.get_mut("greeting/hello").unwrap().group = Some("greeting/random".into());
@@ -562,6 +563,7 @@ fn random_group_weight_biases_selection() {
                 after: None,
                 level_from: None,
                 level_to: None,
+                ..RandomGroup::default()
             },
         );
         let hello = pack.tasks.get_mut("greeting/hello").unwrap();
@@ -616,6 +618,7 @@ fn random_group_disappears_when_no_member_can_appear() {
                 after: None,
                 level_from: None,
                 level_to: None,
+                ..RandomGroup::default()
             },
         );
         pack.tasks.get_mut("greeting/hello").unwrap().group = Some("greeting/blocked".into());
@@ -653,6 +656,7 @@ fn random_group_conditions_come_from_group_not_members() {
             after: Some("greeting/smile".into()),
             level_from: Some(99),
             level_to: None,
+            ..RandomGroup::default()
         };
         pack.groups.insert(group.id.clone(), group);
         pack.tasks.get_mut("greeting/hello").unwrap().group = Some("greeting/conditions".into());
@@ -695,6 +699,7 @@ fn random_group_level_gate_uses_group_level() {
                 after: None,
                 level_from: Some(99),
                 level_to: None,
+                ..RandomGroup::default()
             },
         );
         pack.tasks.get_mut("habits/water").unwrap().group = Some("habits/gated".into());
@@ -738,6 +743,7 @@ fn random_group_window_and_chain_come_from_group() {
                 after: Some("habits/exercise".into()),
                 level_from: None,
                 level_to: None,
+                ..RandomGroup::default()
             },
         );
         pack.tasks.get_mut("habits/water").unwrap().group = Some("habits/timed".into());
@@ -778,6 +784,7 @@ fn random_group_one_shot_is_spent_after_completion() {
                 after: None,
                 level_from: None,
                 level_to: None,
+                ..RandomGroup::default()
             },
         );
         pack.tasks.get_mut("habits/water").unwrap().group = Some("habits/once".into());
@@ -820,6 +827,7 @@ fn random_group_xp_uses_average_member_reward() {
                 after: None,
                 level_from: None,
                 level_to: None,
+                ..RandomGroup::default()
             },
         );
         let water = pack.tasks.get_mut("habits/water").unwrap();
@@ -856,6 +864,7 @@ fn random_group_done_card_survives_member_window_close() {
                 after: None,
                 level_from: None,
                 level_to: None,
+                ..RandomGroup::default()
             },
         );
         pack.tasks.get_mut("habits/water").unwrap().group = Some("habits/done".into());
@@ -893,6 +902,7 @@ fn random_group_subtask_ids_are_prefixed_by_member() {
                 after: None,
                 level_from: None,
                 level_to: None,
+                ..RandomGroup::default()
             },
         );
         let water = pack.tasks.get_mut("habits/water").unwrap();
@@ -989,6 +999,62 @@ fn remaining_today_decreases_after_completion() {
         crate::engine::remaining_today(&fixture.engine, date),
         before - 1
     );
+}
+
+#[test]
+fn devday_warmup_picks_two_distinct_exercises() {
+    let fixture = Fixture::new();
+    let date = fixture.engine.today();
+    let group = fixture.engine.group("devday/warmup-11").unwrap();
+    let card = fixture.engine.group_task(group, date).unwrap();
+    assert_eq!(card.id, "devday/warmup-11");
+    assert_eq!(card.title("ru"), "Разминка 11:00");
+    assert_eq!(card.subtasks.len(), 2);
+    let ids: std::collections::BTreeSet<&str> = card
+        .subtasks
+        .iter()
+        .map(|subtask| subtask.id.as_str())
+        .collect();
+    assert_eq!(ids.len(), 2, "упражнения не должны повторяться");
+    assert!(ids.iter().all(|id| id.starts_with("devday/ex-")));
+    assert!(card
+        .description("ru")
+        .contains(&card.subtasks[0].title("ru")));
+    assert_eq!(
+        card.window.map(|window| window.from.to_string()),
+        Some("11:00".to_string())
+    );
+
+    let again = fixture.engine.group_task(group, date).unwrap();
+    let again_ids: std::collections::BTreeSet<&str> = again
+        .subtasks
+        .iter()
+        .map(|subtask| subtask.id.as_str())
+        .collect();
+    assert_eq!(again_ids, ids);
+}
+
+#[test]
+fn devday_meals_share_pools_and_hidden_pool_is_not_a_card() {
+    let fixture = Fixture::new();
+    let date = fixture.engine.today();
+    for id in ["devday/breakfast", "devday/dinner", "devday/supper"] {
+        let card = fixture.engine.display_task(id, date).unwrap();
+        assert_eq!(card.id, id);
+        assert!(card.group.is_none());
+    }
+    for id in ["devday/lunch", "devday/evening-snack"] {
+        assert!(fixture.engine.display_task(id, date).is_some());
+    }
+    assert!(fixture.engine.group("devday/main-pool").unwrap().hidden);
+    assert!(fixture
+        .engine
+        .display_task("devday/main-pool", date)
+        .is_none());
+    assert!(fixture
+        .engine
+        .display_task("devday/snack-pool", date)
+        .is_none());
 }
 
 #[test]

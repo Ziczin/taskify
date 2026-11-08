@@ -15,9 +15,9 @@ Taskify is a local-first life gamification app for desktop. Keep habits, repeati
 - Availability windows: a task can be limited to a time range such as `09:00–18:00`, including ranges that cross midnight.
 - New or newly unlocked tasks are highlighted until you mark them as viewed.
 - Optional real desktop notifications when new tasks appear.
-- Random groups: several tasks share one appearance slot and one member is chosen according to the group's schedule, window, chain, and level rules.
+- Random groups: several tasks share one appearance slot and one member is chosen according to the group's schedule, window, chain, and level rules. Members can be shared through a named pool, and a group can draw several different members at once.
 - Pack progress can be reset without deleting history or purchases; completed one-shots stay completed.
-- Six gentle packs: Getting Started, Greeting, Cleaning, Useful Habits, Inspiration, and Socializing, built from one-action steps and story chains.
+- Seven gentle packs: Getting Started, Greeting, Cleaning, Useful Habits, Inspiration, Socializing, and Developer Day, built from one-action steps and story chains. Developer Day adds a full day of meals, walks, and hourly warm-ups.
 - Every completed task pays at least 10 XP and 10 coins; “Getting Started” is a seven-step tour of the interface that is enabled on first launch.
 - Unlimited levels, daily and weekly progress, streaks, combos, and achievements.
 - Coins, a cosmetic shop, themes, accents, backgrounds, fonts, sounds, and draggable stickers.
@@ -60,7 +60,7 @@ target/release/taskify validate history default
 
 The macOS build is ad-hoc signed, not notarized, and targets Apple Silicon (`arm64`): on first launch use right-click → Open if Gatekeeper blocks it.
 
-The first launch opens the setup screen, creates a livespace, and installs the six built-in packs. “Getting Started” and “Greeting” are enabled initially; the other packs can be enabled one at a time.
+The first launch opens the setup screen, creates a livespace, and installs the seven built-in packs. “Getting Started” and “Greeting” are enabled initially; the other packs, including Developer Day, can be enabled one at a time.
 
 ## Data
 
@@ -148,6 +148,8 @@ ru = "Прочитать несколько страниц"
 
 The group does not store a member list: membership lives on the task (`group = "..."`). `group_weight` is optional (`weight` is accepted as an alias): integers and fractions are accepted, the default is 1, and a larger weight means a larger chance of being chosen. Only members whose own rules allow them to appear take part in the draw. The group's `schedule`, `window`, `after`, `kind`, and `level_from`/`level_to` decide when the group itself appears. A member is shown only if its own `after`, availability window, schedule/due state, and task-level range allow it. The chosen member supplies the title, description, icon, subtasks, reward, metrics, and category; the group supplies the card's schedule, window, chain, kind, and levels. Members' own combos are not applied, they are hidden from «Today», a group needs at least two members, group ids must not collide with task ids, and a task belongs to exactly one group.
 
+For a shared pool, add `pool = "base-group"` to several groups and keep the member tasks pointed at that base group. `pick = 2` draws two different weighted members into one card: the card uses the group title, the selected members become subtasks, and the draw is stable for the day. `hidden = true` keeps a service pool out of «Today» and out of the pack's group list. The Developer Day pack uses `main-pool`, `snack-pool`, and `warmup-pool` this way.
+
 ## Checks
 
 ```powershell
@@ -157,7 +159,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-The current test suite has **242 tests**.
+The current test suite has **250 tests**.
 
 ## Contributing
 

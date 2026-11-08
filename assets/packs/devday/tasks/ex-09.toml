@@ -1,0 +1,19 @@
+id = "ex-09"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "РЁР°РіРё РЅР° РјРµСЃС‚Рµ"
+en = "Marching in place"
+
+[description]
+ru = "РЁР°РіР°С‚СЊ РЅР° РјРµСЃС‚Рµ 1 РјРёРЅСѓС‚Сѓ, РїРѕРґРЅРёРјР°СЏ РєРѕР»РµРЅРё."
+en = "March in place for 1 minute, lifting your knees."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

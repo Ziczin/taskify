@@ -1,0 +1,19 @@
+id = "snack-047"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Творог 5% 150 г\n- хлеб 30 г."
+en = "- Творог 5% 150 г\n- хлеб 30 г."
+
+[description]
+ru = "КБЖУ: 257 ккал, Б 29, Ж 9, У 17."
+en = "КБЖУ: 257 ккал, Б 29, Ж 9, У 17."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

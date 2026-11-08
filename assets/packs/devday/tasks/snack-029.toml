@@ -1,0 +1,19 @@
+id = "snack-029"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Кефир 250 мл\n- хлеб 30 г\n- сыр 30 г."
+en = "- Кефир 250 мл\n- хлеб 30 г\n- сыр 30 г."
+
+[description]
+ru = "КБЖУ: 286 ккал, Б 18, Ж 14, У 23."
+en = "КБЖУ: 286 ккал, Б 18, Ж 14, У 23."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

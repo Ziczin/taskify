@@ -1,0 +1,19 @@
+id = "ex-03"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "РљСЂСѓРіРё РєРёСЃС‚СЏРјРё"
+en = "Wrist circles"
+
+[description]
+ru = "Р’С‹С‚СЏРЅСѓС‚СЊ СЂСѓРєРё РїРµСЂРµРґ СЃРѕР±РѕР№, РІСЂР°С‰Р°С‚СЊ РєРёСЃС‚СЏРјРё 10 СЂР°Р· РІ РєР°Р¶РґСѓСЋ СЃС‚РѕСЂРѕРЅСѓ."
+en = "Stretch your arms forward and circle your wrists 10 times each way."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

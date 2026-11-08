@@ -1,0 +1,19 @@
+id = "snack-031"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Орехи 30 г\n- яблоко 150 г."
+en = "- Орехи 30 г\n- яблоко 150 г."
+
+[description]
+ru = "КБЖУ: 258 ккал, Б 7, Ж 15, У 24."
+en = "КБЖУ: 258 ккал, Б 7, Ж 15, У 24."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

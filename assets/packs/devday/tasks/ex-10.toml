@@ -1,0 +1,19 @@
+id = "ex-10"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "Р Р°СЃС‚СЏР¶РєР° СЂСѓРє"
+en = "Arm stretch"
+
+[description]
+ru = "РџРѕРґРЅСЏС‚СЊ СЂСѓРєРё РІРІРµСЂС…, РїРµСЂРµРїР»РµСЃС‚Рё РїР°Р»СЊС†С‹ Рё РїРѕС‚СЏРЅСѓС‚СЊСЃСЏ 20 СЃРµРєСѓРЅРґ."
+en = "Raise your arms, interlace your fingers, and stretch for 20 seconds."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

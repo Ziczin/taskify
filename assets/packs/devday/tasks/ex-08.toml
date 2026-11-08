@@ -1,0 +1,19 @@
+id = "ex-08"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "РќР°РєР»РѕРЅС‹ РІ СЃС‚РѕСЂРѕРЅС‹"
+en = "Side bends"
+
+[description]
+ru = "РќР°РєР»РѕРЅСЏС‚СЊСЃСЏ РІРїСЂР°РІРѕ Рё РІР»РµРІРѕ РїРѕ 5 СЂР°Р·, РѕРґРЅР° СЂСѓРєР° С‚СЏРЅРµС‚СЃСЏ РІРІРµСЂС…."
+en = "Bend to the right and left 5 times each, reaching one arm overhead."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

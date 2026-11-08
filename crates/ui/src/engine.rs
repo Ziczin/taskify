@@ -360,15 +360,13 @@ impl Engine {
         self.packs.group(id).is_some()
     }
 
-    fn group_members(&self, group_id: &str) -> Vec<&Task> {
-        let mut members: Vec<&Task> = self
+    fn group_members(&self, group: &RandomGroup) -> Vec<&Task> {
+        self.packs
             .packs
-            .tasks()
-            .into_iter()
-            .filter(|task| task.group.as_deref() == Some(group_id))
-            .collect();
-        members.sort_by(|left, right| left.id.cmp(&right.id));
-        members
+            .values()
+            .find(|pack| pack.enabled && pack.groups.contains_key(&group.id))
+            .map(|pack| pack.members_of(group))
+            .unwrap_or_default()
     }
 
     /// Может ли участник появиться по своим собственным правилам: цепочка,
@@ -399,9 +397,38 @@ impl Engine {
         members.last().copied()
     }
 
+    /// Выбор нескольких разных участников без повторов. Каждый следующий
+    /// выбор получает свой seed, поэтому результат воспроизводим.
+    fn weighted_members<'a>(
+        &self,
+        members: &[&'a Task],
+        seed: &str,
+        count: usize,
+    ) -> Vec<&'a Task> {
+        let mut remaining = members.to_vec();
+        let mut selected = Vec::new();
+        for index in 0..count {
+            let Some(member) = self.weighted_member(&remaining, &format!("{seed}:{index}")) else {
+                break;
+            };
+            let Some(position) = remaining
+                .iter()
+                .position(|candidate| std::ptr::eq(*candidate, member))
+            else {
+                break;
+            };
+            remaining.remove(position);
+            selected.push(member);
+        }
+        selected
+    }
+
     /// Карточка группы: выбранный участник плюс условия самой группы.
     pub fn group_task(&self, group: &RandomGroup, date: NaiveDate) -> Option<Task> {
-        let members = self.group_members(&group.id);
+        if group.hidden {
+            return None;
+        }
+        let members = self.group_members(group);
         if members.is_empty() {
             return None;
         }
@@ -439,10 +466,15 @@ impl Engine {
                 .filter(|member| self.member_can_appear(member, date))
                 .collect()
         };
-        if pool.is_empty() {
+        let pick = group.pick.max(1);
+        if pool.len() < pick {
             return None;
         }
-        let member = self.weighted_member(&pool, &seed)?;
+        let selected = self.weighted_members(&pool, &seed, pick);
+        if selected.len() < pick {
+            return None;
+        }
+        let member = selected[0];
         let mut resolved = member.clone();
         resolved.id = group.id.clone();
         resolved.kind = group.kind;
@@ -452,12 +484,72 @@ impl Engine {
         resolved.group = None;
         resolved.combos = Vec::new();
         resolved.former_ids = Vec::new();
-        // У разных участников могут совпадать локальные id подпунктов.
-        // Префикс участника не даёт отметкам перепутаться между выпадениями.
-        for subtask in &mut resolved.subtasks {
-            subtask.id = format!("{}::{}", member.id, subtask.id);
+        if pick == 1 {
+            // У разных участников могут совпадать локальные id подпунктов.
+            // Префикс участника не даёт отметкам перепутаться между выпадениями.
+            for subtask in &mut resolved.subtasks {
+                subtask.id = format!("{}::{}", member.id, subtask.id);
+            }
+        } else {
+            resolved.title = if group.title.is_empty() {
+                member.title.clone()
+            } else {
+                group.title.clone()
+            };
+            resolved.description = self.merged_description(&selected);
+            resolved.subtasks = self.merged_subtasks(&selected);
         }
         Some(resolved)
+    }
+
+    fn merged_description(&self, selected: &[&Task]) -> Locales {
+        let mut locales: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
+        for member in selected {
+            locales.extend(member.title.keys().cloned());
+            locales.extend(member.description.keys().cloned());
+        }
+        let mut description = Locales::new();
+        for locale in locales {
+            let mut blocks = Vec::new();
+            for member in selected {
+                let title = member.title(&locale);
+                match member
+                    .description
+                    .get(&locale)
+                    .or_else(|| member.description.get("en"))
+                {
+                    Some(body) if !body.trim().is_empty() => {
+                        blocks.push(format!("{title}\n{body}"));
+                    }
+                    _ => blocks.push(title),
+                }
+            }
+            description.insert(locale, blocks.join("\n\n"));
+        }
+        description
+    }
+
+    fn merged_subtasks(&self, selected: &[&Task]) -> Vec<taskify_core::task::Subtask> {
+        let mut subtasks = Vec::new();
+        for member in selected {
+            if member.subtasks.is_empty() {
+                subtasks.push(taskify_core::task::Subtask {
+                    id: member.id.clone(),
+                    title: member.title.clone(),
+                    description: member.description.clone(),
+                    tags: member.tags.clone(),
+                    reward: Reward::default(),
+                    metrics: member.metrics.clone(),
+                });
+            } else {
+                for subtask in &member.subtasks {
+                    let mut subtask = subtask.clone();
+                    subtask.id = format!("{}::{}", member.id, subtask.id);
+                    subtasks.push(subtask);
+                }
+            }
+        }
+        subtasks
     }
 
     /// Задания, которые видны в «Сегодня»: без участников случайных групп,

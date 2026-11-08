@@ -1,0 +1,19 @@
+id = "snack-003"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "Яйца 110 г (2 шт)."
+en = "Яйца 110 г (2 шт)."
+
+[description]
+ru = "Активно: 8 мин.\nРецепт: варить 8 мин.\nКБЖУ: 156 ккал, Б 13, Ж 11, У 1."
+en = "Активно: 8 мин.\nРецепт: варить 8 мин.\nКБЖУ: 156 ккал, Б 13, Ж 11, У 1."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

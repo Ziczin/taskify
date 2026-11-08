@@ -1,0 +1,19 @@
+id = "snack-045"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Кефир 250 мл\n- банан 100 г."
+en = "- Кефир 250 мл\n- банан 100 г."
+
+[description]
+ru = "КБЖУ: 189 ккал, Б 9, Ж 4, У 31."
+en = "КБЖУ: 189 ккал, Б 9, Ж 4, У 31."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

@@ -420,6 +420,13 @@ impl PackSet {
                             qualify(&pack_id, &id)
                         }
                     });
+                    group.pool = group.pool.map(|id| {
+                        if id.trim().is_empty() {
+                            id
+                        } else {
+                            qualify(&pack_id, &id)
+                        }
+                    });
                     Self::insert_unique(
                         &mut pack.groups,
                         group.id.clone(),
@@ -546,7 +553,6 @@ impl PackSet {
 
     /// Проверяет ссылки участников на группы и минимальный состав.
     fn check_groups(&mut self, pack: &mut Pack) {
-        let mut counts: BTreeMap<String, usize> = BTreeMap::new();
         for task in pack.tasks.values() {
             let Some(group_id) = &task.group else {
                 continue;
@@ -560,9 +566,7 @@ impl PackSet {
                     ),
                     format!("случайная группа не найдена: {group_id}"),
                 ));
-                continue;
             }
-            *counts.entry(group_id.clone()).or_default() += 1;
         }
         for (group_id, group) in &pack.groups {
             if let Some(after) = &group.after {
@@ -577,8 +581,21 @@ impl PackSet {
                     ));
                 }
             }
-            let count = counts.get(group_id).copied().unwrap_or(0);
-            if count < 2 {
+            if let Some(pool) = &group.pool {
+                if pool == group_id || !pack.groups.contains_key(pool) {
+                    self.issues.push(Issue::error(
+                        "PK017",
+                        format!(
+                            "groups/{}.toml",
+                            group_id.split('/').nth(1).unwrap_or(group_id)
+                        ),
+                        format!("пул участников группы не найден: {pool}"),
+                    ));
+                }
+            }
+            let count = pack.members_of(group).len();
+            let required = group.pick.max(2);
+            if count < required {
                 self.issues.push(Issue::error(
                     "PK017",
                     format!(
@@ -586,7 +603,7 @@ impl PackSet {
                         group_id.split('/').nth(1).unwrap_or(group_id)
                     ),
                     format!(
-                        "в случайной группе {} меньше двух участников",
+                        "в случайной группе {} участников меньше {required}",
                         group.title.values().next().cloned().unwrap_or_default()
                     ),
                 ));
@@ -981,6 +998,87 @@ en = "Random"
         std::fs::remove_file(root.join("demo/tasks/b.toml")).unwrap();
         let set = PackSet::load(&root);
         assert!(set.issues.iter().any(|issue| issue.code == "PK017"));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn random_group_shared_pool_has_all_members() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/groups/pool.toml"),
+            "id = \"pool\"\nhidden = true\n[title]\nen = \"Pool\"\n",
+        );
+        write(
+            &root.join("demo/groups/meal.toml"),
+            "id = \"meal\"\npool = \"pool\"\npick = 2\n[title]\nen = \"Meal\"\n",
+        );
+        for id in ["a", "b", "c", "d"] {
+            write(
+                &root.join(format!("demo/tasks/{id}.toml")),
+                &format!("id = \"{id}\"\ngroup = \"pool\"\n[title]\nen = \"{id}\"\n"),
+            );
+        }
+        let set = PackSet::load(&root);
+        assert!(
+            set.issues.iter().all(|issue| issue.code != "PK017"),
+            "{:?}",
+            set.issues
+        );
+        let pack = &set.packs["demo"];
+        let pool = pack.groups.get("demo/pool").expect("пул");
+        let meal = pack.groups.get("demo/meal").expect("приём пищи");
+        assert!(pool.hidden);
+        assert_eq!(meal.pick, 2);
+        assert_eq!(pack.members_of(meal).len(), 4);
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn random_group_pool_must_exist() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/groups/meal.toml"),
+            "id = \"meal\"\npool = \"missing\"\n[title]\nen = \"Meal\"\n",
+        );
+        let set = PackSet::load(&root);
+        assert!(
+            set.issues
+                .iter()
+                .any(|issue| issue.code == "PK017" && issue.message.contains("пул")),
+            "{:?}",
+            set.issues
+        );
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn random_group_pick_needs_enough_members() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/groups/pool.toml"),
+            "id = \"pool\"\n[title]\nen = \"Pool\"\n",
+        );
+        write(
+            &root.join("demo/groups/meal.toml"),
+            "id = \"meal\"\npool = \"pool\"\npick = 3\n[title]\nen = \"Meal\"\n",
+        );
+        for id in ["a", "b"] {
+            write(
+                &root.join(format!("demo/tasks/{id}.toml")),
+                &format!("id = \"{id}\"\ngroup = \"pool\"\n[title]\nen = \"{id}\"\n"),
+            );
+        }
+        let set = PackSet::load(&root);
+        assert!(
+            set.issues
+                .iter()
+                .any(|issue| issue.code == "PK017" && issue.message.contains("3")),
+            "{:?}",
+            set.issues
+        );
         let _ = std::fs::remove_dir_all(&root);
     }
 

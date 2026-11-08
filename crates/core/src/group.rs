@@ -12,6 +12,10 @@ fn default_kind() -> Kind {
     Kind::Habit
 }
 
+fn default_pick() -> usize {
+    1
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RandomGroup {
     pub id: String,
@@ -29,6 +33,34 @@ pub struct RandomGroup {
     pub level_from: Option<u32>,
     #[serde(default)]
     pub level_to: Option<u32>,
+    /// Общий пул участников. Несколько групп могут ссылаться на один пул,
+    /// не дублируя задания.
+    #[serde(default)]
+    pub pool: Option<String>,
+    /// Сколько участников выбирать за один розыгрыш.
+    #[serde(default = "default_pick", alias = "draw", alias = "count")]
+    pub pick: usize,
+    /// Служебная группа-пул: не показывается в «Сегодня».
+    #[serde(default)]
+    pub hidden: bool,
+}
+
+impl Default for RandomGroup {
+    fn default() -> Self {
+        Self {
+            id: String::new(),
+            title: Locales::new(),
+            kind: Kind::Habit,
+            schedule: Schedule::Daily,
+            window: None,
+            after: None,
+            level_from: None,
+            level_to: None,
+            pool: None,
+            pick: 1,
+            hidden: false,
+        }
+    }
 }
 
 impl RandomGroup {
@@ -70,6 +102,14 @@ impl RandomGroup {
                 }
             }
         }
+        if self.pick == 0 {
+            errors.push(GroupError::PickZero);
+        }
+        if let Some(pool) = &self.pool {
+            if pool.trim().is_empty() {
+                errors.push(GroupError::EmptyPool);
+            }
+        }
         errors
     }
 }
@@ -84,6 +124,8 @@ pub enum GroupError {
     EmptyPrerequisite,
     PrerequisiteMatchesSelf { id: String },
     BadLevelRange { from: u32, to: u32 },
+    PickZero,
+    EmptyPool,
 }
 
 impl GroupError {
@@ -94,6 +136,7 @@ impl GroupError {
             GroupError::IntervalDaysZero => "G003",
             GroupError::EmptyPrerequisite | GroupError::PrerequisiteMatchesSelf { .. } => "G004",
             GroupError::BadLevelRange { .. } => "G005",
+            GroupError::PickZero | GroupError::EmptyPool => "G006",
         }
     }
 }
@@ -112,6 +155,7 @@ mod tests {
             after: None,
             level_from: None,
             level_to: None,
+            ..RandomGroup::default()
         }
     }
 
@@ -160,6 +204,34 @@ mod tests {
             .validate()
             .iter()
             .any(|error| matches!(error, GroupError::EmptyPrerequisite)));
+    }
+
+    #[test]
+    fn group_pool_and_pick_are_validated() {
+        let mut broken = group();
+        broken.pool = Some("  ".into());
+        broken.pick = 0;
+        let codes: Vec<&str> = broken.validate().iter().map(GroupError::code).collect();
+        assert!(codes.contains(&"G006"));
+        assert_eq!(GroupError::PickZero.code(), "G006");
+        assert_eq!(GroupError::EmptyPool.code(), "G006");
+
+        let mut valid = group();
+        valid.pool = Some("food".into());
+        valid.pick = 2;
+        valid.hidden = true;
+        assert!(valid.validate().is_empty());
+    }
+
+    #[test]
+    fn group_toml_accepts_pool_pick_and_hidden() {
+        let group: RandomGroup = toml::from_str(
+            "id = \"warmup\"\npool = \"exercises\"\npick = 2\nhidden = true\n[title]\nen = \"Warmup\"\n",
+        )
+        .unwrap();
+        assert_eq!(group.pool.as_deref(), Some("exercises"));
+        assert_eq!(group.pick, 2);
+        assert!(group.hidden);
     }
 
     #[test]

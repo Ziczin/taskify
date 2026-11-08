@@ -1,0 +1,19 @@
+id = "ex-04"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "РџРѕРґСЉС‘РјС‹ РЅР° РЅРѕСЃРєРё"
+en = "Calf raises"
+
+[description]
+ru = "РџРѕРґРЅРёРјР°С‚СЊСЃСЏ РЅР° РЅРѕСЃРєРё 15 СЂР°Р·, РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РґРµСЂР¶Р°СЃСЊ Р·Р° СЃС‚РµРЅСѓ."
+en = "Raise yourself onto your toes 15 times, hold the wall if needed."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

@@ -1,0 +1,19 @@
+id = "snack-049"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Сыр 30 г\n- яблоко 150 г."
+en = "- Сыр 30 г\n- яблоко 150 г."
+
+[description]
+ru = "КБЖУ: 189 ккал, Б 8, Ж 9, У 22."
+en = "КБЖУ: 189 ккал, Б 8, Ж 9, У 22."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

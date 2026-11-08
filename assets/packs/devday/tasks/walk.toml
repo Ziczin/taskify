@@ -1,0 +1,22 @@
+id = "walk"
+category = "move"
+kind = "habit"
+
+[title]
+ru = "Прогулка"
+en = "Walk"
+
+[description]
+ru = "Выйти на улицу и пройтись. Свежий воздух, спокойный темп."
+en = "Go outside and take a walk. Fresh air, an easy pace."
+
+[reward]
+xp = 10
+coins = 10
+
+[window]
+from = "19:00"
+to = "02:00"
+
+[schedule]
+type = "daily"

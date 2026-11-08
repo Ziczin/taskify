@@ -1,0 +1,19 @@
+id = "ex-12"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "Р”С‹С…Р°РЅРёРµ"
+en = "Breathing"
+
+[description]
+ru = "РЎРґРµР»Р°С‚СЊ 5 РјРµРґР»РµРЅРЅС‹С… РІРґРѕС…РѕРІ Рё РІС‹РґРѕС…РѕРІ, РїР»РµС‡Рё СЂР°СЃСЃР»Р°Р±Р»РµРЅС‹."
+en = "Take 5 slow breaths in and out with relaxed shoulders."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

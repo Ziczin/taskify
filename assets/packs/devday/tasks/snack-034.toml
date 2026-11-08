@@ -1,0 +1,19 @@
+id = "snack-034"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Ряженка 250 мл\n- ягоды 100 г."
+en = "- Ряженка 250 мл\n- ягоды 100 г."
+
+[description]
+ru = "КБЖУ: 175 ккал, Б 8, Ж 7, У 19."
+en = "КБЖУ: 175 ккал, Б 8, Ж 7, У 19."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

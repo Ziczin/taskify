@@ -1,0 +1,19 @@
+id = "snack-042"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Творог 5% 100 г\n- помидор 100 г."
+en = "- Творог 5% 100 г\n- помидор 100 г."
+
+[description]
+ru = "КБЖУ: 141 ккал, Б 18, Ж 5, У 7."
+en = "КБЖУ: 141 ккал, Б 18, Ж 5, У 7."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

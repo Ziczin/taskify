@@ -434,15 +434,11 @@ impl TaskifyApp {
     fn pack_tasks_tab(&mut self, ui: &mut egui::Ui, pack: &Pack, locale: &str) {
         if !pack.groups.is_empty() {
             ui.label(egui::RichText::new(self.t("packs.random_group")).strong());
-            let mut groups: Vec<_> = pack.groups.values().collect();
+            let mut groups: Vec<_> = pack.groups.values().filter(|group| !group.hidden).collect();
             groups.sort_by_key(|group| taskify_core::task::tr_or(&group.title, locale, &group.id));
             for group in groups {
                 let title = taskify_core::task::tr_or(&group.title, locale, &group.id);
-                let members = pack
-                    .tasks
-                    .values()
-                    .filter(|task| task.group.as_deref() == Some(group.id.as_str()))
-                    .count();
+                let members = pack.members_of(group).len();
                 let mut stats = format!(
                     "{} · {} {}",
                     self.t(&format!("today.{}", group.kind.key())),

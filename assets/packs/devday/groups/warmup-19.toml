@@ -1,0 +1,12 @@
+id = "warmup-19"
+pool = "warmup-pool"
+pick = 2
+kind = "habit"
+schedule = { type = "daily" }
+[window]
+from = "19:00"
+to = "19:10"
+
+[title]
+ru = "Разминка 19:00"
+en = "Warm-up 19:00"

@@ -1,0 +1,19 @@
+id = "ex-11"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "Р Р°СЃС‚СЏР¶РєР° РЅРѕРі"
+en = "Leg stretch"
+
+[description]
+ru = "РџРѕСЃС‚Р°РІРёС‚СЊ РЅРѕРіСѓ РЅР° СЃС‚СѓР» Рё РЅР°РєР»РѕРЅРёС‚СЊСЃСЏ Рє РЅРµР№ 20 СЃРµРєСѓРЅРґ, Р·Р°С‚РµРј СЃРјРµРЅРёС‚СЊ РЅРѕРіСѓ."
+en = "Put one foot on a chair and lean toward it for 20 seconds, then switch legs."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

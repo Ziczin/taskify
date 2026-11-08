@@ -2,13 +2,14 @@
 
 use taskify_packs::{format_issue, has_errors, validate_set, PackSet};
 
-const PACKS: [&str; 6] = [
+const PACKS: [&str; 7] = [
     "greeting",
     "guide",
     "cleaning",
     "habits",
     "inspiration",
     "social",
+    "devday",
 ];
 
 fn packs_root() -> std::path::PathBuf {
@@ -199,6 +200,98 @@ fn habits_grow_with_pack_level() {
         .title
         .get("ru")
         .is_some_and(|title| title.contains("Присесть"))));
+}
+
+#[test]
+fn devday_has_full_menu_and_schedule() {
+    let set = PackSet::load(packs_root());
+    let pack = set.packs.get("devday").expect("пак devday");
+
+    let mains: Vec<_> = pack
+        .tasks
+        .values()
+        .filter(|task| task.group.as_deref() == Some("devday/main-pool"))
+        .collect();
+    let snacks: Vec<_> = pack
+        .tasks
+        .values()
+        .filter(|task| task.group.as_deref() == Some("devday/snack-pool"))
+        .collect();
+    assert_eq!(mains.len(), 100, "основных блюд должно быть 100");
+    assert_eq!(snacks.len(), 50, "перекусов должно быть 50");
+
+    let first = pack.tasks.get("devday/main-001").expect("первое блюдо");
+    assert_eq!(
+        first.title("ru"),
+        "- Гречка\n- куриное бедро с овощами в мультиварке."
+    );
+    assert!(first
+        .description("ru")
+        .contains("- Гречка 50 г сухой\n- вода 150 мл"));
+    assert!(first
+        .description("ru")
+        .ends_with("КБЖУ: 664 ккал, Б 58, Ж 28, У 44."));
+
+    for task in mains.iter().chain(snacks.iter()) {
+        assert!(
+            !task.title("ru").contains(" + "),
+            "{}: плюс в названии",
+            task.id
+        );
+        assert!(
+            !task.description("ru").contains(" + "),
+            "{}: плюс в описании",
+            task.id
+        );
+        assert!(!task.description("ru").trim().is_empty());
+    }
+
+    let charge = pack.tasks.get("devday/charge").expect("зарядка");
+    assert_eq!(charge.subtasks.len(), 8, "в зарядке 8 упражнений");
+    let window = charge.window.expect("окно зарядки");
+    assert_eq!(window.from.to_string(), "10:00");
+    assert_eq!(window.to.to_string(), "11:00");
+
+    let walk = pack.tasks.get("devday/walk").expect("прогулка");
+    let walk_window = walk.window.expect("окно прогулки");
+    assert_eq!(walk_window.from.to_string(), "19:00");
+    assert_eq!(walk_window.to.to_string(), "02:00");
+
+    let visible: Vec<_> = pack.groups.values().filter(|group| !group.hidden).collect();
+    let hidden: Vec<_> = pack.groups.values().filter(|group| group.hidden).collect();
+    assert_eq!(hidden.len(), 3, "три служебных пула");
+    assert_eq!(visible.len(), 14, "5 приёмов пищи и 9 разминок");
+    for hour in 11..20 {
+        let group = pack
+            .groups
+            .get(&format!("devday/warmup-{hour}"))
+            .expect("группа разминки");
+        assert_eq!(group.pick, 2);
+        assert_eq!(pack.members_of(group).len(), 12);
+    }
+    for (name, from, to) in [
+        ("breakfast", "10:00", "11:00"),
+        ("lunch", "13:00", "13:30"),
+        ("dinner", "16:00", "17:00"),
+        ("supper", "19:30", "20:30"),
+        ("evening-snack", "22:30", "23:00"),
+    ] {
+        let group = pack
+            .groups
+            .get(&format!("devday/{name}"))
+            .expect("группа приёма пищи");
+        let window = group.window.expect("окно приёма пищи");
+        assert_eq!(window.from.to_string(), from);
+        assert_eq!(window.to.to_string(), to);
+        assert_eq!(
+            pack.members_of(group).len(),
+            if name.contains("snack") || name == "lunch" {
+                50
+            } else {
+                100
+            }
+        );
+    }
 }
 
 #[test]

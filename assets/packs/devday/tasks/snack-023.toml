@@ -1,0 +1,19 @@
+id = "snack-023"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Сыр 30 г\n- морковь 100 г."
+en = "- Сыр 30 г\n- морковь 100 г."
+
+[description]
+ru = "КБЖУ: 146 ккал, Б 9, Ж 9, У 8."
+en = "КБЖУ: 146 ккал, Б 9, Ж 9, У 8."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

@@ -1,0 +1,7 @@
+id = "main-pool"
+hidden = true
+schedule = { type = "manual" }
+
+[title]
+ru = "Основные блюда"
+en = "Main dishes"

@@ -1,0 +1,19 @@
+id = "snack-036"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Сыр 30 г\n- огурец 100 г\n- хлеб 30 г."
+en = "- Сыр 30 г\n- огурец 100 г\n- хлеб 30 г."
+
+[description]
+ru = "КБЖУ: 201 ккал, Б 11, Ж 10, У 16."
+en = "КБЖУ: 201 ккал, Б 11, Ж 10, У 16."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

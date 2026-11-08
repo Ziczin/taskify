@@ -1,0 +1,19 @@
+id = "snack-033"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Творог 5% 200 г\n- огурец 100 г\n- зелень 10 г."
+en = "- Творог 5% 200 г\n- огурец 100 г\n- зелень 10 г."
+
+[description]
+ru = "КБЖУ: 259 ккал, Б 35, Ж 10, У 9."
+en = "КБЖУ: 259 ккал, Б 35, Ж 10, У 9."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

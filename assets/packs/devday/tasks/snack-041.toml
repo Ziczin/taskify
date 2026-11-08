@@ -1,0 +1,19 @@
+id = "snack-041"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Греческий йогурт 150 г\n- яблоко 100 г."
+en = "- Греческий йогурт 150 г\n- яблоко 100 г."
+
+[description]
+ru = "КБЖУ: 142 ккал, Б 15, Ж 1, У 19."
+en = "КБЖУ: 142 ккал, Б 15, Ж 1, У 19."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

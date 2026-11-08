@@ -1,0 +1,19 @@
+id = "ex-07"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "РџРѕРІРѕСЂРѕС‚С‹ РєРѕСЂРїСѓСЃР°"
+en = "Torso turns"
+
+[description]
+ru = "РџРѕРІРѕСЂР°С‡РёРІР°С‚СЊ РєРѕСЂРїСѓСЃ РІРїСЂР°РІРѕ Рё РІР»РµРІРѕ 10 СЂР°Р·, СЂСѓРєРё РЅР° РїРѕСЏСЃРµ."
+en = "Turn your torso left and right 10 times with your hands on your waist."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

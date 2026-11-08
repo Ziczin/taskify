@@ -1,0 +1,19 @@
+id = "snack-020"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Кефир 250 мл\n- яблоко 150 г."
+en = "- Кефир 250 мл\n- яблоко 150 г."
+
+[description]
+ru = "КБЖУ: 178 ккал, Б 8, Ж 4, У 31."
+en = "КБЖУ: 178 ккал, Б 8, Ж 4, У 31."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

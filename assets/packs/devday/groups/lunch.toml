@@ -1,0 +1,11 @@
+id = "lunch"
+pool = "snack-pool"
+kind = "habit"
+schedule = { type = "daily" }
+[window]
+from = "13:00"
+to = "13:30"
+
+[title]
+ru = "Перекус в 13:00"
+en = "Afternoon snack"

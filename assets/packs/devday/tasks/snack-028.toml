@@ -1,0 +1,19 @@
+id = "snack-028"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Творог 5% 200 г\n- банан 100 г."
+en = "- Творог 5% 200 г\n- банан 100 г."
+
+[description]
+ru = "КБЖУ: 331 ккал, Б 35, Ж 10, У 27."
+en = "КБЖУ: 331 ккал, Б 35, Ж 10, У 27."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

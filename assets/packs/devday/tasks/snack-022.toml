@@ -1,0 +1,19 @@
+id = "snack-022"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Ряженка 250 мл\n- хлеб 30 г."
+en = "- Ряженка 250 мл\n- хлеб 30 г."
+
+[description]
+ru = "КБЖУ: 210 ккал, Б 10, Ж 7, У 22."
+en = "КБЖУ: 210 ккал, Б 10, Ж 7, У 22."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

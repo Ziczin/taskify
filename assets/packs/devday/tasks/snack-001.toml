@@ -1,0 +1,19 @@
+id = "snack-001"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "Кефир 200 мл."
+en = "Кефир 200 мл."
+
+[description]
+ru = "КБЖУ: 80 ккал, Б 6, Ж 3, У 8."
+en = "КБЖУ: 80 ккал, Б 6, Ж 3, У 8."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

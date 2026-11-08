@@ -1,0 +1,19 @@
+id = "snack-009"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Кефир 150 мл\n- огурец 100 г."
+en = "- Кефир 150 мл\n- огурец 100 г."
+
+[description]
+ru = "КБЖУ: 75 ккал, Б 5, Ж 2, У 9."
+en = "КБЖУ: 75 ккал, Б 5, Ж 2, У 9."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

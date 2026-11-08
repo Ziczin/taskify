@@ -1,0 +1,19 @@
+id = "ex-06"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "РћС‚Р¶РёРјР°РЅРёСЏ РѕС‚ СЃС‚РµРЅС‹"
+en = "Wall push-ups"
+
+[description]
+ru = "РџРѕСЃС‚Р°РІРёС‚СЊ Р»Р°РґРѕРЅРё РЅР° СЃС‚РµРЅСѓ Рё РѕС‚Р¶Р°С‚СЊСЃСЏ 5 СЂР°Р·."
+en = "Place your palms on the wall and do 5 push-ups."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

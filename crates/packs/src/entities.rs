@@ -428,6 +428,25 @@ pub struct Pack {
     pub enabled: bool,
 }
 
+impl Pack {
+    /// Участники группы. Если задан `pool`, берём задания общего пула;
+    /// собственные участники группы добавляются к нему.
+    pub fn members_of(&self, group: &taskify_core::group::RandomGroup) -> Vec<&Task> {
+        let own = group.id.as_str();
+        let pool = group.pool.as_deref().unwrap_or(own);
+        let mut members: Vec<&Task> = self
+            .tasks
+            .values()
+            .filter(|task| {
+                task.group.as_deref() == Some(pool)
+                    || (group.pool.is_some() && task.group.as_deref() == Some(own))
+            })
+            .collect();
+        members.sort_by(|left, right| left.id.cmp(&right.id));
+        members
+    }
+}
+
 #[cfg(test)]
 mod gate_tests {
     use super::LevelGate;

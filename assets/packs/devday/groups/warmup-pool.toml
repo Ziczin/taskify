@@ -1,0 +1,7 @@
+id = "warmup-pool"
+hidden = true
+schedule = { type = "manual" }
+
+[title]
+ru = "Упражнения для разминки"
+en = "Warm-up exercises"

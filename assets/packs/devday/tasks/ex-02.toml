@@ -1,0 +1,19 @@
+id = "ex-02"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "РќР°РєР»РѕРЅС‹ РіРѕР»РѕРІС‹"
+en = "Head tilts"
+
+[description]
+ru = "РњРµРґР»РµРЅРЅРѕ РЅР°РєР»РѕРЅРёС‚СЊ РіРѕР»РѕРІСѓ Рє РїСЂР°РІРѕРјСѓ РїР»РµС‡Сѓ, Р·Р°РґРµСЂР¶Р°С‚СЊСЃСЏ, Р·Р°С‚РµРј Рє Р»РµРІРѕРјСѓ. РџРѕ 5 СЂР°Р·."
+en = "Slowly tilt your head to the right shoulder, pause, then to the left. 5 times each."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

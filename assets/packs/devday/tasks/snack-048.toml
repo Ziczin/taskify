@@ -1,0 +1,19 @@
+id = "snack-048"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Греческий йогурт 200 г\n- банан 100 г."
+en = "- Греческий йогурт 200 г\n- банан 100 г."
+
+[description]
+ru = "КБЖУ: 209 ккал, Б 21, Ж 1, У 30."
+en = "КБЖУ: 209 ккал, Б 21, Ж 1, У 30."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

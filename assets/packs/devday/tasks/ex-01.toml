@@ -1,0 +1,19 @@
+id = "ex-01"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "РљСЂСѓРіРё РїР»РµС‡Р°РјРё"
+en = "Shoulder circles"
+
+[description]
+ru = "Р’СЃС‚Р°С‚СЊ РїСЂСЏРјРѕ, РІСЂР°С‰Р°С‚СЊ РїР»РµС‡Р°РјРё РЅР°Р·Р°Рґ 10 СЂР°Р·, Р·Р°С‚РµРј РІРїРµСЂС‘Рґ 10 СЂР°Р·."
+en = "Stand straight. Circle your shoulders back 10 times, then forward 10 times."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

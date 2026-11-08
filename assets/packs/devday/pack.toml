@@ -1,0 +1,20 @@
+schema = 1
+id = "devday"
+version = "1.0.0"
+official = true
+default_enabled = false
+license = "CC-BY-4.0"
+locales = ["ru", "en"]
+
+[progression]
+base = 50.0
+exponent = 1.4
+max_level = 10
+
+[name]
+ru = "День разработчика"
+en = "Developer Day"
+
+[description]
+ru = "Ритм дня разработчика: зарядка, прогулка, короткие разминки каждый час и пять приёмов пищи. Основные блюда и перекусы выбираются случайно из общих пулов."
+en = "A developer's daily rhythm: a morning workout, a walk, short warm-ups every hour, and five meals. Main dishes and snacks are picked randomly from shared pools."

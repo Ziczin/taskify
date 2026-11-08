@@ -1,0 +1,19 @@
+id = "snack-016"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Кефир 150 мл\n- орехи 10 г."
+en = "- Кефир 150 мл\n- орехи 10 г."
+
+[description]
+ru = "КБЖУ: 120 ккал, Б 6, Ж 7, У 8."
+en = "КБЖУ: 120 ккал, Б 6, Ж 7, У 8."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

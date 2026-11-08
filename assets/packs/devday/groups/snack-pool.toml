@@ -1,0 +1,7 @@
+id = "snack-pool"
+hidden = true
+schedule = { type = "manual" }
+
+[title]
+ru = "Перекусы"
+en = "Snacks"

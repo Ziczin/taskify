@@ -1,0 +1,19 @@
+id = "snack-010"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Творог 5% 150 г\n- зелень 10 г."
+en = "- Творог 5% 150 г\n- зелень 10 г."
+
+[description]
+ru = "КБЖУ: 184 ккал, Б 26, Ж 8, У 5."
+en = "КБЖУ: 184 ккал, Б 26, Ж 8, У 5."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

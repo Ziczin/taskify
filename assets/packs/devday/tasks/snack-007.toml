@@ -1,0 +1,19 @@
+id = "snack-007"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "Орехи 15 г."
+en = "Орехи 15 г."
+
+[description]
+ru = "КБЖУ: 90 ккал, Б 3, Ж 8, У 3."
+en = "КБЖУ: 90 ккал, Б 3, Ж 8, У 3."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

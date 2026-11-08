@@ -1,0 +1,70 @@
+id = "charge"
+category = "move"
+kind = "habit"
+
+[title]
+ru = "Зарядка"
+en = "Morning workout"
+
+[description]
+ru = "Восемь коротких упражнений, которые можно сделать в комнате. Не спеши и дыши ровно."
+en = "Eight short exercises you can do in a room. Take your time and breathe evenly."
+
+[reward]
+xp = 15
+coins = 10
+
+[window]
+from = "10:00"
+to = "11:00"
+
+[schedule]
+type = "daily"
+
+[[subtasks]]
+id = "shoulders"
+[subtasks.title]
+ru = "Круги плечами — 10 раз назад и 10 вперёд"
+en = "Shoulder circles — 10 back and 10 forward"
+
+[[subtasks]]
+id = "neck"
+[subtasks.title]
+ru = "Наклоны головы — по 5 раз к каждому плечу"
+en = "Head tilts — 5 times to each shoulder"
+
+[[subtasks]]
+id = "wrists"
+[subtasks.title]
+ru = "Круги кистями — по 10 раз в каждую сторону"
+en = "Wrist circles — 10 times each way"
+
+[[subtasks]]
+id = "squats"
+[subtasks.title]
+ru = "Приседания — 10 раз"
+en = "Squats — 10 reps"
+
+[[subtasks]]
+id = "wall_pushups"
+[subtasks.title]
+ru = "Отжимания от стены — 5 раз"
+en = "Wall push-ups — 5 reps"
+
+[[subtasks]]
+id = "turns"
+[subtasks.title]
+ru = "Повороты корпуса — 10 раз"
+en = "Torso turns — 10 reps"
+
+[[subtasks]]
+id = "march"
+[subtasks.title]
+ru = "Шаги на месте — 1 минута"
+en = "Marching in place — 1 minute"
+
+[[subtasks]]
+id = "breath"
+[subtasks.title]
+ru = "Медленное дыхание — 5 вдохов и выдохов"
+en = "Slow breathing — 5 inhales and exhales"

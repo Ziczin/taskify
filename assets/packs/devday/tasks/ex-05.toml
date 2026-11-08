@@ -1,0 +1,19 @@
+id = "ex-05"
+category = "move"
+group = "warmup-pool"
+kind = "habit"
+
+[title]
+ru = "РџСЂРёСЃРµРґР°РЅРёСЏ"
+en = "Squats"
+
+[description]
+ru = "РџСЂРёСЃРµРґР°С‚СЊ 10 СЂР°Р·, РґРµСЂР¶Р°С‚СЊ СЃРїРёРЅСѓ РїСЂСЏРјРѕ, РєРѕР»РµРЅРё РЅРµ РІС‹С…РѕРґСЏС‚ Р·Р° РЅРѕСЃРєРё."
+en = "Do 10 squats with a straight back, keeping your knees behind your toes."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

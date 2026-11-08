@@ -1,0 +1,19 @@
+id = "snack-032"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Греческий йогурт 200 г\n- орехи 15 г."
+en = "- Греческий йогурт 200 г\n- орехи 15 г."
+
+[description]
+ru = "КБЖУ: 210 ккал, Б 23, Ж 8, У 9."
+en = "КБЖУ: 210 ккал, Б 23, Ж 8, У 9."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

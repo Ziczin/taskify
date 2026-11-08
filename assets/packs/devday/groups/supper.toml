@@ -1,0 +1,11 @@
+id = "supper"
+pool = "main-pool"
+kind = "habit"
+schedule = { type = "daily" }
+[window]
+from = "19:30"
+to = "20:30"
+
+[title]
+ru = "Ужин"
+en = "Supper"

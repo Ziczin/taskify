@@ -1,0 +1,19 @@
+id = "snack-021"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Орехи 30 г\n- груша 150 г."
+en = "- Орехи 30 г\n- груша 150 г."
+
+[description]
+ru = "КБЖУ: 266 ккал, Б 7, Ж 15, У 26."
+en = "КБЖУ: 266 ккал, Б 7, Ж 15, У 26."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

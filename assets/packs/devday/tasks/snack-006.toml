@@ -1,0 +1,19 @@
+id = "snack-006"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "Греческий йогурт без сахара 150 г."
+en = "Греческий йогурт без сахара 150 г."
+
+[description]
+ru = "КБЖУ: 90 ккал, Б 15, Ж 1, У 5."
+en = "КБЖУ: 90 ккал, Б 15, Ж 1, У 5."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

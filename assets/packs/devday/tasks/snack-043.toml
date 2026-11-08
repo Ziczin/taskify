@@ -1,0 +1,19 @@
+id = "snack-043"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Ряженка 200 мл\n- орехи 10 г."
+en = "- Ряженка 200 мл\n- орехи 10 г."
+
+[description]
+ru = "КБЖУ: 168 ккал, Б 7, Ж 8, У 12."
+en = "КБЖУ: 168 ккал, Б 7, Ж 8, У 12."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"

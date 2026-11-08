@@ -1,0 +1,19 @@
+id = "snack-044"
+category = "food"
+group = "snack-pool"
+kind = "habit"
+
+[title]
+ru = "- Огурец 100 г\n- перец 100 г\n- сыр 20 г."
+en = "- Огурец 100 г\n- перец 100 г\n- сыр 20 г."
+
+[description]
+ru = "КБЖУ: 116 ккал, Б 7, Ж 6, У 9."
+en = "КБЖУ: 116 ккал, Б 7, Ж 6, У 9."
+
+[reward]
+xp = 10
+coins = 10
+
+[schedule]
+type = "daily"
