@@ -145,7 +145,7 @@ en = "Read a few pages"
 ru = "Прочитать несколько страниц"
 ```
 
-The group does not store a member list: membership lives on the task (`group = "..."`). The group's `schedule`, `window`, `after`, `kind`, and `level_from`/`level_to` decide when it appears; the chosen member supplies the title, description, icon, subtasks, reward, metrics, and category. Only one member is shown per appearance, the group itself is completed, and the choice is stable for that appearance. Members' own schedule, window, chain, kind, and task-level range are ignored; they are hidden from «Today». A group needs at least two members, group ids must not collide with task ids, and members belong to exactly one group.
+The group does not store a member list: membership lives on the task (`group = "..."`). The group's `schedule`, `window`, `after`, `kind`, and `level_from`/`level_to` decide when it appears; the chosen member supplies the title, description, icon, subtasks, reward, metrics, and category. Only one member is shown per appearance, the group itself is completed, and the choice is stable for that appearance. Members' own schedule, window, chain, kind, combos, and task-level range are ignored; they are hidden from «Today». A group needs at least two members, group ids must not collide with task ids, and members belong to exactly one group.
 
 ## Checks
 
