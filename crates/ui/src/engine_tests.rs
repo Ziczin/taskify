@@ -486,6 +486,16 @@ fn availability_window_is_checked_against_local_time() {
 }
 
 #[test]
+fn new_task_stays_marked_until_viewed() {
+    let mut fixture = Fixture::new();
+    // Задание без истории взаимодействий — новое.
+    assert!(fixture.engine.is_task_new("habits/evening"));
+    fixture.engine.mark_task_viewed("habits/evening").unwrap();
+    assert!(!fixture.engine.is_task_new("habits/evening"));
+    assert!(fixture.engine.is_task_new("greeting/hello"));
+}
+
+#[test]
 fn settings_roundtrip_through_engine() {
     let mut fixture = Fixture::new();
     let mut settings = fixture.engine.settings().clone();

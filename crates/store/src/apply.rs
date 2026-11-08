@@ -258,6 +258,15 @@ pub fn apply(state: &mut State, aggregates: &mut Aggregates, event: &Event, rule
         EventKind::TaskStopped(payload) => {
             state.task(&payload.task_id).started = None;
         }
+        EventKind::TaskViewed(payload) => {
+            state.viewed_tasks.insert(payload.task_id.clone());
+        }
+        EventKind::TasksSeen(payload) => {
+            state.viewed_tasks.extend(payload.tasks.iter().cloned());
+            if payload.seed {
+                state.seen_seed_version = payload.version.max(1);
+            }
+        }
         EventKind::StickerPlaced(payload) => {
             let side = payload.side.as_deref().unwrap_or("left").to_string();
             let key = crate::state::sticker_slot(&side, &payload.sticker);

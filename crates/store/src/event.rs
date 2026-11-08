@@ -39,6 +39,8 @@ pub enum EventKind {
     BundlePurchased(BundlePurchased),
     TaskStarted(TaskStarted),
     TaskStopped(TaskStopped),
+    TaskViewed(TaskViewed),
+    TasksSeen(TasksSeen),
     StickerPlaced(StickerPlaced),
     StickerRemoved(StickerRemoved),
     LevelUp(LevelUp),
@@ -89,7 +91,7 @@ impl Event {
     }
 }
 
-pub const KNOWN_TYPES: [&str; 20] = [
+pub const KNOWN_TYPES: [&str; 22] = [
     "task_completed",
     "task_completion_reverted",
     "subtask_completed",
@@ -101,6 +103,8 @@ pub const KNOWN_TYPES: [&str; 20] = [
     "bundle_purchased",
     "task_started",
     "task_stopped",
+    "task_viewed",
+    "tasks_seen",
     "sticker_placed",
     "sticker_removed",
     "level_up",
@@ -126,6 +130,8 @@ impl EventKind {
             EventKind::BundlePurchased(_) => "bundle_purchased",
             EventKind::TaskStarted(_) => "task_started",
             EventKind::TaskStopped(_) => "task_stopped",
+            EventKind::TaskViewed(_) => "task_viewed",
+            EventKind::TasksSeen(_) => "tasks_seen",
             EventKind::StickerPlaced(_) => "sticker_placed",
             EventKind::StickerRemoved(_) => "sticker_removed",
             EventKind::LevelUp(_) => "level_up",
@@ -249,6 +255,25 @@ pub struct TaskStarted {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TaskStopped {
     pub task_id: String,
+}
+
+/// Пользователь просмотрел задание: снимаем отметку «новое».
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskViewed {
+    pub task_id: String,
+    pub local_date: NaiveDate,
+}
+
+/// Разовая заливка уже знакомых заданий, чтобы обновление не подсветило всё.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TasksSeen {
+    pub tasks: Vec<String>,
+    pub local_date: NaiveDate,
+    #[serde(default)]
+    pub seed: bool,
+    /// Версия заливки. Старые события без поля считаются версией 1.
+    #[serde(default)]
+    pub version: u32,
 }
 
 /// Стикер поставлен на доску: координаты — доли площади доски (0..1).

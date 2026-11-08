@@ -85,6 +85,12 @@ pub struct State {
     pub packs: BTreeMap<String, String>,
     #[serde(default)]
     pub packs_disabled: BTreeSet<String>,
+    /// Задания, которые пользователь уже видел. Новые id подсвечиваются.
+    #[serde(default)]
+    pub viewed_tasks: BTreeSet<String>,
+    /// Версия разовой заливки «уже виденных»; 0 — заливки ещё не было.
+    #[serde(default)]
+    pub seen_seed_version: u32,
     /// Купленные стикеры и их место на боковых панелях: `сторона:id` →
     /// позиция. Один стикер может висеть и слева, и справа.
     #[serde(default)]
@@ -180,6 +186,8 @@ impl Default for State {
             days_active: BTreeSet::new(),
             packs: BTreeMap::new(),
             packs_disabled: BTreeSet::new(),
+            viewed_tasks: BTreeSet::new(),
+            seen_seed_version: 0,
             stickers: BTreeMap::new(),
         }
     }

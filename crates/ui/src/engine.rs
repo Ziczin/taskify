@@ -71,6 +71,7 @@ impl Engine {
             packs_dir,
         };
         engine.apply_disabled_packs();
+        engine.seed_seen_tasks()?;
         Ok(engine)
     }
 
@@ -167,6 +168,41 @@ impl Engine {
             pack.enabled = !disabled.contains(&pack.id)
                 && (explicitly_enabled || !official || default_enabled);
         }
+    }
+
+    /// Помечает задания, с которыми уже взаимодействовали, просмотренными
+    /// один раз. Не тронутые задания и новые/открывшиеся позже остаются
+    /// «новыми» и подсвечиваются.
+    fn seed_seen_tasks(&mut self) -> Result<()> {
+        const VERSION: u32 = 2;
+        if self.store.state.seen_seed_version >= VERSION {
+            return Ok(());
+        }
+        let mut tasks: Vec<String> = self.store.state.tasks.keys().cloned().collect();
+        tasks.sort();
+        tasks.dedup();
+        self.record(EventKind::TasksSeen(TasksSeen {
+            tasks,
+            local_date: self.today(),
+            seed: true,
+            version: VERSION,
+        }))?;
+        Ok(())
+    }
+
+    pub fn is_task_new(&self, task_id: &str) -> bool {
+        !self.store.state.viewed_tasks.contains(task_id)
+    }
+
+    pub fn mark_task_viewed(&mut self, task_id: &str) -> Result<()> {
+        if self.store.state.viewed_tasks.contains(task_id) {
+            return Ok(());
+        }
+        self.record(EventKind::TaskViewed(TaskViewed {
+            task_id: task_id.to_string(),
+            local_date: self.today(),
+        }))?;
+        Ok(())
     }
 
     /// Сбрасывает прогресс одного пака. Журнал не переписывается: в него
@@ -323,6 +359,7 @@ impl Engine {
             let window = task.window.expect("окно уже проверено");
             bail!("задание доступно с {} до {}", window.from, window.to);
         }
+        self.mark_task_viewed(task_id)?;
         let date = self.today();
         self.record(EventKind::TaskStarted(TaskStarted {
             task_id: task_id.to_string(),
@@ -431,6 +468,7 @@ impl Engine {
         if self.is_done_today(task_id, date) {
             return Err(anyhow!("уже выполнено сегодня"));
         }
+        self.mark_task_viewed(task_id)?;
 
         let existing = self
             .store
@@ -493,6 +531,7 @@ impl Engine {
             .cloned()
             .ok_or_else(|| anyhow!("задание не найдено: {task_id}"))?;
         let date = self.today();
+        self.mark_task_viewed(task_id)?;
         self.record(EventKind::TaskRejected(TaskRejected {
             task,
             local_date: date,
@@ -504,6 +543,7 @@ impl Engine {
 
     pub fn skip_habit(&mut self, task_id: &str) -> Result<()> {
         let date = self.today();
+        self.mark_task_viewed(task_id)?;
         self.record(EventKind::HabitSkipped(HabitSkipped {
             task_id: task_id.to_string(),
             local_date: date,
@@ -535,6 +575,7 @@ impl Engine {
         {
             bail!("подзадача уже отмечена: {subtask_id}");
         }
+        self.mark_task_viewed(task_id)?;
         let awarded = subtask.reward;
         self.record(EventKind::SubtaskCompleted(SubtaskCompleted {
             task_id: task.id.clone(),

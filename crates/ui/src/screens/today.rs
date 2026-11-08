@@ -13,6 +13,7 @@ enum Action {
     Reject(String),
     Skip(String),
     Subtask(String, String),
+    View(String),
 }
 
 /// Высота карточки задания: кнопки прижаты к нижней кромке.
@@ -475,6 +476,7 @@ impl TaskifyApp {
             .cloned()
             .unwrap_or_default();
         let available = self.engine.is_available(task);
+        let is_new = self.engine.is_task_new(&task.id);
         let window_label = task.window.map(|window| window.label());
 
         // Иконка задания — только картинка из assets/icons. Если нужной нет,
@@ -512,7 +514,10 @@ impl TaskifyApp {
             .and_then(|map| taskify_core::task::tr(map, &locale));
 
         let accent = self.accent;
-        let background = if started {
+        let warning = self.palette().warning;
+        let background = if is_new {
+            mix(ui.visuals().extreme_bg_color, warning, 0.14)
+        } else if started {
             mix(ui.visuals().extreme_bg_color, accent, 0.14)
         } else if done {
             self.palette().success_bg
@@ -522,7 +527,9 @@ impl TaskifyApp {
 
         let frame = egui::Frame::group(ui.style())
             .fill(background)
-            .stroke(if started {
+            .stroke(if is_new {
+                egui::Stroke::new(2.0_f32, warning)
+            } else if started {
                 egui::Stroke::new(2.0_f32, accent)
             } else {
                 egui::Stroke::new(
@@ -565,6 +572,20 @@ impl TaskifyApp {
                             text = text.strong();
                         }
                         ui.add(egui::Label::new(text).wrap());
+                        if is_new {
+                            let badge = ui.add(
+                                egui::Label::new(
+                                    egui::RichText::new(self.t("today.new"))
+                                        .small()
+                                        .strong()
+                                        .color(warning),
+                                )
+                                .sense(egui::Sense::click()),
+                            );
+                            if badge.on_hover_text(self.t("today.mark_seen")).clicked() {
+                                actions.push(Action::View(task.id.clone()));
+                            }
+                        }
                         if done {
                             ui.label(
                                 egui::RichText::new(self.t("today.done"))
@@ -841,6 +862,12 @@ impl TaskifyApp {
                 if let Err(error) = self.engine.start_task(&id) {
                     self.set_status(format!("{error:#}"));
                 }
+            }
+            Action::View(id) => {
+                if let Err(error) = self.engine.mark_task_viewed(&id) {
+                    self.set_status(format!("{error:#}"));
+                }
+                ctx.request_repaint();
             }
             Action::Stop(id) => {
                 if let Err(error) = self.engine.stop_task(&id) {

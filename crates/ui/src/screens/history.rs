@@ -71,6 +71,8 @@ impl TaskifyApp {
                 format!("{} {}", payload.task_id, payload.local_date)
             }
             EventKind::TaskStopped(payload) => payload.task_id.clone(),
+            // Служебные отметки просмотра не засоряют историю.
+            EventKind::TaskViewed(_) | EventKind::TasksSeen(_) => String::new(),
             EventKind::StickerPlaced(payload) => {
                 format!("{}  {:.2} / {:.2}", payload.sticker, payload.x, payload.y)
             }
@@ -251,10 +253,11 @@ impl TaskifyApp {
             })
             .map(|event| self.event_line(event))
             .filter(|(date, kind, detail)| {
-                query.is_empty()
-                    || format!("{date} {kind} {detail}")
-                        .to_lowercase()
-                        .contains(&query)
+                !detail.is_empty()
+                    && (query.is_empty()
+                        || format!("{date} {kind} {detail}")
+                            .to_lowercase()
+                            .contains(&query))
             })
             .take(self.history.limit)
             .collect();
