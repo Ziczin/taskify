@@ -8,9 +8,9 @@ members = [
 ]
 
 [workspace.package]
-# Номер сборки — 192. Cargo требует semver из трёх чисел, поэтому номер
+# Номер сборки — 193. Cargo требует semver из трёх чисел, поэтому номер
 # сборки хранится в major, а minor/patch всегда нули.
-version = "192.0.0"
+version = "193.0.0"
 edition = "2021"
 rust-version = "1.85"
 license = "MIT"
@@ -30,6 +30,7 @@ walkdir = "2"
 anyhow = "1"
 thiserror = "2"
 uuid = { version = "1", features = ["v4"] }
+notify-rust = "4"
 image = { version = "0.25", default-features = false, features = ["png", "jpeg", "gif", "webp"] }
 
 taskify-core = { path = "crates/core" }

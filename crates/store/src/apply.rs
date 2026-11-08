@@ -267,6 +267,9 @@ pub fn apply(state: &mut State, aggregates: &mut Aggregates, event: &Event, rule
                 state.seen_seed_version = payload.version.max(1);
             }
         }
+        EventKind::TasksNotified(payload) => {
+            state.notified_tasks.extend(payload.tasks.iter().cloned());
+        }
         EventKind::StickerPlaced(payload) => {
             let side = payload.side.as_deref().unwrap_or("left").to_string();
             let key = crate::state::sticker_slot(&side, &payload.sticker);

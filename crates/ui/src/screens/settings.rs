@@ -486,6 +486,23 @@ impl TaskifyApp {
                     interface_changed = true;
                 }
                 ui.end_row();
+
+                ui.label(self.t("set.notify_new_tasks"));
+                if ui
+                    .checkbox(&mut self.settings.ui.notify_new_tasks, "")
+                    .changed()
+                {
+                    interface_changed = true;
+                }
+                ui.end_row();
+
+                ui.label("");
+                ui.label(
+                    egui::RichText::new(self.t("set.notify_new_tasks_hint"))
+                        .small()
+                        .weak(),
+                );
+                ui.end_row();
             });
 
         if self.settings.ui.locale != locale_before
@@ -603,6 +620,7 @@ impl TaskifyApp {
             self.settings.ui.board_columns = crate::settings::default_board_columns();
             self.settings.ui.anim_speed = crate::settings::default_anim_speed();
             self.settings.ui.font_scale = crate::settings::default_font_scale();
+            self.settings.ui.notify_new_tasks = false;
             self.apply_interface_settings(ui.ctx(), true);
         }
     }

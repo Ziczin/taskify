@@ -41,6 +41,7 @@ pub enum EventKind {
     TaskStopped(TaskStopped),
     TaskViewed(TaskViewed),
     TasksSeen(TasksSeen),
+    TasksNotified(TasksNotified),
     StickerPlaced(StickerPlaced),
     StickerRemoved(StickerRemoved),
     LevelUp(LevelUp),
@@ -91,7 +92,7 @@ impl Event {
     }
 }
 
-pub const KNOWN_TYPES: [&str; 22] = [
+pub const KNOWN_TYPES: [&str; 23] = [
     "task_completed",
     "task_completion_reverted",
     "subtask_completed",
@@ -105,6 +106,7 @@ pub const KNOWN_TYPES: [&str; 22] = [
     "task_stopped",
     "task_viewed",
     "tasks_seen",
+    "tasks_notified",
     "sticker_placed",
     "sticker_removed",
     "level_up",
@@ -132,6 +134,7 @@ impl EventKind {
             EventKind::TaskStopped(_) => "task_stopped",
             EventKind::TaskViewed(_) => "task_viewed",
             EventKind::TasksSeen(_) => "tasks_seen",
+            EventKind::TasksNotified(_) => "tasks_notified",
             EventKind::StickerPlaced(_) => "sticker_placed",
             EventKind::StickerRemoved(_) => "sticker_removed",
             EventKind::LevelUp(_) => "level_up",
@@ -274,6 +277,13 @@ pub struct TasksSeen {
     /// Версия заливки. Старые события без поля считаются версией 1.
     #[serde(default)]
     pub version: u32,
+}
+
+/// Об этих заданиях уже отправлено системное уведомление.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TasksNotified {
+    pub tasks: Vec<String>,
+    pub local_date: NaiveDate,
 }
 
 /// Стикер поставлен на доску: координаты — доли площади доски (0..1).

@@ -27,3 +27,4 @@ image = { workspace = true }
 uuid = { workspace = true }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
+notify-rust = { workspace = true }

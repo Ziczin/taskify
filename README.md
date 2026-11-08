@@ -14,6 +14,7 @@ Taskify is a local-first life gamification app for desktop. Keep habits, repeati
 - Task chains: a task opens only after its predecessor has been completed at least once.
 - Availability windows: a task can be limited to a time range such as `09:00–18:00`, including ranges that cross midnight.
 - New or newly unlocked tasks are highlighted until you mark them as viewed.
+- Optional real desktop notifications when new tasks appear.
 - Pack progress can be reset without deleting history or purchases; completed one-shots stay completed.
 - Six gentle packs: Getting Started, Greeting, Cleaning, Useful Habits, Inspiration, and Socializing, built from one-action steps and story chains.
 - Every completed task pays at least 10 XP and 10 coins; “Getting Started” is a seven-step tour of the interface that is enabled on first launch.
@@ -125,7 +126,7 @@ cargo test --workspace
 .\target\release\taskify.exe validate all
 ```
 
-The current test suite has **189 tests**.
+The current test suite has **190 tests**.
 
 ## Contributing
 

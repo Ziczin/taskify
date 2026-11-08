@@ -496,6 +496,16 @@ fn new_task_stays_marked_until_viewed() {
 }
 
 #[test]
+fn new_tasks_are_notified_only_once() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    let tasks = fixture.engine.unnotified_new_tasks(date);
+    assert!(tasks.iter().any(|id| id == "greeting/hello"));
+    fixture.engine.mark_tasks_notified(&tasks).unwrap();
+    assert!(fixture.engine.unnotified_new_tasks(date).is_empty());
+}
+
+#[test]
 fn settings_roundtrip_through_engine() {
     let mut fixture = Fixture::new();
     let mut settings = fixture.engine.settings().clone();

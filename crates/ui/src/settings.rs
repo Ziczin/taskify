@@ -65,6 +65,9 @@ pub struct UiSettings {
     /// Плотность подложки боковых панелей со стикерами, 0–100 %.
     #[serde(default = "default_sticker_panel_opacity")]
     pub sticker_panel_opacity: u8,
+    /// Показывать системные уведомления о новых заданиях.
+    #[serde(default)]
+    pub notify_new_tasks: bool,
 }
 
 pub fn default_columns() -> usize {
@@ -108,6 +111,7 @@ impl Default for UiSettings {
             sticker_grid: false,
             sticker_grid_size: default_sticker_grid_size(),
             sticker_panel_opacity: default_sticker_panel_opacity(),
+            notify_new_tasks: false,
         }
     }
 }

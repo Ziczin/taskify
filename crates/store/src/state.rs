@@ -91,6 +91,9 @@ pub struct State {
     /// Версия разовой заливки «уже виденных»; 0 — заливки ещё не было.
     #[serde(default)]
     pub seen_seed_version: u32,
+    /// Задания, о появлении которых уже отправляли системное уведомление.
+    #[serde(default)]
+    pub notified_tasks: BTreeSet<String>,
     /// Купленные стикеры и их место на боковых панелях: `сторона:id` →
     /// позиция. Один стикер может висеть и слева, и справа.
     #[serde(default)]
@@ -188,6 +191,7 @@ impl Default for State {
             packs_disabled: BTreeSet::new(),
             viewed_tasks: BTreeSet::new(),
             seen_seed_version: 0,
+            notified_tasks: BTreeSet::new(),
             stickers: BTreeMap::new(),
         }
     }

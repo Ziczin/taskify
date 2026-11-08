@@ -71,8 +71,10 @@ impl TaskifyApp {
                 format!("{} {}", payload.task_id, payload.local_date)
             }
             EventKind::TaskStopped(payload) => payload.task_id.clone(),
-            // Служебные отметки просмотра не засоряют историю.
-            EventKind::TaskViewed(_) | EventKind::TasksSeen(_) => String::new(),
+            // Служебные отметки просмотра и уведомлений не засоряют историю.
+            EventKind::TaskViewed(_) | EventKind::TasksSeen(_) | EventKind::TasksNotified(_) => {
+                String::new()
+            }
             EventKind::StickerPlaced(payload) => {
                 format!("{}  {:.2} / {:.2}", payload.sticker, payload.x, payload.y)
             }

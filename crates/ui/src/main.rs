@@ -17,6 +17,7 @@ mod settings;
 mod setup;
 mod sound;
 mod stickers;
+mod system_notify;
 mod theme;
 
 #[cfg(test)]

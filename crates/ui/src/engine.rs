@@ -205,6 +205,35 @@ impl Engine {
         Ok(())
     }
 
+    /// Новые задания, которые сейчас видны в «Сегодня» и о которых ещё не
+    /// отправляли системное уведомление.
+    pub fn unnotified_new_tasks(&self, date: NaiveDate) -> Vec<String> {
+        let mut tasks: Vec<String> = self
+            .packs
+            .tasks()
+            .into_iter()
+            .filter(|task| self.task_level_visible(task))
+            .filter(|task| self.is_due(task, date))
+            .filter(|task| self.is_task_new(&task.id))
+            .filter(|task| !self.store.state.notified_tasks.contains(&task.id))
+            .map(|task| task.id.clone())
+            .collect();
+        tasks.sort();
+        tasks
+    }
+
+    pub fn mark_tasks_notified(&mut self, tasks: &[String]) -> Result<()> {
+        if tasks.is_empty() {
+            return Ok(());
+        }
+        let date = self.today();
+        self.record(EventKind::TasksNotified(TasksNotified {
+            tasks: tasks.to_vec(),
+            local_date: date,
+        }))?;
+        Ok(())
+    }
+
     /// Сбрасывает прогресс одного пака. Журнал не переписывается: в него
     /// добавляется событие сброса, поэтому история остаётся полной.
     ///

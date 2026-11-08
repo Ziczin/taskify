@@ -496,6 +496,8 @@ pub struct TaskifyApp {
     /// Картинки кнопок и иконок: эмодзи есть не во всех шрифтах.
     pub icons: crate::icons::Icons,
     pub notifications: crate::notifications::Notifications,
+    /// Последняя проверка новых заданий для системного уведомления.
+    last_new_tasks_check: Option<std::time::Instant>,
     pub screenshot: Option<PathBuf>,
     pub screenshot_requested: bool,
     /// Один раз сфокусировать поиск (для скриншотов подсказок).
@@ -1005,6 +1007,7 @@ impl TaskifyApp {
             accent: crate::theme::Palette::light().accent,
             icons,
             notifications,
+            last_new_tasks_check: None,
             screenshot,
             screenshot_requested: false,
             focus_search: std::env::var_os("TASKIFY_FOCUS_SEARCH").is_some(),
@@ -2748,6 +2751,55 @@ impl TaskifyApp {
         }
         ctx.send_viewport_cmd(egui::ViewportCommand::Close);
     }
+
+    /// Проверяет новые задания и, если пользователь включил уведомления,
+    /// показывает настоящее системное уведомление. Не чаще раза в 15 секунд.
+    fn check_new_task_notifications(&mut self, ctx: &egui::Context) {
+        if !self.settings.ui.notify_new_tasks {
+            return;
+        }
+        // Проверяем и в простое: задания могут открыться по уровню или времени.
+        ctx.request_repaint_after(std::time::Duration::from_secs(15));
+        let now = std::time::Instant::now();
+        if let Some(last) = self.last_new_tasks_check {
+            if now.duration_since(last) < std::time::Duration::from_secs(15) {
+                return;
+            }
+        }
+        self.last_new_tasks_check = Some(now);
+
+        let date = self.engine.today();
+        let tasks = self.engine.unnotified_new_tasks(date);
+        if tasks.is_empty() {
+            return;
+        }
+        let titles: Vec<String> = tasks
+            .iter()
+            .take(3)
+            .filter_map(|id| self.engine.task(id))
+            .map(|task| task.title(&self.settings.ui.locale))
+            .collect();
+        let title = self.t("system.new_tasks_title");
+        let body = if tasks.len() == 1 {
+            self.t("system.new_tasks_one").replace(
+                "{title}",
+                titles.first().map(String::as_str).unwrap_or_default(),
+            )
+        } else {
+            self.t("system.new_tasks_many")
+                .replace("{count}", &tasks.len().to_string())
+                .replace("{titles}", &titles.join(", "))
+        };
+        match crate::system_notify::notify(&title, &body) {
+            Ok(()) => {
+                if let Err(error) = self.engine.mark_tasks_notified(&tasks) {
+                    crate::diag::write(&format!("не удалось записать уведомление: {error:#}"));
+                }
+                ctx.request_repaint();
+            }
+            Err(error) => crate::diag::write(&format!("системное уведомление: {error:#}")),
+        }
+    }
 }
 
 impl eframe::App for TaskifyApp {
@@ -2759,6 +2811,7 @@ impl eframe::App for TaskifyApp {
         if let Err(error) = self.engine.close_week_if_needed() {
             self.status = format!("{error:#}");
         }
+        self.check_new_task_notifications(ctx);
 
         self.sync_wallpaper(ctx);
         self.tick_auto_look(ctx);
