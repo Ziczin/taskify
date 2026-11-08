@@ -605,6 +605,102 @@ mod tests {
     }
 
     #[test]
+    fn group_without_english_is_warning_w002() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/groups/evening.toml"),
+            "id = \"evening\"\n[title]\nru = \"Вечер\"\n",
+        );
+        let set = PackSet::load(&root);
+        let issues = validate_set(&set);
+        assert!(issues
+            .iter()
+            .any(|issue| issue.code == "W002" && issue.file.contains("groups/")));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn group_unknown_locale_is_pk004() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/groups/evening.toml"),
+            "id = \"evening\"\n[title]\nen = \"Evening\"\nxx = \"Broken\"\n",
+        );
+        let set = PackSet::load(&root);
+        let issues = validate_set(&set);
+        assert!(issues
+            .iter()
+            .any(|issue| issue.code == "PK004" && issue.file.contains("groups/")));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn invalid_group_weight_is_t011() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/groups/evening.toml"),
+            "id = \"evening\"\n[title]\nen = \"Evening\"\n",
+        );
+        write(
+            &root.join("demo/tasks/a.toml"),
+            "id = \"a\"\ngroup = \"evening\"\ngroup_weight = 0\n[title]\nen = \"A\"\n",
+        );
+        write(
+            &root.join("demo/tasks/b.toml"),
+            "id = \"b\"\ngroup = \"evening\"\n[title]\nen = \"B\"\n",
+        );
+        let set = PackSet::load(&root);
+        let issues = validate_set(&set);
+        assert!(
+            issues
+                .iter()
+                .any(|issue| issue.code == "T011" && issue.message.contains("InvalidGroupWeight")),
+            "{issues:?}"
+        );
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn invalid_group_level_range_is_g005() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/groups/evening.toml"),
+            "id = \"evening\"\nlevel_from = 5\nlevel_to = 2\n[title]\nen = \"Evening\"\n",
+        );
+        let set = PackSet::load(&root);
+        let issues = validate_set(&set);
+        assert!(
+            issues.iter().any(|issue| issue.code == "G005"),
+            "{issues:?}"
+        );
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn group_weight_without_group_is_t011() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/tasks/a.toml"),
+            "id = \"a\"\ngroup_weight = 2\n[title]\nen = \"A\"\n",
+        );
+        let set = PackSet::load(&root);
+        let issues = validate_set(&set);
+        assert!(
+            issues
+                .iter()
+                .any(|issue| issue.code == "T011"
+                    && issue.message.contains("GroupWeightWithoutGroup")),
+            "{issues:?}"
+        );
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
     fn condition_leaves_are_listed() {
         let condition: Condition =
             toml::from_str("all_of = [{ metric = \"sys.level\", value = 5 }]").unwrap();

@@ -112,4 +112,32 @@ mod tests {
             date += Duration::days(7);
         }
     }
+
+    #[test]
+    fn day_start_hour_is_clamped() {
+        assert_eq!(DayRules::new(99, true).day_start_hour, 23);
+        assert_eq!(DayRules::new(0, false).day_start_hour, 0);
+    }
+
+    #[test]
+    fn week_end_is_six_days_after_start_and_matches_same_week() {
+        let rules = DayRules::new(4, true);
+        let wednesday = NaiveDate::from_ymd_opt(2024, 3, 6).unwrap();
+        let start = rules.week_start(wednesday);
+        assert_eq!(rules.week_end(wednesday), start + Duration::days(6));
+        assert!(rules.is_same_week(start, rules.week_end(wednesday)));
+        assert!(!rules.is_same_week(start, start + Duration::days(7)));
+    }
+
+    #[test]
+    fn local_date_crosses_month_and_year_boundaries() {
+        let rules = DayRules::new(4, true);
+        let new_year_night = rules.local_date(ts(2025, 1, 1, 2, 0));
+        assert_eq!(
+            new_year_night,
+            NaiveDate::from_ymd_opt(2024, 12, 31).unwrap()
+        );
+        let after_start = rules.local_date(ts(2025, 1, 1, 4, 0));
+        assert_eq!(after_start, NaiveDate::from_ymd_opt(2025, 1, 1).unwrap());
+    }
 }

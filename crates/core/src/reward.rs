@@ -141,4 +141,40 @@ mod tests {
         assert_eq!(reward, Reward::new(10, 2));
         assert!(hits.is_empty());
     }
+
+    #[test]
+    fn milestone_hits_only_on_its_own_multiple() {
+        let m = vec![Milestone {
+            every: 3,
+            xp_mult: 1.0,
+            coins_mult: 1.0,
+        }];
+        let (_, hits) = award(Reward::new(10, 2), &m, 2);
+        assert!(hits.is_empty());
+        let (reward, hits) = award(Reward::new(10, 2), &m, 3);
+        assert_eq!(reward, Reward::new(20, 4));
+        assert_eq!(hits.len(), 1);
+        assert_eq!(hits[0].every, 3);
+    }
+
+    #[test]
+    fn xp_and_coin_multipliers_are_independent_and_rounded() {
+        let m = vec![Milestone {
+            every: 2,
+            xp_mult: 0.5,
+            coins_mult: 1.25,
+        }];
+        let (reward, hits) = award(Reward::new(3, 2), &m, 2);
+        // 3 + 1.5 = 4.5 → 5; 2 + 2.5 = 4.5 → 5.
+        assert_eq!(reward, Reward::new(5, 5));
+        assert_eq!(hits[0].xp_mult, 0.5);
+        assert_eq!(hits[0].coins_mult, 1.25);
+    }
+
+    #[test]
+    fn zero_completion_returns_base_and_no_hits() {
+        let (reward, hits) = award(Reward::new(10, 2), &milestones(), 0);
+        assert_eq!(reward, Reward::new(10, 2));
+        assert!(hits.is_empty());
+    }
 }

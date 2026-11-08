@@ -132,4 +132,68 @@ mod tests {
         assert!(codes.contains(&"G003"));
         assert!(codes.contains(&"G005"));
     }
+
+    #[test]
+    fn group_rejects_bad_id_and_self_prerequisite() {
+        let mut broken = group();
+        broken.id = "Bad Id".into();
+        broken.after = Some("Bad Id".into());
+        let errors = broken.validate();
+        assert!(errors
+            .iter()
+            .any(|error| matches!(error, GroupError::BadId)));
+        assert!(errors
+            .iter()
+            .any(|error| matches!(error, GroupError::PrerequisiteMatchesSelf { .. })));
+        assert_eq!(GroupError::BadId.code(), "G001");
+        assert_eq!(
+            GroupError::PrerequisiteMatchesSelf { id: "x".into() }.code(),
+            "G004"
+        );
+    }
+
+    #[test]
+    fn group_rejects_empty_prerequisite() {
+        let mut broken = group();
+        broken.after = Some("  ".into());
+        assert!(broken
+            .validate()
+            .iter()
+            .any(|error| matches!(error, GroupError::EmptyPrerequisite)));
+    }
+
+    #[test]
+    fn group_visibility_bounds_are_inclusive() {
+        let mut limited = group();
+        limited.level_from = Some(2);
+        limited.level_to = Some(4);
+        assert!(!limited.visible(1));
+        assert!(limited.visible(2));
+        assert!(limited.visible(4));
+        assert!(!limited.visible(5));
+    }
+
+    #[test]
+    fn group_is_one_shot_by_kind_or_schedule() {
+        let mut by_kind = group();
+        by_kind.kind = Kind::Once;
+        assert!(by_kind.is_one_shot());
+
+        let mut by_schedule = group();
+        by_schedule.kind = Kind::Habit;
+        by_schedule.schedule = Schedule::Once;
+        assert!(by_schedule.is_one_shot());
+
+        let mut interval = group();
+        interval.schedule = Schedule::Interval { days: 2 };
+        assert!(!interval.is_one_shot());
+    }
+
+    #[test]
+    fn group_after_aliases_parse_from_toml() {
+        let previous: RandomGroup = toml::from_str("id = \"g\"\nprevious = \"before\"\n").unwrap();
+        assert_eq!(previous.after.as_deref(), Some("before"));
+        let prev: RandomGroup = toml::from_str("id = \"g\"\nprev = \"before\"\n").unwrap();
+        assert_eq!(prev.after.as_deref(), Some("before"));
+    }
 }

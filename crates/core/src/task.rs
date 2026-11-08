@@ -655,6 +655,148 @@ title = { en = "Music" }
     }
 
     #[test]
+    fn group_link_must_be_non_empty_and_not_self() {
+        let mut task = sample();
+        task.group = Some("  ".into());
+        assert!(task
+            .validate()
+            .iter()
+            .any(|error| matches!(error, TaskError::EmptyGroup)));
+        assert_eq!(TaskError::EmptyGroup.code(), "T010");
+
+        task.group = Some(task.id.clone());
+        assert!(task
+            .validate()
+            .iter()
+            .any(|error| matches!(error, TaskError::GroupMatchesSelf { .. })));
+    }
+
+    #[test]
+    fn group_weight_rejects_negative_infinite_and_zero() {
+        let mut task = sample();
+        task.group = Some("evening".into());
+        for weight in [0.0, -1.0, f64::INFINITY, f64::NAN] {
+            task.group_weight = Some(weight);
+            assert!(task
+                .validate()
+                .iter()
+                .any(|error| matches!(error, TaskError::InvalidGroupWeight)));
+            assert_eq!(TaskError::InvalidGroupWeight.code(), "T011");
+        }
+        task.group_weight = Some(0.5);
+        assert!(task.validate().is_empty());
+    }
+
+    #[test]
+    fn group_weight_without_group_is_rejected_even_if_positive() {
+        let mut task = sample();
+        task.group = None;
+        task.group_weight = Some(3.0);
+        assert!(task
+            .validate()
+            .iter()
+            .any(|error| matches!(error, TaskError::GroupWeightWithoutGroup)));
+    }
+
+    #[test]
+    fn milestone_step_and_multiplier_are_validated() {
+        let mut task = sample();
+        task.milestones = vec![
+            Milestone {
+                every: 0,
+                xp_mult: 1.0,
+                coins_mult: 1.0,
+            },
+            Milestone {
+                every: 7,
+                xp_mult: 0.5,
+                coins_mult: 0.9,
+            },
+        ];
+        let errors = task.validate();
+        assert!(errors
+            .iter()
+            .any(|error| matches!(error, TaskError::MilestoneEveryZero { .. })));
+        assert!(errors
+            .iter()
+            .any(|error| matches!(error, TaskError::MilestoneMultiplierBelowOne { .. })));
+        assert_eq!(TaskError::MilestoneEveryZero { index: 0 }.code(), "T006");
+    }
+
+    #[test]
+    fn unknown_locale_and_currency_are_rejected() {
+        let mut task = sample();
+        task.title.insert("xx".into(), "Broken".into());
+        task.hints.cost = Some(HintCost {
+            amount: 10.0,
+            currency: "XXX".into(),
+        });
+        let errors = task.validate();
+        assert!(errors
+            .iter()
+            .any(|error| matches!(error, TaskError::InvalidLocale { code } if code == "xx")));
+        assert!(errors.iter().any(
+            |error| matches!(error, TaskError::InvalidCurrency { currency } if currency == "XXX")
+        ));
+        assert_eq!(
+            TaskError::InvalidLocale { code: "xx".into() }.code(),
+            "T003"
+        );
+        assert_eq!(
+            TaskError::InvalidCurrency {
+                currency: "XXX".into()
+            }
+            .code(),
+            "T008"
+        );
+    }
+
+    #[test]
+    fn empty_id_title_and_subtask_title_are_rejected() {
+        let mut task = sample();
+        task.id.clear();
+        task.title.clear();
+        task.subtasks
+            .push(toml::from_str::<Subtask>("id = \"step\"\n").unwrap());
+        let errors = task.validate();
+        assert!(errors
+            .iter()
+            .any(|error| matches!(error, TaskError::EmptyId)));
+        assert!(errors
+            .iter()
+            .any(|error| matches!(error, TaskError::EmptyTitle)));
+        assert!(errors
+            .iter()
+            .any(|error| matches!(error, TaskError::EmptySubtaskTitle { .. })));
+    }
+
+    #[test]
+    fn former_ids_reject_self_and_duplicates() {
+        let mut task = sample();
+        task.former_ids = vec![task.id.clone(), "old".into(), "old".into()];
+        let errors = task.validate();
+        assert!(errors
+            .iter()
+            .any(|error| matches!(error, TaskError::FormerIdMatchesSelf { .. })));
+        assert!(errors
+            .iter()
+            .any(|error| matches!(error, TaskError::DuplicateFormerId { .. })));
+    }
+
+    #[test]
+    fn id_helpers_reject_bad_segments() {
+        assert!(is_valid_id("water-2"));
+        assert!(is_valid_id("a.b_c"));
+        assert!(!is_valid_id(""));
+        assert!(!is_valid_id("Water"));
+        assert!(!is_valid_id("water/two"));
+        assert!(is_valid_qualified_id("demo/water"));
+        assert!(!is_valid_qualified_id("demo/Water"));
+        assert!(!is_valid_qualified_id("demo/water/extra"));
+        assert!(!is_valid_qualified_id("/water"));
+    }
+
+    #[test]
     fn availability_window_is_parsed_and_wraps_midnight() {
         let task: Task = toml::from_str(
             r#"

@@ -679,6 +679,319 @@ fn random_group_conditions_come_from_group_not_members() {
 }
 
 #[test]
+fn random_group_level_gate_uses_group_level() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    {
+        let pack = fixture.engine.packs.packs.get_mut("habits").unwrap();
+        pack.groups.insert(
+            "habits/gated".into(),
+            RandomGroup {
+                id: "habits/gated".into(),
+                title: [("en".to_string(), "Gated".to_string())].into(),
+                kind: Kind::Habit,
+                schedule: Schedule::Daily,
+                window: None,
+                after: None,
+                level_from: Some(99),
+                level_to: None,
+            },
+        );
+        pack.tasks.get_mut("habits/water").unwrap().group = Some("habits/gated".into());
+        let morning = pack.tasks.get_mut("habits/morning").unwrap();
+        morning.group = Some("habits/gated".into());
+        morning.window = None;
+    }
+    let card = fixture.engine.display_task("habits/gated", date).unwrap();
+    assert!(!fixture.engine.task_level_visible(&card));
+    fixture
+        .engine
+        .packs
+        .packs
+        .get_mut("habits")
+        .unwrap()
+        .groups
+        .get_mut("habits/gated")
+        .unwrap()
+        .level_from = Some(1);
+    assert!(fixture.engine.task_level_visible(&card));
+}
+
+#[test]
+fn random_group_window_and_chain_come_from_group() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    {
+        let pack = fixture.engine.packs.packs.get_mut("habits").unwrap();
+        let window = taskify_core::task::TimeWindow {
+            from: taskify_core::task::ClockTime::parse("09:00").unwrap(),
+            to: taskify_core::task::ClockTime::parse("10:00").unwrap(),
+        };
+        pack.groups.insert(
+            "habits/timed".into(),
+            RandomGroup {
+                id: "habits/timed".into(),
+                title: [("en".to_string(), "Timed".to_string())].into(),
+                kind: Kind::Habit,
+                schedule: Schedule::Daily,
+                window: Some(window),
+                after: Some("habits/exercise".into()),
+                level_from: None,
+                level_to: None,
+            },
+        );
+        pack.tasks.get_mut("habits/water").unwrap().group = Some("habits/timed".into());
+        let morning = pack.tasks.get_mut("habits/morning").unwrap();
+        morning.group = Some("habits/timed".into());
+        morning.window = None;
+    }
+    let card = fixture.engine.display_task("habits/timed", date).unwrap();
+    assert_eq!(
+        card.window,
+        fixture.engine.group("habits/timed").unwrap().window
+    );
+    assert!(fixture
+        .engine
+        .is_available_at(&card, chrono::NaiveTime::from_hms_opt(9, 30, 0).unwrap()));
+    assert!(!fixture
+        .engine
+        .is_available_at(&card, chrono::NaiveTime::from_hms_opt(11, 0, 0).unwrap()));
+    assert!(!fixture.engine.is_unlocked(&card));
+    fixture.engine.complete("habits/exercise").unwrap();
+    assert!(fixture.engine.is_unlocked(&card));
+}
+
+#[test]
+fn random_group_one_shot_is_spent_after_completion() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    {
+        let pack = fixture.engine.packs.packs.get_mut("habits").unwrap();
+        pack.groups.insert(
+            "habits/once".into(),
+            RandomGroup {
+                id: "habits/once".into(),
+                title: [("en".to_string(), "Once".to_string())].into(),
+                kind: Kind::Once,
+                schedule: Schedule::Once,
+                window: None,
+                after: None,
+                level_from: None,
+                level_to: None,
+            },
+        );
+        pack.tasks.get_mut("habits/water").unwrap().group = Some("habits/once".into());
+        let morning = pack.tasks.get_mut("habits/morning").unwrap();
+        morning.group = Some("habits/once".into());
+        morning.window = None;
+    }
+    let card = fixture.engine.display_task("habits/once", date).unwrap();
+    assert!(card.is_one_shot());
+    fixture.engine.complete("habits/once").unwrap();
+    assert_eq!(
+        fixture
+            .engine
+            .store
+            .state
+            .task_ref("habits/once")
+            .unwrap()
+            .completions_total,
+        1
+    );
+    assert!(!fixture.engine.is_due(&card, date));
+    assert!(!fixture
+        .engine
+        .is_due(&card, date + chrono::Duration::days(1)));
+}
+
+#[test]
+fn random_group_xp_uses_average_member_reward() {
+    let mut fixture = Fixture::new();
+    {
+        let pack = fixture.engine.packs.packs.get_mut("habits").unwrap();
+        pack.groups.insert(
+            "habits/xp".into(),
+            RandomGroup {
+                id: "habits/xp".into(),
+                title: [("en".to_string(), "XP".to_string())].into(),
+                kind: Kind::Habit,
+                schedule: Schedule::Daily,
+                window: None,
+                after: None,
+                level_from: None,
+                level_to: None,
+            },
+        );
+        let water = pack.tasks.get_mut("habits/water").unwrap();
+        water.group = Some("habits/xp".into());
+        water.group_weight = Some(100.0);
+        let morning = pack.tasks.get_mut("habits/morning").unwrap();
+        morning.group = Some("habits/xp".into());
+        morning.window = None;
+        morning.after = Some("habits/water".into());
+        morning.reward.xp = 30;
+        morning.group_weight = Some(1.0);
+    }
+    let pack = fixture.engine.packs.packs.get("habits").unwrap().clone();
+    let before = fixture.engine.pack_xp(&pack);
+    let outcome = fixture.engine.complete("habits/xp").unwrap();
+    assert_eq!(outcome.awarded.xp, 10);
+    assert_eq!(fixture.engine.pack_xp(&pack) - before, 20);
+}
+
+#[test]
+fn random_group_done_card_survives_member_window_close() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    {
+        let pack = fixture.engine.packs.packs.get_mut("habits").unwrap();
+        pack.groups.insert(
+            "habits/done".into(),
+            RandomGroup {
+                id: "habits/done".into(),
+                title: [("en".to_string(), "Done".to_string())].into(),
+                kind: Kind::Habit,
+                schedule: Schedule::Daily,
+                window: None,
+                after: None,
+                level_from: None,
+                level_to: None,
+            },
+        );
+        pack.tasks.get_mut("habits/water").unwrap().group = Some("habits/done".into());
+        let morning = pack.tasks.get_mut("habits/morning").unwrap();
+        morning.group = Some("habits/done".into());
+        morning.window = None;
+    }
+    fixture.engine.complete("habits/done").unwrap();
+    {
+        let pack = fixture.engine.packs.packs.get_mut("habits").unwrap();
+        for id in ["habits/water", "habits/morning"] {
+            pack.tasks.get_mut(id).unwrap().window = Some(taskify_core::task::TimeWindow {
+                from: taskify_core::task::ClockTime::parse("23:00").unwrap(),
+                to: taskify_core::task::ClockTime::parse("23:30").unwrap(),
+            });
+        }
+    }
+    assert!(fixture.engine.display_task("habits/done", date).is_some());
+}
+
+#[test]
+fn random_group_subtask_ids_are_prefixed_by_member() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    {
+        let pack = fixture.engine.packs.packs.get_mut("habits").unwrap();
+        pack.groups.insert(
+            "habits/subtasks".into(),
+            RandomGroup {
+                id: "habits/subtasks".into(),
+                title: [("en".to_string(), "Subtasks".to_string())].into(),
+                kind: Kind::Habit,
+                schedule: Schedule::Daily,
+                window: None,
+                after: None,
+                level_from: None,
+                level_to: None,
+            },
+        );
+        let water = pack.tasks.get_mut("habits/water").unwrap();
+        water.group = Some("habits/subtasks".into());
+        water.after = Some("habits/missing".into());
+        let morning = pack.tasks.get_mut("habits/morning").unwrap();
+        morning.group = Some("habits/subtasks".into());
+        morning.window = None;
+    }
+    let card = fixture
+        .engine
+        .display_task("habits/subtasks", date)
+        .unwrap();
+    assert_eq!(card.id, "habits/subtasks");
+    fixture
+        .engine
+        .complete_subtask("habits/subtasks", "habits/morning::teeth")
+        .unwrap();
+    assert!(fixture
+        .engine
+        .store
+        .state
+        .task_ref("habits/subtasks")
+        .unwrap()
+        .subtasks_done
+        .contains("habits/morning::teeth"));
+}
+
+#[test]
+fn start_and_stop_keep_the_started_flag() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    fixture.engine.start_task("habits/water").unwrap();
+    assert_eq!(
+        fixture
+            .engine
+            .store
+            .state
+            .task_ref("habits/water")
+            .unwrap()
+            .started,
+        Some(date)
+    );
+    fixture.engine.stop_task("habits/water").unwrap();
+    assert_eq!(
+        fixture
+            .engine
+            .store
+            .state
+            .task_ref("habits/water")
+            .unwrap()
+            .started,
+        None
+    );
+}
+
+#[test]
+fn cannot_start_a_locked_task() {
+    let mut fixture = Fixture::new();
+    let error = fixture.engine.start_task("greeting/breath").unwrap_err();
+    assert!(error.to_string().contains("закрыто"));
+}
+
+#[test]
+fn skip_habit_resets_streak_and_records_the_day() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    fixture.engine.complete("habits/water").unwrap();
+    assert_eq!(
+        fixture
+            .engine
+            .store
+            .state
+            .task_ref("habits/water")
+            .unwrap()
+            .streak_current,
+        1
+    );
+    fixture.engine.skip_habit("habits/water").unwrap();
+    let state = fixture.engine.store.state.task_ref("habits/water").unwrap();
+    assert_eq!(state.streak_current, 0);
+    assert_eq!(state.last_skipped, Some(date));
+    assert_eq!(fixture.engine.store.aggregates.totals.skips, 1);
+}
+
+#[test]
+fn remaining_today_decreases_after_completion() {
+    let mut fixture = Fixture::new();
+    let date = fixture.engine.today();
+    let before = crate::engine::remaining_today(&fixture.engine, date);
+    assert!(before > 0);
+    fixture.engine.complete("habits/water").unwrap();
+    assert_eq!(
+        crate::engine::remaining_today(&fixture.engine, date),
+        before - 1
+    );
+}
+
+#[test]
 fn new_task_stays_marked_until_viewed() {
     let mut fixture = Fixture::new();
     // Задание без истории взаимодействий — новое.

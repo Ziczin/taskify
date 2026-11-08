@@ -985,6 +985,157 @@ en = "Random"
     }
 
     #[test]
+    fn random_group_id_collision_is_pk018() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/groups/same.toml"),
+            "id = \"same\"\n[title]\nen = \"Group\"\n",
+        );
+        write(
+            &root.join("demo/tasks/same.toml"),
+            "id = \"same\"\n[title]\nen = \"Task\"\n",
+        );
+        let set = PackSet::load(&root);
+        assert!(
+            set.issues.iter().any(|issue| issue.code == "PK018"),
+            "{:?}",
+            set.issues
+        );
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn random_group_missing_prerequisite_is_pk017() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/groups/group.toml"),
+            "id = \"group\"\nafter = \"missing\"\n[title]\nen = \"Group\"\n",
+        );
+        write(
+            &root.join("demo/tasks/a.toml"),
+            "id = \"a\"\ngroup = \"group\"\n[title]\nen = \"A\"\n",
+        );
+        write(
+            &root.join("demo/tasks/b.toml"),
+            "id = \"b\"\ngroup = \"group\"\n[title]\nen = \"B\"\n",
+        );
+        let set = PackSet::load(&root);
+        assert!(
+            set.issues
+                .iter()
+                .any(|issue| issue.code == "PK017" && issue.message.contains("missing")),
+            "{:?}",
+            set.issues
+        );
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn duplicate_random_groups_are_pk003() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        for file in ["one", "two"] {
+            write(
+                &root.join(format!("demo/groups/{file}.toml")),
+                "id = \"group\"\n[title]\nen = \"Group\"\n",
+            );
+        }
+        let set = PackSet::load(&root);
+        assert!(
+            set.issues.iter().any(|issue| issue.code == "PK003"),
+            "{:?}",
+            set.issues
+        );
+        assert_eq!(set.packs["demo"].groups.len(), 1);
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn random_member_weight_is_loaded() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/groups/group.toml"),
+            "id = \"group\"\n[title]\nen = \"Group\"\n",
+        );
+        write(
+            &root.join("demo/tasks/a.toml"),
+            "id = \"a\"\ngroup = \"group\"\ngroup_weight = 2\n[title]\nen = \"A\"\n",
+        );
+        write(
+            &root.join("demo/tasks/b.toml"),
+            "id = \"b\"\ngroup = \"group\"\ngroup_weight = 2.5\n[title]\nen = \"B\"\n",
+        );
+        let set = PackSet::load(&root);
+        let pack = &set.packs["demo"];
+        assert_eq!(pack.tasks["demo/a"].group_weight, Some(2.0));
+        assert_eq!(pack.tasks["demo/b"].group_weight, Some(2.5));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn random_group_after_alias_is_qualified() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/tasks/before.toml"),
+            "id = \"before\"\n[title]\nen = \"Before\"\n",
+        );
+        write(
+            &root.join("demo/groups/group.toml"),
+            "id = \"group\"\nprevious = \"before\"\n[title]\nen = \"Group\"\n",
+        );
+        for id in ["a", "b"] {
+            write(
+                &root.join(format!("demo/tasks/{id}.toml")),
+                &format!("id = \"{id}\"\ngroup = \"group\"\n[title]\nen = \"{id}\"\n"),
+            );
+        }
+        let set = PackSet::load(&root);
+        assert_eq!(
+            set.packs["demo"].groups["demo/group"].after.as_deref(),
+            Some("demo/before")
+        );
+        assert!(set.issues.iter().all(|issue| issue.code != "PK017"));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn random_group_validation_errors_are_reported() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/groups/bad.toml"),
+            "id = \"Bad Id\"\nlevel_from = 5\nlevel_to = 2\n",
+        );
+        let set = PackSet::load(&root);
+        for code in ["G001", "G002", "G005"] {
+            assert!(
+                set.issues.iter().any(|issue| issue.code == code),
+                "нет {code}: {:?}",
+                set.issues
+            );
+        }
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn random_group_files_are_optional() {
+        let root = temp_root();
+        write(&root.join("demo/pack.toml"), "id = \"demo\"\n");
+        write(
+            &root.join("demo/tasks/t.toml"),
+            "id = \"t\"\n[title]\nen = \"T\"\n",
+        );
+        let set = PackSet::load(&root);
+        assert!(set.packs["demo"].groups.is_empty());
+        assert!(set.issues.iter().all(|issue| issue.code != "PK017"));
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
     fn loads_minimal_pack_and_namespaces_ids() {
         let root = temp_root();
         write(

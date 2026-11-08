@@ -781,4 +781,144 @@ mod tests {
         apply(&mut state, &mut aggregates, &event, &rules);
         assert_eq!(state.coins, 350);
     }
+
+    fn stamped(seq: u64, kind: EventKind) -> Event {
+        Event {
+            schema: 1,
+            seq,
+            id: format!("e{seq}"),
+            ts: chrono::DateTime::parse_from_rfc3339("2024-03-10T09:00:00+04:00").unwrap(),
+            kind,
+        }
+    }
+
+    #[test]
+    fn pack_lifecycle_events_update_version_and_disabled_state() {
+        let rules = Rules::default();
+        let mut state = State::default();
+        let mut aggregates = Aggregates::default();
+
+        apply(
+            &mut state,
+            &mut aggregates,
+            &stamped(
+                1,
+                EventKind::PackInstalled(PackInstalled {
+                    pack: "demo".into(),
+                    version: "1.0.0".into(),
+                }),
+            ),
+            &rules,
+        );
+        assert_eq!(state.packs["demo"], "1.0.0");
+        assert!(!state.packs_disabled.contains("demo"));
+
+        apply(
+            &mut state,
+            &mut aggregates,
+            &stamped(
+                2,
+                EventKind::PackDisabled(PackDisabled {
+                    pack: "demo".into(),
+                }),
+            ),
+            &rules,
+        );
+        assert!(state.packs_disabled.contains("demo"));
+
+        // Переустановка снова включает пак.
+        apply(
+            &mut state,
+            &mut aggregates,
+            &stamped(
+                3,
+                EventKind::PackInstalled(PackInstalled {
+                    pack: "demo".into(),
+                    version: "1.1.0".into(),
+                }),
+            ),
+            &rules,
+        );
+        assert_eq!(state.packs["demo"], "1.1.0");
+        assert!(!state.packs_disabled.contains("demo"));
+    }
+
+    #[test]
+    fn viewed_and_notified_tasks_are_accumulated() {
+        let rules = Rules::default();
+        let mut state = State::default();
+        let mut aggregates = Aggregates::default();
+        let date = NaiveDate::from_ymd_opt(2024, 3, 10).unwrap();
+
+        apply(
+            &mut state,
+            &mut aggregates,
+            &stamped(
+                1,
+                EventKind::TasksNotified(TasksNotified {
+                    tasks: vec!["a".into(), "b".into()],
+                    local_date: date,
+                }),
+            ),
+            &rules,
+        );
+        apply(
+            &mut state,
+            &mut aggregates,
+            &stamped(
+                2,
+                EventKind::TaskViewed(TaskViewed {
+                    task_id: "c".into(),
+                    local_date: date,
+                }),
+            ),
+            &rules,
+        );
+        apply(
+            &mut state,
+            &mut aggregates,
+            &stamped(
+                3,
+                EventKind::TasksNotified(TasksNotified {
+                    tasks: vec!["b".into(), "d".into()],
+                    local_date: date,
+                }),
+            ),
+            &rules,
+        );
+        assert_eq!(
+            state.notified_tasks,
+            ["a".to_string(), "b".to_string(), "d".to_string()]
+                .into_iter()
+                .collect()
+        );
+        assert!(state.viewed_tasks.contains("c"));
+    }
+
+    #[test]
+    fn week_closed_marks_week_and_adds_bonus() {
+        let rules = Rules::default();
+        let mut state = State::default();
+        let mut aggregates = Aggregates::default();
+        let week_start = NaiveDate::from_ymd_opt(2024, 3, 4).unwrap();
+
+        apply(
+            &mut state,
+            &mut aggregates,
+            &stamped(
+                1,
+                EventKind::WeekClosed(WeekClosed {
+                    week_start,
+                    xp: 100,
+                    completed: 10,
+                    goal_reached: true,
+                    bonus: Reward::new(5, 2),
+                }),
+            ),
+            &rules,
+        );
+        assert!(state.week.closed);
+        assert_eq!(state.xp_total, 5);
+        assert_eq!(state.coins, 2);
+    }
 }
